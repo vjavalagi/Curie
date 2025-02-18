@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import Header from './components/Header'
 import LandingPage from './Pages/LandingPage'
@@ -18,13 +16,13 @@ function App() {
       <Header/>
 
       <Routes>
-        <Route path="/Landing" element={<LandingPage/>} />
+        <Route path="/" element={<LandingPage/>} />
         <Route path="/Profile" element={<Profile/>} />
         <Route path="/SearchPage" element={<SearchPage/>} />
         <Route path ='*' element={<h1>Not Found</h1>} />
       </Routes>
-
       </div>
+
       </BrowserRouter>
   )
 }
