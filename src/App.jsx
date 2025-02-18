@@ -4,7 +4,8 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import Header from './components/Header'
 import LandingPage from './Pages/LandingPage'
-import Home from './Pages/Home'
+import Profile from './Pages/ProfilePage'
+import SearchPage from './Pages/SearchPage'
 import { BrowserRouter } from 'react-router-dom'
 import { Routes, Route } from 'react-router-dom'
 
@@ -16,13 +17,12 @@ function App() {
       <div>
       <Header/>
 
-      
       <Routes>
-        <Route path="/" element={<LandingPage/>} />
-        <Route path="/home" element={<h1>Home</h1>} />
+        <Route path="/Landing" element={<LandingPage/>} />
+        <Route path="/Profile" element={<Profile/>} />
+        <Route path="/SearchPage" element={<SearchPage/>} />
         <Route path ='*' element={<h1>Not Found</h1>} />
       </Routes>
-      
 
       </div>
       </BrowserRouter>
