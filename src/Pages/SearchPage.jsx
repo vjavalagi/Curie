@@ -1,9 +1,11 @@
-import React from 'react'
+import React from "react";
+import Header from "../components/Header";
 
-const SearchPage = () => {
+export default function SearchPage() {
   return (
-    <div>Search Page</div>
-  )
+    <div>
+      <Header />
+      <div>Search Page</div>
+    </div>
+  );
 }
-
-export default SearchPage
