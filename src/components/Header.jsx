@@ -7,14 +7,12 @@ const Header = () => {
   const [profileImage, setProfileImage] = useState(null); // Track user image
 
   return (
-    <div className="w-full fixed top-0 left-0 h-28 flex items-center justify-between px-8 py-4 bg-curieLightBlue shadow-md z-50">
-      <div className="flex items-center">
-        <img src={curieLogo} alt="Curie Logo" className="w-32" />
+    <div className="flex flex-row justify-between text-center items-center bg-curieLightBlue">
+      <div className="flex justify-center items-center">
+        <img src={curieLogo} alt="Curie Logo" className="w-36 pl-8" />
       </div>
-      <div className="absolute left-1/2 transform -translate-x-1/2">
-        <SearchBar />
-      </div>
-      <div className="flex items-center">
+      <SearchBar variant="lightblue"/>
+      <div className="flex justify-center items-center pr-8">
         <ProfileIcon userImage={profileImage} />
       </div>
     </div>
