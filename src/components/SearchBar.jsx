@@ -4,15 +4,15 @@ export default function SearchBar() {
   const [search, setSearch] = useState("");
 
   return (
-    <div className="w-full max-w-xl flex items-center border border-gray-300 rounded-full px-5 py-3 shadow-md focus-within:ring-2 focus-within:ring-blue-500">
+    <div className="w-full max-w-xl flex items-center border border-curieLightGray rounded-full px-5 py-3 shadow-md focus-within:ring-2 focus-within:ring-curieBlue">
       <input
         type="text"
-        className="flex-1 outline-none text-lg"
+        className="flex-1 outline-none text-lg bg-curieLightGray text-curieBlue"
         placeholder="Search Curie..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-      <button class="bg-blue-900 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-full shadow-md">
+      <button class="bg-curieBlue hover:bg-blue-600 text-curieLightGray font-semibold py-2 px-6 rounded-full shadow-md">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
