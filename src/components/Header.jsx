@@ -2,17 +2,20 @@ import React, { useState } from "react";
 import "../styles/header.css";
 import ProfileIcon from "./ProfileIcon";
 import curieLogo from "../assets/curie_no_background.png";
+import SearchBar from "./SearchBar";
 
 const Header = () => {
   const [profileImage, setProfileImage] = useState(null); // Track user image
 
   return (
-    <div className="header">
-      <div className="header-sub">
-        {/* <div className="he">Curie, your research aide!</div> */}
-        <img src={curieLogo} alt="Curie Logo" className="w-20 mb-8" />
+    <div className="w-full fixed top-0 left-0 flex items-center justify-between px-8 py-10 bg-indigo-200 shadow-md">
+      <div className="flex items-center">
+        <img src={curieLogo} alt="Curie Logo" className="w-32" />
       </div>
-      <div className="header-sub">
+      <div className="absolute left-1/2 transform -translate-x-1/2">
+        <SearchBar />
+      </div>
+      <div className="flex items-center ">
         <ProfileIcon userImage={profileImage} />
       </div>
     </div>

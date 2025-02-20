@@ -20,12 +20,12 @@ const ProfileIcon = ({ userImage }) => {
   );
 
   return (
-    <div className="profile-icon">
+    <div className="w-12 h-12 rounded-full border-4 border-gray-30 overflow-hidden">
       {userImage ? (
         <img
           src={userImage}
           alt="User Profile"
-          className="w-8 h-8 rounded-full object-cover"
+          className="w-full h-full object-cover"
         />
       ) : (
         defaultIcon
