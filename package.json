@@ -10,16 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-<<<<<<< HEAD
     "bootstrap": "^5.3.3",
-=======
+
     "autoprefixer": "^10.4.20",
     "postcss": "^8.5.2",
-<<<<<<< HEAD
+
     "preline": "^2.7.0",
-=======
->>>>>>> 6566ef515b6b3786a6009f454806a1ce927b4046
->>>>>>> 347148144501feb01ddc08b3e37fa0f4e7b5b9cc
+
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "routes": "^2.1.0",
