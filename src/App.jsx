@@ -6,16 +6,17 @@ import Profile from "./Pages/ProfilePage";
 import SearchPage from "./Pages/SearchPage";
 import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
+import ProfilePage from "./Pages/ProfilePage";
 
 function App() {
   return (
     <BrowserRouter>
       <div>
-        <Header />
 
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/home" element={<h1>Home</h1>} />
+          <Route path="/search" element={<SearchPage/>} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="*" element={<h1>Not Found</h1>} />
         </Routes>
       </div>
