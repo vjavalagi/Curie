@@ -17,34 +17,30 @@ def api_call(params, output_name="test.json"):
 
 def get_pdf(url):
     
-    url = "https://pubs.rsc.org/en/content/articlepdf/2017/cs/c6cs00636a"
     writer = PdfWriter()
-
     remoteFile = urlopen(Request(url)).read()
     memoryFile = BytesIO(remoteFile)
     pdfFile = PdfReader(memoryFile)
-
+  
     for pageNum in range(len(pdfFile.pages)):
             currentPage = pdfFile.pages[pageNum]
             #currentPage.mergePage(watermark.getPage(0))
             writer.add_page(currentPage)
 
 
-    outputStream = open("output.pdf","wb")
+    outputStream = open(url[:10],"wb")
     writer.write(outputStream)
     outputStream.close()
+   
     
 def read_serp_json(name):
     with open(name) as f:
         data = json.load(f)
     return data
-#get_pdf("")
-#api_call(params)
-data = read_serp_json("test.json")
+
+
 def extract_single_data(results, i):
-    output_data = {}
-    print(results[i].keys())    
-    
+    output_data = {}  
     output_data["title"] = results[i]["title"] if "title" in results[i] else None
     output_data["link"] = results[i]["link"] if "link" in results[i] else None
     output_data['result_id'] = results[i]["result_id"] if "result_id" in results[i] else None
@@ -70,6 +66,12 @@ def extract_all_data(data, cap = 5):
 
 data = api_call(params)
 extracted_data = extract_all_data(data)
-print(extracted_data[1].keys())
-# dump this to json
+print(extracted_data.keys())
+for i, res in extracted_data.items():
+    if "pdf" in res:
+        print(res["pdf"])
+        try:
+            get_pdf(res["pdf"])
+        except:
+            print("Error")
 
