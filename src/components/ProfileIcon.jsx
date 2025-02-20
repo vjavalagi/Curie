@@ -20,7 +20,7 @@ const ProfileIcon = ({ userImage }) => {
   );
 
   return (
-    <div className="w-12 h-12 rounded-full border-2 border-curieBlue overflow-hidden flex items-center justify-center bg-gray-50">
+    <div className="w-12 h-12 rounded-full border-2 border-curieLightBlue overflow-hidden flex items-center justify-center bg-curieLightBlue">
       {userImage ? (
         <img
           src={userImage}

@@ -1,11 +1,9 @@
-import React from 'react';
+import React from "react";
 
-const SaveGroupingButton = () => {
+export default function SaveGroupingButton() {
   return (
-    <button className="mt-6 px-6 py-2 bg-cyan-300 rounded-lg hover:bg-cyan-400 transition-colors">
+    <button className="fixed bottom-4 left-4 px-6 py-2 bg-blue-200 text-black rounded-lg">
       Save Grouping
     </button>
   );
-};
-
-export default SaveGroupingButton;
+}
