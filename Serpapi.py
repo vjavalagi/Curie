@@ -5,7 +5,7 @@ from PyPDF2 import PdfWriter, PdfReader
 from io import BytesIO
 
 params = {
-  "api_key": "98566a4548ae480b8b9abd9452def15cfbf5c5b1d137fe0ed8bddf7a2af26cd8",
+  "api_key": 
   "engine": "google_scholar",
   "q": "Coffee",
   "hl": "en"
