@@ -1,11 +1,18 @@
 import React from "react";
 import Header from "../components/Header";
+import SearchSideBar from "../components/SearchSideBar";
+import SearchLargeView from "../components/SearchLargeView";
 
 export default function SearchPage() {
   return (
-    <div>
+    <div className="h-screen flex flex-col">
+      {/* Fixed Header */}
       <Header />
-      <div>Search Page</div>
+      {/* Content Layout (Sidebar + MainContent) */}
+      <div className="flex flex-1 pt-20 overflow-hidden">
+        <SearchSideBar/>
+        <SearchLargeView />
+      </div>
     </div>
   );
 }
