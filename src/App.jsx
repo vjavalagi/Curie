@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import Header from "./components/Header";
 import LandingPage from "./Pages/LandingPage";
 import Profile from "./Pages/ProfilePage";
@@ -7,15 +8,14 @@ import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
     <BrowserRouter>
       <div>
+        <Header />
+
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route path="/Profile" element={<Profile />} />
-          <Route path="/Search" element={<SearchPage />} />
+          <Route path="/home" element={<h1>Home</h1>} />
           <Route path="*" element={<h1>Not Found</h1>} />
         </Routes>
       </div>
