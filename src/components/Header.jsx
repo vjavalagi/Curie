@@ -1,16 +1,20 @@
 import React, { useState } from "react";
 import ProfileIcon from "./ProfileIcon";
 import curieLogo from "../assets/curie_no_background.png";
+import SearchBar from "./SearchBar";
 
 const Header = () => {
   const [profileImage, setProfileImage] = useState(null); // Track user image
 
   return (
-    <div className="flex flex-row justify-between items-center text-center bg-curieLightBlue">
-      <div className="flex justify-center items-center">
-        <img src={curieLogo} alt="Curie Logo" className="w-20 mb-8" />
+    <div className="w-full fixed top-0 left-0 flex items-center justify-between px-8 py-8 bg-indigo-200 shadow-md">
+      <div className="flex items-center">
+        <img src={curieLogo} alt="Curie Logo" className="w-32" />
       </div>
-      <div className="flex justify-center items-center">
+      <div className="absolute left-1/2 transform -translate-x-1/2">
+        <SearchBar />
+      </div>
+      <div className="flex items-center ">
         <ProfileIcon userImage={profileImage} />
       </div>
     </div>

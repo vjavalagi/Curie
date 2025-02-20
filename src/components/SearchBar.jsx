@@ -4,10 +4,10 @@ export default function SearchBar() {
   const [search, setSearch] = useState("");
 
   return (
-    <div className="w-full max-w-xl flex items-center border border-curieLightGray rounded-full px-5 py-3 shadow-md focus-within:ring-2 focus-within:ring-curieBlue">
+    <div className="w-full max-w-xl flex items-center border border-curieLightGray rounded-full px-5 py-3 shadow-md focus-within:ring-2 focus-within:ring-curieBlue bg-white">
       <input
         type="text"
-        className="flex-1 outline-none text-lg bg-curieLightGray text-curieBlue"
+        className="flex-1 outline-none text-lg bg-white text-curieBlue"
         placeholder="Search Curie..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
