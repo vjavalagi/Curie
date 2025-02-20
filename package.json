@@ -10,10 +10,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+<<<<<<< HEAD
     "bootstrap": "^5.3.3",
+=======
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.5.2",
+>>>>>>> 6566ef515b6b3786a6009f454806a1ce927b4046
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "routes": "^2.1.0"
+    "routes": "^2.1.0",
+    "tailwindcss": "^3.4.17"
   },
   "devDependencies": {
     "@eslint/js": "^9.19.0",

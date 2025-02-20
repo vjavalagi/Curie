@@ -1,8 +1,9 @@
 import { useState } from "react";
 
-import "./App.css";
 import Header from "./components/Header";
 import LandingPage from "./Pages/LandingPage";
+import Profile from "./Pages/ProfilePage";
+import SearchPage from "./Pages/SearchPage";
 import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 
