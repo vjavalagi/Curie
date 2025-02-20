@@ -1,0 +1,34 @@
+{
+  "position": 2,
+  "title": "The impact of coffee on health",
+  "result_id": "KVT-hW9IrDoJ",
+  "link": "https://www.thieme-connect.com/products/ejournals/html/10.1055/s-0043-115007",
+  "snippet": "\u2026 coffee, indicating that besides caffeine other components contribute to the health protecting effects. For adults consuming moderate amounts of coffee (\u2026 information about coffee on health\u2026",
+  "publication_info": {
+    "summary": "K Nieber - Planta medica, 2017 - thieme-connect.com"
+  },
+  "resources": [
+    {
+      "title": "thieme-connect.com",
+      "file_format": "PDF",
+      "link": "https://www.thieme-connect.com/products/ejournals/pdf/10.1055/s-0043-115007.pdf"
+    }
+  ],
+  "inline_links": {
+    "serpapi_cite_link": "https://serpapi.com/search.json?engine=google_scholar_cite&hl=en&q=KVT-hW9IrDoJ",
+    "cited_by": {
+      "total": 325,
+      "link": "https://scholar.google.com/scholar?cites=4227833794020660265&as_sdt=2005&sciodt=0,5&hl=en",
+      "cites_id": "4227833794020660265",
+      "serpapi_scholar_link": "https://serpapi.com/search.json?as_sdt=2005&cites=4227833794020660265&engine=google_scholar&hl=en"
+    },
+    "related_pages_link": "https://scholar.google.com/scholar?q=related:KVT-hW9IrDoJ:scholar.google.com/&scioq=Coffee&hl=en&as_sdt=0,5",
+    "serpapi_related_pages_link": "https://serpapi.com/search.json?as_sdt=0%2C5&engine=google_scholar&hl=en&q=related%3AKVT-hW9IrDoJ%3Ascholar.google.com%2F",
+    "versions": {
+      "total": 8,
+      "link": "https://scholar.google.com/scholar?cluster=4227833794020660265&hl=en&as_sdt=0,5",
+      "cluster_id": "4227833794020660265",
+      "serpapi_scholar_link": "https://serpapi.com/search.json?as_sdt=0%2C5&cluster=4227833794020660265&engine=google_scholar&hl=en"
+    }
+  }
+}
