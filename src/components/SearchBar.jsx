@@ -7,15 +7,15 @@ export default function SearchBar({ variant = "lightgray" }) {
   const textColor = variant === "lightblue" ? "text-curieLightGray" : "text-curieBlue";
 
   return (
-    <div className={`w-full max-w-xl flex items-center border border-curieLightGray rounded-full px-5 py-1 shadow-md focus-within:ring-2 focus-within:ring-curieBlue ${bgColor}`}>
+    <div className={`w-full max-w-xl flex items-center rounded-full px-4 py-2  focus-within:ring-2 bg-white focus-within:ring-curieBlue ${bgColor}`}>
       <input
         type="text"
-        className={`flex-1 outline-none text-lg ${bgColor} ${textColor}`}
+        className={`flex-1 bg-white outline-none text-md ${bgColor} ${textColor}`}
         placeholder="Search Curie..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-      <button className="bg-curieBlue hover:bg-blue-600 text-curieLightGray font-semibold py-2 px-6 rounded-full">
+      <button className="bg-curieBlue hover:bg-blue-600 text-curieLightGray font-semibold py-1 px-6 rounded-full">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
