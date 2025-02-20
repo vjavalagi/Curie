@@ -7,7 +7,7 @@ const Header = () => {
   const [profileImage, setProfileImage] = useState(null); // Track user image
 
   return (
-    <div className="flex flex-row justify-between text-center items-center bg-curieLightBlue">
+    <div className="flex flex-row justify-between text-center items-center  bg-curieLightBlue">
       <div className="flex justify-center items-center">
         <img src={curieLogo} alt="Curie Logo" className="w-36 pl-8" />
       </div>
