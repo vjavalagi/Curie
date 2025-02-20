@@ -5,7 +5,14 @@ export default {
       "./src/**/*.{js,ts,jsx,tsx}"
     ],
     theme: {
-      extend: {},
+      extend: {
+        colors: {
+          curieBlue: '#1a2d8d',
+          curieLightBlue: '#e8ecfc',
+          curieLightGray: "#ebeaef",
+          curieTeal: "#cbf8fc",
+        },
+      },
     },
     plugins: [],
   }
