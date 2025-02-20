@@ -9,10 +9,12 @@ export default function SearchPage() {
       {/* Fixed Header */}
       <Header />
       {/* Content Layout (Sidebar + MainContent) */}
-      <div className="flex flex-1 pt-32 overflow-hidden">
+      <div className="flex flex-1  overflow-hidden">
+      
         <SearchSideBar/>
         <SearchLargeView />
       </div>
+      
     </div>
   );
 }

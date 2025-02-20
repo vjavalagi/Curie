@@ -34,7 +34,7 @@ export default function Sidebar() {
           filteredPapers.map((paper, index) => (
             <button
               key={index}
-              className="w-full p-4 bg-gray-50 hover:bg-gray-200 rounded-lg text-left mb-2"
+              className="w-full p-4 bg-gray-50 border hover:bg-gray-200 rounded-lg text-left mb-2"
             >
               <span className="font-semibold">{paper.title}</span>
               <p className="text-sm text-gray-500">Random Fact</p>

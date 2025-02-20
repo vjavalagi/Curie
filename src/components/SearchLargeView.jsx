@@ -5,12 +5,27 @@ export default function SearchLargeView() {
   const [selectedPaper, setSelectedPaper] = useState("SQL Injection");
 
   return (
-    <main className="flex-1 p-6 pt-12 overflow-auto">
-        <div className="flex justify-end mb-4">
+    <main className="flex-1 p-4 pt-4 overflow-auto">
+        <div className="flex justify-between items-center mb-4">
+        {/* Beginner Buttons on Left */}
+        <div className="flex gap-2">
+          <button className="px-4 py-2 bg-blue-300 text-white rounded-lg shadow-md">
+            Beginner
+          </button>
+          <button className="px-4 py-2 bg-blue-400 text-white rounded-lg shadow-md">
+            Intermediate
+          </button>
+          <button className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md">
+            Expert
+          </button>
+        </div>
+
+        {/* Deep Dive Button on Right */}
         <button className="px-4 py-2 bg-curieBlue text-white rounded-lg shadow-md hover:bg-blue-600">
           Deep Dive ✨
         </button>
         </div>
+        
 
       {/* Paper Content */}
       <section className="bg-white p-6 rounded-lg shadow-md">
