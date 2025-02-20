@@ -1,5 +1,4 @@
 import { useState } from "react";
-import "./App.css";
 import Header from "./components/Header";
 import LandingPage from "./Pages/LandingPage";
 import Profile from "./Pages/ProfilePage";
@@ -16,7 +15,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/Profile" element={<Profile />} />
-          <Route path="/SearchPage" element={<SearchPage />} />
+          <Route path="/Search" element={<SearchPage />} />
           <Route path="*" element={<h1>Not Found</h1>} />
         </Routes>
       </div>
