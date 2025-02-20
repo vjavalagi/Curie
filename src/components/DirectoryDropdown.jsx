@@ -1,15 +1,9 @@
-import React from 'react';
+import React from "react";
 
-const DirectoryDropdown = () => {
+export default function DirectoryDropdown() {
   return (
-    <div className="w-full max-w-md mb-6">
-      <select className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <option>Current Directory</option>
-        <option>Directory 1</option>
-        <option>Directory 2</option>
-      </select>
+    <div className="w-48 bg-gray-100 p-4 rounded-lg">
+      <h3 className="text-lg font-semibold">📂 Current Directory</h3>
     </div>
   );
-};
-
-export default DirectoryDropdown;
+}
