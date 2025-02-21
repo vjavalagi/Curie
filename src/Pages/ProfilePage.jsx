@@ -11,8 +11,8 @@ export default function ProfilePage() {
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       <Header variant="lightblue" />
-      <div className="flex flex-1">
-        <div className="w-1/4 p-4">
+      <div className="flex flex-1 overflow-hidden">
+        <div>
           <DirectoryDropdown />
         </div>
         <div className="flex flex-col flex-1 items-center">
