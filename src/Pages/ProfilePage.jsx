@@ -7,6 +7,7 @@ import WelcomeMessage from "../components/WelcomeMessage";
 import BreadcrumbNavigation from "../components/BreadcrumbNavigation";
 
 export default function ProfilePage() {
+  // Folder structure with subfolders
   const allFolders = {
     "Folder 1": ["Subfolder 1A", "Subfolder 1B"],
     "Folder 2": ["Subfolder 2A"],
@@ -15,46 +16,16 @@ export default function ProfilePage() {
     "Folder 5": []
   };
 
-  const [folderPath, setFolderPath] = useState([]); // Breadcrumb state
-  const [filteredFolder, setFilteredFolder] = useState(null); // Dropdown filter
-  const [animating, setAnimating] = useState(false); // Controls animation
+  // State variables
+  const [folderPath, setFolderPath] = useState([]);
+  const [filteredFolder, setFilteredFolder] = useState(null);
+  const [animating, setAnimating] = useState(false);
 
-  let visibleFolders = Object.keys(allFolders);
-  if (filteredFolder) {
-    visibleFolders = [filteredFolder];
-  } else if (folderPath.length > 0) {
-    const lastFolder = folderPath[folderPath.length - 1];
-    visibleFolders = allFolders[lastFolder] || [];
-  }
-
-  // Handle folder click with animation
-  const handleFolderClick = (folder) => {
-    setAnimating(true);
-    setTimeout(() => {
-      setFolderPath([...folderPath, folder]);
-      setFilteredFolder(null);
-      setAnimating(false);
-    }, 300);
-  };
-
-  // Handle directory dropdown selection with animation
-  const handleDirectorySelect = (folder) => {
-    setAnimating(true);
-    setTimeout(() => {
-      setFilteredFolder(folder);
-      setFolderPath([]); // Reset breadcrumb when filtering
-      setAnimating(false);
-    }, 300);
-  };
-
-  // Handle breadcrumb navigation with animation
-  const handleBreadcrumbNavigate = (newPath) => {
-    setAnimating(true);
-    setTimeout(() => {
-      setFolderPath(newPath);
-      setFilteredFolder(null);
-      setAnimating(false);
-    }, 300);
+  // Determines visible folders
+  const getVisibleFolders = () => {
+    if (filteredFolder) return [filteredFolder];
+    if (folderPath.length > 0) return allFolders[folderPath.at(-1)] || [];
+    return Object.keys(allFolders);
   };
 
   return (
@@ -62,23 +33,22 @@ export default function ProfilePage() {
       <Header variant="lightblue" />
       <div className="flex flex-1 overflow-hidden">
         <DirectoryDropdown 
-          currentDirectory={folderPath.length > 0 ? folderPath[folderPath.length - 1] : "Home"} 
-          folders={filteredFolder ? [filteredFolder] : Object.keys(allFolders)} 
-          onSelect={handleDirectorySelect} 
+          currentDirectory={folderPath.at(-1) || "Home"} 
+          folders={filteredFolder ? [filteredFolder] : Object.keys(allFolders)}
+          onSelect={(folder) => setFilteredFolder(folder)}
         />
         <div className="flex flex-col flex-1 items-center">
-          <div className="text-center mt-6">
-            <WelcomeMessage />
-          </div>
+          <WelcomeMessage />
 
           {/* Breadcrumb Navigation - Always Visible */}
-          <BreadcrumbNavigation path={folderPath} onNavigate={handleBreadcrumbNavigate} />
+          <BreadcrumbNavigation path={folderPath} onNavigate={setFolderPath} />
 
           {/* Folder Grid with animations */}
           <FolderGrid 
-            folders={visibleFolders} 
-            onFolderClick={handleFolderClick} 
+            folders={getVisibleFolders()} 
+            onFolderClick={(folder) => setFolderPath([...folderPath, folder])} 
             animating={animating} 
+            setAnimating={setAnimating}
           />
         </div>
       </div>
