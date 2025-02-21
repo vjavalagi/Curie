@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ChevronDownIcon } from "@heroicons/react/24/solid";
 
 export default function DirectoryDropdown({ currentDirectory, folders, onSelect }) {
-  const [isOpen, setIsOpen] = useState(true); // Keep dropdown open
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <div className="w-48 h-screen bg-gray-100 border-r border-gray-300 p-4 flex flex-col">
@@ -20,9 +20,7 @@ export default function DirectoryDropdown({ currentDirectory, folders, onSelect 
             folders.map((folder, index) => (
               <li 
                 key={index} 
-                className={`px-4 py-2 bg-gray-200 rounded-lg cursor-pointer hover:bg-gray-300 ${
-                  isOpen ? "animate-fade-in" : ""
-                }`}
+                className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer hover:bg-gray-300 animate-fade-in"
                 onClick={() => onSelect(folder)}
               >
                 {folder}
