@@ -1,36 +1,37 @@
 import React, { useState } from "react";
-import { ChevronDownIcon, FunnelIcon } from "@heroicons/react/24/solid";
+import { ChevronDownIcon } from "@heroicons/react/24/solid";
 
-export default function DirectoryDropdown() {
+export default function DirectoryDropdown({ currentDirectory, folders, onSelect }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="w-48 bg-gray-100 h-screen border-r border-gray-300 rounded-lg p-2 relative">
-      {/* Dropdown Header */}
+    <div className="w-48 h-screen bg-gray-100 border-r border-gray-300 p-4 flex flex-col">
       <button
-        className="flex items-center justify-between w-full px-4 py-2 text-lg font-semibold"
+        className="flex items-center justify-between w-full text-lg font-semibold"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span>Current Directory</span>
-        <ChevronDownIcon className="w-5 h-5" />
+        <span>{currentDirectory || "Home"}</span>
+        <ChevronDownIcon className={`w-5 h-5 transition-transform ${isOpen ? "rotate-180" : ""}`} />
       </button>
 
-      {/* Dropdown Menu (if open) */}
-      {isOpen && (
-        <div className="absolute left-0 mt-1 w-full bg-white shadow-lg rounded-lg z-10">
-          <ul className="py-2">
-            <li className="px-4 py-2 hover:bg-gray-200 cursor-pointer">Folder 1</li>
-            <li className="px-4 py-2 hover:bg-gray-200 cursor-pointer">Folder 2</li>
-            <li className="px-4 py-2 hover:bg-gray-200 cursor-pointer">Folder 3</li>
-          </ul>
-        </div>
-      )}
-
-      {/* Filter Button (Preline UI-style) */}
-      <button className="flex items-center gap-2 mt-2 w-full px-4 py-2 text-sm text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300">
-        <FunnelIcon className="w-4 h-4" />
-        Filters
-      </button>
+      {/* Keep the dropdown open after selection */}
+      <div className={`overflow-hidden transition-all duration-300 ${isOpen ? "max-h-64 mt-2" : "max-h-0"}`}>
+        <ul className="space-y-2">
+          {folders.length > 0 ? (
+            folders.map((folder, index) => (
+              <li 
+                key={index} 
+                className="px-4 py-2 bg-gray-200 rounded-lg cursor-pointer hover:bg-gray-300"
+                onClick={() => onSelect(folder)} // Keeps dropdown open
+              >
+                {folder}
+              </li>
+            ))
+          ) : (
+            <li className="px-4 py-2 text-gray-400">No Folders Available</li>
+          )}
+        </ul>
+      </div>
     </div>
   );
 }

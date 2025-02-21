@@ -1,5 +1,5 @@
 import React from "react";
-import { FolderIcon } from "@heroicons/react/24/solid"; // Heroicons folder icon
+import { FolderIcon } from "@heroicons/react/24/solid";
 
 export default function FolderGrid({ folders = [], onFolderClick }) {
   return (
@@ -11,12 +11,12 @@ export default function FolderGrid({ folders = [], onFolderClick }) {
             className="flex flex-col items-center justify-center hover:opacity-80 transition"
             onClick={() => onFolderClick(folder)}
           >
-            <FolderIcon className="w-32 h-32 text-gray-400" /> {/* 🟢 Restored large gray icons */}
-            <span className="mt-1 text-sm font-medium">{folder}</span> {/* 🔵 Restored old text size */}
+            <FolderIcon className="w-32 h-32 text-gray-400" />
+            <span className="mt-1 text-sm font-medium">{folder}</span>
           </button>
         ))
       ) : (
-        <p className="text-gray-500 text-center w-full">No folders available</p>
+        <p className="text-gray-500 text-center w-full">No Folders Available</p>
       )}
     </div>
   );

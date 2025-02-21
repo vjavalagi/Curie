@@ -9,7 +9,7 @@ const ProfileIcon = ({ userImage }) => {
       viewBox="0 0 24 24"
       strokeWidth="1.8"
       stroke="currentColor"
-      className="size-6 w-8 h-8 text-curieBlue" // Adjust size as needed
+      className="size-6 w-8 h-8 text-curieBlue"
     >
       <path
         strokeLinecap="round"
