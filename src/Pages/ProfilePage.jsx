@@ -8,11 +8,11 @@ import BreadcrumbNavigation from "../components/BreadcrumbNavigation";
 
 export default function ProfilePage() {
   const allFolders = {
-    "Option 1": ["Subfolder 1A", "Subfolder 1B"],
-    "Option 2": ["Subfolder 2A"],
-    "Option 3": [],
-    "Option 4": ["Subfolder 4A", "Subfolder 4B"],
-    "Option 5": []
+    "Folder 1": ["Subfolder 1A", "Subfolder 1B"],
+    "Folder 2": ["Subfolder 2A"],
+    "Folder 3": [],
+    "Folder 4": ["Subfolder 4A", "Subfolder 4B"],
+    "Folder 5": []
   };
 
   const [folderPath, setFolderPath] = useState([]); // Breadcrumb state
