@@ -7,9 +7,9 @@ const ProfileIcon = ({ userImage }) => {
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
-      strokeWidth="1.5"
+      strokeWidth="1.8"
       stroke="currentColor"
-      className="size-6 w-8 h-8" // Adjust size as needed
+      className="size-6 w-8 h-8 text-curieBlue" // Adjust size as needed
     >
       <path
         strokeLinecap="round"
@@ -20,7 +20,7 @@ const ProfileIcon = ({ userImage }) => {
   );
 
   return (
-    <div className="w-12 h-12 rounded-full border-2 border-curieLightBlue overflow-hidden flex items-center justify-center bg-curieLightBlue">
+    <div className="w-12 h-12 rounded-full border-2 border-curieBlue overflow-hidden flex items-center justify-center bg-curieLightBlue">
       {userImage ? (
         <img
           src={userImage}
