@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function SearchBar({ variant = "lightgray" }) {
   const [search, setSearch] = useState("");
@@ -15,6 +16,8 @@ export default function SearchBar({ variant = "lightgray" }) {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
+      {/* Placeholder for whatever search we use */}
+      <Link to={`/search?q=${search}`}> 
       <button className="bg-curieBlue hover:bg-blue-600 text-curieLightGray font-semibold py-1 px-6 rounded-full">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -31,6 +34,7 @@ export default function SearchBar({ variant = "lightgray" }) {
           />
         </svg>
       </button>
+      </Link>
     </div>
   );
 }

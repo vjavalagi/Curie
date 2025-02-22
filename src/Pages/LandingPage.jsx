@@ -1,6 +1,7 @@
 import { useState } from "react";
 import curieLogo from "../assets/curie_no_background.png";
 import SearchBar from "../components/SearchBar";
+import ProfileIcon from "../components/ProfileIcon";
 
 export default function LandingPage() {
   const [search, setSearch] = useState("");

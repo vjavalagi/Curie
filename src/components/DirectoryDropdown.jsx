@@ -5,7 +5,7 @@ export default function DirectoryDropdown({ currentDirectory, folders, onSelect 
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <div className="w-48 h-screen bg-gray-100 border-r border-gray-300 p-4 flex flex-col">
+    <div className="w-48 h-screen bg-gray-100 border-r border-gray-300 p-4 flex flex-col rounded-lg">
       <button
         className="flex items-center justify-between w-full text-lg font-semibold"
         onClick={() => setIsOpen(!isOpen)}
