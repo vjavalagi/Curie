@@ -1,11 +1,11 @@
 import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import curieLogo from "../assets/curie_no_background.png";
 import SearchBar from "../components/SearchBar";
 import ProfileIcon from "../components/ProfileIcon";
 
-export default function LandingPage() {
-  const [search, setSearch] = useState("");
 
+export default function LandingPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-curieLightGray">
       <img src={curieLogo} alt="Curie Logo" className="w-48 mb-8" />

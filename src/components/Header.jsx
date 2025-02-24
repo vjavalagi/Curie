@@ -4,7 +4,7 @@ import ProfileIcon from "./ProfileIcon";
 import curieLogo from "../assets/curie_no_background.png";
 import SearchBar from "./SearchBar";
 
-const Header = () => {
+const Header = ({handleSearch}) => {
   const [profileImage, setProfileImage] = useState(null); // Track user image
 
   return (
@@ -14,7 +14,7 @@ const Header = () => {
         <img src={curieLogo} alt="Curie Logo" className="w-36 pl-8" />
         </Link>
       </div>
-      <SearchBar variant="lightblue"/>
+      <SearchBar handleSearch= {handleSearch} variant="lightblue"/>
       <div className="flex justify-center items-center pr-8">
         <Link to = "/profile">
           <ProfileIcon userImage={profileImage} />

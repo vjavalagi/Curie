@@ -10,6 +10,8 @@ python3 semantic_scholar.py
 
 go to terminal and run these to test
 
+## GlobalContext
+This lets us have function and states without having to pass through props! its much cleaner
 ```
 Search API
 curl -X GET "http://localhost:5001/api/search?query=generative+ai&year=2020-&only_open_access=true"
