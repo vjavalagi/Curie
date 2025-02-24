@@ -18,7 +18,7 @@ function searchAPI({
   console.log("Fetching from:", url);
 
   // Perform the GET request using fetch
-  return fetch(url).then((response) => {
+  return fetch(url, { mode: "cors" }).then((response) => {
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
@@ -27,3 +27,5 @@ function searchAPI({
 }
 
 export {searchAPI}
+
+// run example

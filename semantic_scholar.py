@@ -4,23 +4,27 @@ import requests
 import urllib3
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv, find_dotenv
+from flask_cors import CORS
 
 # Load environment variables from .env file
 load_dotenv(find_dotenv())
+
+# Create your Flask app once
+app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # Set up the path for storing PDFs
 pdf_output_path = "pdfs/"
 os.makedirs(pdf_output_path, exist_ok=True)
 
-
 SEMANTIC_SCHOLAR_API_KEY = os.getenv('SEMANTICAPIKEY')
 
 def get_pdf(download_url):
-    """download a PDF from the given URL and save it locally"""
+    """Download a PDF from the given URL and save it locally."""
     http = urllib3.PoolManager()
     print(f"Attempting to download PDF from: {download_url}")
     response = http.request('GET', download_url)
-    print("status:", response.status)
+    print("Status:", response.status)
     filename = pdf_output_path + str(hash(download_url)) + ".pdf"
     with open(filename, 'wb') as file:
         file.write(response.data)
@@ -40,21 +44,17 @@ def search_semantic_scholar(query_params, only_open_access=False):
         print("Error parsing JSON:", e)
         return {"error": "Invalid response from API"}
     
-    print("aspi response:", response_json)
-    
     data = response_json.get('data', [])
     if only_open_access:
         data = [d for d in data if 'openAccessPdf' in d and d['openAccessPdf']]
+    
     return data
-
-app = Flask(__name__)
 
 @app.route('/api/search', methods=['GET'])
 def api_search():
     """
     Example: GET /api/search?query=generative+ai&year=2020-&only_open_access=true
     """
-    # get parameters from the query string, the default values are generative ai, 2020- and title,url,publicationTypes,publicationDate,open
     query = request.args.get('query', 'generative ai')
     year = request.args.get('year', '2020-')
     fields = request.args.get('fields', 'title,url,publicationTypes,publicationDate,openAccessPdf')
@@ -67,13 +67,15 @@ def api_search():
     }
     
     results = search_semantic_scholar(query_params, only_open_access)
-    print("Results:", results)
+    if results and isinstance(results, list):
+        print(results[0])
+    
     return jsonify(results)
 
 @app.route('/api/download-pdf', methods=['POST'])
 def api_download_pdf():
     """
-    expects JSON body with a key 'url', for example:
+    Expects JSON body with a key 'url', e.g.,
     { "url": "https://example.com/path/to/file.pdf" }
     """
     data = request.get_json()
@@ -84,18 +86,6 @@ def api_download_pdf():
     filename = get_pdf(download_url)
     return jsonify({"message": "PDF downloaded", "filename": filename})
 
-
-''' examples ''' 
-'''
-Search API
-curl -X GET "http://localhost:5001/api/search?query=generative+ai&year=2020-&only_open_access=true"
-
-Download PDF API
-curl -v -X POST "http://127.0.0.1:5001/api/download-pdf" \
-  -H "Content-Type: application/json" \
-  -d '{"url": "https://www.mdpi.com/2079-8954/12/3/103/pdf?version=1710867327"}'
-
-'''
 if __name__ == '__main__':
-    # apparently some apple service runs on 5000 so i changes to 5001
-    app.run(debug=True,port=5001)
+    # Run on port 5001
+    app.run(debug=True, port=5001)

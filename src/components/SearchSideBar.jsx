@@ -1,26 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SearchFilterSidebar from "./SearchFilterSidebar";
-
+import { searchAPI } from "../backend/Search"; // adjust the import path as needed
+import { useGlobal } from "./GlobalContext";
+import { stringify } from "postcss";
 export default function Sidebar() {
   const [selectedFilter, setSelectedFilter] = useState("All");
+  const [researchPapers, setResearchPapers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const {search, setSearch} = useGlobal();
+  // when page first render set the search query
+  useEffect(() => {
+    setLoading(true);
+    console.log(search);
+    searchAPI({
+      query: search,
+      year: "2020-",
+      onlyOpenAccess: true,
+      fields: "title,url,publicationTypes,publicationDate,openAccessPdf",
+    })
+      .then((data) => {
+        setResearchPapers(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch research papers:", err);
+        setError(err);
+        setLoading(false);
+      });
+  }, [search]);
 
-  const researchPapers = [
-    { title: "Research Paper 1", category: "Security" },
-    { title: "Research Paper 2", category: "AI" },
-    { title: "Research Paper 3", category: "Cloud" },
-    { title: "Research Paper 4", category: "Blockchain" },
-    { title: "Research Paper 5", category: "Security" },
-    { title: "Research Paper 6", category: "AI" },
-  ];
-
-  // Filter papers based on the selected category
+  // Filter papers based on the selected category.
+  // Here we assume that the "publicationTypes" property is an array.
   const filteredPapers =
     selectedFilter === "All"
       ? researchPapers
-      : researchPapers.filter((paper) => paper.category === selectedFilter);
+      : researchPapers.filter((paper) =>
+          paper.publicationTypes?.includes(selectedFilter)
+        );
 
   return (
-    <aside className="flex h-screen w-2/5 t-12 bg-white border-r shadow-md overflow-hidden">
+    <aside className="flex h-screen w-2/5 bg-white border-r shadow-md overflow-hidden">
       {/* Left Filter Sidebar */}
       <SearchFilterSidebar onFilterSelect={setSelectedFilter} />
 
@@ -28,16 +48,23 @@ export default function Sidebar() {
       <div className="w-2/3 p-4 overflow-y-auto">
         <h2 className="text-xl font-semibold mb-3">Research Papers</h2>
 
-        {filteredPapers.length === 0 ? (
-          <p className="text-gray-500 text-sm">No papers found for "{selectedFilter}".</p>
+        {loading ? (
+          <p>Loading research papers...</p>
+        ) : error ? (
+          <p className="text-red-500">Error loading papers: {error.message}</p>
+        ) : filteredPapers.length === 0 ? (
+          <p className="text-gray-500 text-sm">
+            No papers found for {selectedFilter}.
+          </p>
         ) : (
-          filteredPapers.map((paper, index) => (
+          filteredPapers.map((paper) => (
             <button
-              key={index}
+              key={paper.paperId || paper.title}
               className="w-full p-4 bg-gray-50 border hover:bg-gray-200 rounded-lg text-left mb-2"
+              onClick={() => window.open(paper.url, "_blank")}
             >
               <span className="font-semibold">{paper.title}</span>
-              <p className="text-sm text-gray-500">Random Fact</p>
+              <p className="text-sm text-gray-500">{paper.publicationDate}</p>
             </button>
           ))
         )}
