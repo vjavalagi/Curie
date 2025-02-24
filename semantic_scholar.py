@@ -88,17 +88,14 @@ def api_download_pdf():
 ''' examples ''' 
 '''
 Search API
-curl -X GET "http://localhost:5000/api/search?query=generative+ai&year=2020-&only_open_access=true"
+curl -X GET "http://localhost:5001/api/search?query=generative+ai&year=2020-&only_open_access=true"
 
 Download PDF API
-curl -v -X POST "http://127.0.0.1:5000/api/download-pdf" \
+curl -v -X POST "http://127.0.0.1:5001/api/download-pdf" \
   -H "Content-Type: application/json" \
   -d '{"url": "https://www.mdpi.com/2079-8954/12/3/103/pdf?version=1710867327"}'
 
-
-
-
 '''
 if __name__ == '__main__':
-    
-    app.run(debug=True)
+    # apparently some apple service runs on 5000 so i changes to 5001
+    app.run(debug=True,port=5001)
