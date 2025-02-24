@@ -8,7 +8,7 @@ export default function Sidebar() {
   const [researchPapers, setResearchPapers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const {search, setSearch} = useGlobal();
+  const {search, setSearch, setActivePaper} = useGlobal();
   // when page first render set the search query
   useEffect(() => {
     setLoading(true);
@@ -29,6 +29,13 @@ export default function Sidebar() {
         setLoading(false);
       });
   }, [search]);
+
+  const handlePaperClick = (paper) => {
+    console.log("Updating Paper");
+    setActivePaper(paper)
+    console.log(paper);
+
+  }
 
   // Filter papers based on the selected category.
   // Here we assume that the "publicationTypes" property is an array.
@@ -61,7 +68,8 @@ export default function Sidebar() {
             <button
               key={paper.paperId || paper.title}
               className="w-full p-4 bg-gray-50 border hover:bg-gray-200 rounded-lg text-left mb-2"
-              onClick={() => window.open(paper.url, "_blank")}
+              onClick={() => handlePaperClick(paper)}
+            
             >
               <span className="font-semibold">{paper.title}</span>
               <p className="text-sm text-gray-500">{paper.publicationDate}</p>

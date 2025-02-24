@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import Timeline from "./Timeline";
 import { useGlobal } from "./GlobalContext";
 
 export default function SearchLargeView() {
-  //const [selectedPaper, setSelectedPaper] = useState("SQL Injection");
-  const { search, setSearch } = useGlobal();
+  const { search, activePaper, setActivePaper} = useGlobal();
+  const handleDeepDiveClick = () => {
+    setActivePaper("");
+    console.log("Emptying paper", activePaper)
+  }
   return (
     <main className="flex-1 p-4 pt-4 overflow-auto">
       <div className="flex justify-between items-center mb-4">
@@ -22,22 +25,44 @@ export default function SearchLargeView() {
         </div>
 
         {/* Deep Dive Button on Right */}
-        <button className="px-4 py-2 bg-curieBlue text-white rounded-lg shadow-md hover:bg-blue-600">
+        <button className="px-4 py-2 bg-curieBlue text-white rounded-lg shadow-md hover:bg-blue-600"
+        onClick={()=>handleDeepDiveClick()}
+        >
           Deep Dive ✨
-        </button>
+          
+        </button >
       </div>
 
-      {/* Paper Content */}
-      <section className="bg-white p-6 rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold">{search}</h1>
-        <h2 className="text-lg font-semibold mt-2">Summary</h2>
-        <p className="text-gray-700">
-          Shows an AI-generated summary of the field itself along with a
-          timeline.
-        </p>
-
-        <Timeline />
-      </section>
+      {/* Conditionally render based on activePaper */}
+      {!activePaper ? (
+        <section className="bg-white p-6 rounded-lg shadow-md">
+          <h1 className="text-2xl font-bold">{search}</h1>
+          <h2 className="text-lg font-semibold mt-2">Summary</h2>
+          <p className="text-gray-700">
+            Shows an AI-generated summary of the field itself along with a timeline.
+          </p>
+          <Timeline />
+        </section>
+      ) : (
+        <section className="bg-white p-6 rounded-lg shadow-md">
+          <h1 className="text-2xl font-bold">{activePaper.title}</h1>
+          <p className="text-sm text-gray-500">
+            Publication Date: {activePaper.publicationDate}
+          </p>
+          <p className="text-sm text-gray-500">
+            Publication Types:{" "}
+            {activePaper.publicationTypes?.join(", ")}
+          </p>
+          <a
+            href={activePaper.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-curieBlue underline"
+          >
+            View Paper
+          </a>
+        </section>
+      )}
     </main>
   );
 }
