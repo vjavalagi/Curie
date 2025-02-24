@@ -3,7 +3,12 @@ import json
 from urllib.request import Request, urlopen
 from PyPDF2 import PdfWriter, PdfReader
 from io import BytesIO
+from dotenv import load_dotenv, find_dotenv
+import os
 
+# Load environment variables from .env file
+load_dotenv(find_dotenv())
+APIKEY = os.getenv('SERP')
 params = {
   "api_key": "98566a4548ae480b8b9abd9452def15cfbf5c5b1d137fe0ed8bddf7a2af26cd8",
   "engine": "google_scholar",
@@ -13,6 +18,7 @@ params = {
 def api_call(params, output_name="test.json"):
     search = GoogleSearch(params)
     results = search.get_dict()
+    print(results)
     return results
 
 def get_pdf(url):
