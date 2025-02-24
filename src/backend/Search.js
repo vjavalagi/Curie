@@ -2,10 +2,10 @@ function searchAPI({
   query = "generative ai",
   year = "2020-",
   onlyOpenAccess = true,
-  fields = "title,url,publicationTypes,publicationDate,openAccessPdf",
+  fields = "title,url,citationCount,publicationTypes,publicationDate,openAccessPdf",
 } = {}) {
   const baseUrl = "http://127.0.0.1:5001/api/search";
-
+  console.log("Initial Fields", fields);
   // Build the query parameters
   const params = new URLSearchParams({
     query,
@@ -15,6 +15,7 @@ function searchAPI({
   });
 
   const url = `${baseUrl}?${params.toString()}`;
+  console.log("Fields", fields);
   console.log("Fetching from:", url);
 
   // Perform the GET request using fetch
@@ -26,6 +27,6 @@ function searchAPI({
   });
 }
 
-export {searchAPI}
+export { searchAPI };
 
 // run example

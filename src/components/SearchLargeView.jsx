@@ -53,6 +53,11 @@ export default function SearchLargeView() {
             Publication Types:{" "}
             {activePaper.publicationTypes?.join(", ")}
           </p>
+          
+          <p className="text-sm text-gray-500">
+            Times Cited: {activePaper.citationCount}
+           
+          </p>
           <a
             href={activePaper.url}
             target="_blank"

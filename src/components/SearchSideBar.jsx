@@ -17,7 +17,7 @@ export default function Sidebar() {
       query: search,
       year: "2020-",
       onlyOpenAccess: true,
-      fields: "title,url,publicationTypes,publicationDate,openAccessPdf",
+      fields: "title,url,citationCount,publicationTypes,publicationDate,openAccessPdf",
     })
       .then((data) => {
         setResearchPapers(data);
@@ -73,6 +73,7 @@ export default function Sidebar() {
             >
               <span className="font-semibold">{paper.title}</span>
               <p className="text-sm text-gray-500">{paper.publicationDate}</p>
+              <p className="text-sm text-gray-500">{"Cited: " + paper.citationCount}</p>
             </button>
           ))
         )}

@@ -17,6 +17,7 @@ export default function SearchBar({ variant = "lightgray" }) {
     if (location.pathname !== "/search") {
       navigate(`/search`);
     }
+    setTempSearch("");
   };
 
   return (
