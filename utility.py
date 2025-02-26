@@ -1,13 +1,19 @@
 
 from google.api_core.client_options import ClientOptions
 from google.cloud import documentai
+from openai import OpenAI
+import re
+import os
 
 
 project_id = "curie-451919"
 location = "us"  # Format is "us" or "eu"
-file_path = "Science.pdf"
+file_path = "Science.pdf"  # The path to the PDF file
 processor_id = "e023529ca8b39cc"
 
+#OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_API_KEY = "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"
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 def quickstart(
     project_id: str,
@@ -42,9 +48,41 @@ def quickstart(
     # https://cloud.google.com/document-ai/docs/handle-response
     document = result.document
 
-    print("The document contains the following text:")
-    print(document.text)
+    return document
+
+
+#function to send the document text created by google processor to open ai to get summaries per section: Results, Methods
+def summarize_doc_with_ai(document):
+    # prepare prompt for gpt
+    prompt = f"""
+    Generate a one sentence summary for each section of the following document. The sections are: Introduction, Methods, Results, Discussion, Conclusion.
+
+    {document.text}
+
+    """
+
+    response = client.chat.completions.create(model="gpt-4-turbo",
+    messages=[{"role": "system", "content": "You are a subject expert"},
+              {"role": "user", "content": prompt}])
+    return response
+
 
 if __name__ == "__main__":
-    quickstart(project_id, location, file_path, processor_id)
+    document = quickstart(project_id, location, file_path, processor_id)
+
+    #print(document.pages[1].blocks[0].paragraphs[0])
+    print("Document text:")
+    print(document.text[:1000])  
+    #document = document.text[:1000]  # Limit to first 1000 characters for display
+
+    # Call the function to summarize the document
+    summary = summarize_doc_with_ai(document)
+    print("Summary of the document:")
+    print(summary)
+
+
+
+
+
+
 
