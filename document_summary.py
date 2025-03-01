@@ -1,32 +1,34 @@
-
 from google.api_core.client_options import ClientOptions
 from google.cloud import documentai
 from openai import OpenAI
-import re
 import os
 
 
-project_id = "curie-451919"
+project_id = "522084706907"
 location = "us"  # Format is "us" or "eu"
-file_path = "Science.pdf"  # The path to the PDF file
-processor_id = "e023529ca8b39cc"
+file_path = "pdfs/Sql.docx.pdf"  # The path to the PDF file
+processor_id = "97a7a6e3b25b168d"
+version_id = "53d3ef3b90ac9580"
 
-#OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_API_KEY)
+
 
 def quickstart(
     project_id: str,
     location: str,
     file_path: str,
-    processor_id: str = "e023529ca8b39cc",
+    processor_id: str = "97a7a6e3b25b168d",
+    version_id: str = "53d3ef3b90ac9580",
 ):
     
     opts = ClientOptions(api_endpoint=f"{location}-documentai.googleapis.com")
 
     client = documentai.DocumentProcessorServiceClient(client_options=opts)
 
-    processor_name = f"projects/{project_id}/locations/{location}/processors/{processor_id}"
+    processor_name = f"projects/{project_id}/locations/{location}/processors/{processor_id}/processorVersions/{version_id}"
 
+    print(processor_name)
 
     # Read file into memory
     with open(file_path, "rb") as image:
@@ -50,42 +52,24 @@ def quickstart(
     return document
 
 
-#function to send the document text created by google processor to open ai to get summaries per section: Results, Methods
-def summarize_doc_with_ai(document):
-    # prepare prompt for gpt
-    prompt = f"""
-    Generate a one sentence summary for each section of the following document. The sections are: Introduction, Methods, Results, Discussion, Conclusion.
-
-    {document.text}
-
-    """
-
-    response = client.chat.completions.create(model="gpt-4-turbo",
-    messages=[{"role": "system", "content": "You are a subject expert"},
-              {"role": "user", "content": prompt}])
-    return response
-
-
-
-
+def extract_summary_from_document(document):
+    # Iterate through all entities to find the ones marked as summaries
+    for entity in document.entities:
+        if entity.type_ == "summary":
+            # Access the mention text or normalized value containing the summary
+            summary_text = entity.mention_text
+            
+            # Return the extracted summary
+            return summary_text  # or normalized_summary_text if you prefer
 
 
 if __name__ == "__main__":
     document = quickstart(project_id, location, file_path, processor_id)
-
-    #print(document.pages[1].blocks[0].paragraphs[0])
-    print("Document text:")
-    print(document.text[:1000])  
-    #document = document.text[:1000]  # Limit to first 1000 characters for display
-
-    # Call the function to summarize the document
-    summary = summarize_doc_with_ai(document)
-    print("Summary of the document:")
-    print(summary)
-
-
-
-
-
-
-
+    
+    # Call the function to summarize and access the summary
+    summary = extract_summary_from_document(document)
+    if summary:
+        print("Extracted Summary:")
+        print(summary)
+    else:
+        print("No summary found in the document.")
