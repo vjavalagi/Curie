@@ -41,7 +41,7 @@ export default function SearchLargeView() {
           <p className="text-gray-700">
             Shows an AI-generated summary of the field itself along with a timeline.
           </p>
-          <Timeline />
+          <Timeline search = {search}/>
         </section>
       ) : (
         <section className="bg-white p-6 rounded-lg shadow-md">

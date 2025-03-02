@@ -1,33 +1,34 @@
 import React from "react";
+import { fetchTimeline } from "../backend/Timeline";
 
-const Timeline = () => {
-  const events = [
-    {
-      date: "1 Aug, 2023",
-      title: 'Created "Preline in React" task',
-      description: "Find more detailed instructions here.",
-      author: "James Collins",
-      avatar: "https://images.unsplash.com/photo-1659482633369-9fe69af50bfb?ixlib=rb-4.0.3&q=80&w=320&h=320&fit=facearea&facepad=3",
-    },
-    {
-      date: "1 Aug, 2023",
-      title: "Release v5.2.0 quick bug fix 🐞",
-      author: "Alex Gregarov",
-      avatar: null,
-    },
-    {
-      date: "1 Aug, 2023",
-      title: 'Marked "Install Charts" completed',
-      description: "Finally! You can check it out here.",
-      author: "James Collins",
-      avatar: "https://images.unsplash.com/photo-1659482633369-9fe69af50bfb?ixlib=rb-4.0.3&q=80&w=320&h=320&fit=facearea&facepad=3",
-    },
-    {
-      date: "31 Jul, 2023",
-      title: "Take a break ⛳️",
-      description: "Just chill for now... 😉",
-    },
-  ];
+const Timeline = ({ search }) => {
+  const [events, setEvents] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    setLoading(true);
+    // Pass search as an object property.
+    fetchTimeline({ subject: search || 'generative ai' })
+      .then((data) => {
+        setEvents(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching timeline:", error);
+        setLoading(false);
+      });
+    
+    console.log("fetching timeline for", search);
+  }, [search]);
+
+  if (loading) {
+    return (
+      <div className="p-6 bg-white rounded-lg shadow-md">
+        <h2 className="text-lg font-semibold mb-4">Timeline</h2>
+        <p>Loading timeline...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-white rounded-lg shadow-md">
@@ -38,7 +39,9 @@ const Timeline = () => {
           {/* Heading (If it's the first event OR date changes) */}
           {index === 0 || event.date !== events[index - 1].date ? (
             <div className="ps-2 my-2 first:mt-0">
-              <h3 className="text-xs font-medium uppercase text-gray-500">{event.date}</h3>
+              <h3 className="text-xs font-medium uppercase text-gray-500">
+                {event.date}
+              </h3>
             </div>
           ) : null}
 
@@ -57,7 +60,9 @@ const Timeline = () => {
                 {event.title}
               </h3>
               {event.description && (
-                <p className="mt-1 text-sm text-gray-600">{event.description}</p>
+                <p className="mt-1 text-sm text-gray-600">
+                  {event.description}
+                </p>
               )}
 
               {event.author && (
@@ -66,7 +71,11 @@ const Timeline = () => {
                   className="mt-1 -ms-1 p-1 inline-flex items-center gap-x-2 text-xs rounded-lg border border-transparent text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100"
                 >
                   {event.avatar ? (
-                    <img className="shrink-0 size-4 rounded-full" src={event.avatar} alt={event.author} />
+                    <img
+                      className="shrink-0 size-4 rounded-full"
+                      src={event.avatar}
+                      alt={event.author}
+                    />
                   ) : (
                     <span className="flex shrink-0 justify-center items-center size-4 bg-white border border-gray-200 text-[10px] font-semibold uppercase text-gray-600 rounded-full">
                       {event.author.charAt(0)}

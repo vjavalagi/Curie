@@ -22,3 +22,29 @@ curl -v -X POST "http://127.0.0.1:5001/api/download-pdf" \
   -d '{"url": "https://www.mdpi.com/2079-8954/12/3/103/pdf?version=1710867327"}'
 
 ```
+
+## LLM Experiments
+### GPT 3.5 Turbo
+I tried using gpt and i got the following results after running 100 timeline requests. I was hoping 3.5 would be really fast even if it wasnt good but it wasnt either
+Average time to complete: 3.4447554111480714
+Success rate: 0.54
+
+So the API is super slow and only able to succesfully return a formatted json 54% of the time.
+
+### GPT 4 turbo
+
+Average time to complete: 12.2710049700737
+Success rate: 0.97
+
+Much more reliable, but like 4 times as slow
+
+
+### GPT 4o mini
+
+Average time to complete: 5.74 seconds
+Success rate: 100.00%
+
+prob best one, fastest and most semantically correct
+
+
+

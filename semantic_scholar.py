@@ -5,6 +5,7 @@ import urllib3
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv, find_dotenv
 from flask_cors import CORS
+from gpt import get_foundational_papers
 
 # Load environment variables from .env file
 load_dotenv(find_dotenv())
@@ -18,6 +19,7 @@ pdf_output_path = "pdfs/"
 os.makedirs(pdf_output_path, exist_ok=True)
 
 SEMANTIC_SCHOLAR_API_KEY = os.getenv('SEMANTICAPIKEY')
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 def get_pdf(download_url):
     """Download a PDF from the given URL and save it locally."""
@@ -58,6 +60,14 @@ def search_semantic_scholar(query_params, only_open_access=False):
         data = [d for d in data if 'openAccessPdf' in d and d['openAccessPdf']]
     
     return data
+
+
+@app.route('/api/timeline', methods=['GET'])
+def api_timeline():
+    Subject = request.args.get('subject', 'generative ai')
+    timeline = get_foundational_papers(Subject)
+    print("HERE IS " , timeline)
+    return jsonify(timeline)
 
 @app.route('/api/search', methods=['GET'])
 def api_search():
