@@ -32,9 +32,16 @@ def get_pdf(download_url):
     return filename
 def sortCriteria(a,b):
     pass
-    
+
+'''
+Alternative URLS
+
+Bulk Search, returns as many as possible https://api.semanticscholar.org/graph/v1/paper/search/bulk
+
+Relevance Search, returns the most relevant papers https://api.semanticscholar.org/graph/v1/paper/search
+'''
 def search_semantic_scholar(query_params, only_open_access=False):
-    url = "https://api.semanticscholar.org/graph/v1/paper/search/bulk"
+    url = "https://api.semanticscholar.org/graph/v1/paper/search/"
     headers = {"x-api-key": SEMANTIC_SCHOLAR_API_KEY}
     
     response = requests.get(url, params=query_params, headers=headers)
@@ -58,7 +65,7 @@ def api_search():
     Example: GET /api/search?query=generative+ai&year=2020-&only_open_access=true
     """
     query = request.args.get('query', 'generative ai')
-    year = request.args.get('year', '2020-')
+    year = request.args.get('year', '2005-')
     fields = request.args.get('fields', 'title,url,citationCount,publicationTypes,publicationDate,openAccessPdf')
     only_open_access = request.args.get('only_open_access', 'true').lower() == 'true'
     

@@ -15,9 +15,9 @@ export default function Sidebar() {
     console.log(search);
     searchAPI({
       query: search,
-      year: "2020-",
-      onlyOpenAccess: true,
-      fields: "title,url,citationCount,publicationTypes,publicationDate,openAccessPdf",
+      year: "2005-",
+      onlyOpenAccess: false,
+      fields: "title,url,citationCount,publicationTypes,publicationDate",
     })
       .then((data) => {
         setResearchPapers(data);

@@ -1,6 +1,6 @@
 function searchAPI({
   query = "generative ai",
-  year = "2020-",
+  year = "2005-",
   onlyOpenAccess = true,
   fields = "title,url,citationCount,publicationTypes,publicationDate,openAccessPdf",
 } = {}) {
