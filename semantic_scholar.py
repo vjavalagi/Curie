@@ -27,7 +27,7 @@ def get_pdf(download_url):
     print(f"Attempting to download PDF from: {download_url}")
     response = http.request('GET', download_url)
     print("Status:", response.status)
-    filename = pdf_output_path + str(hash(download_url)) + ".pdf"
+    filename = "pdfs/" + str(hash(download_url)) + ".pdf"
     with open(filename, 'wb') as file:
         file.write(response.data)
     print("Completed download:", filename)

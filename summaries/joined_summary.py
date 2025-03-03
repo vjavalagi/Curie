@@ -3,14 +3,23 @@ from google.cloud import documentai
 from openai import OpenAI
 import os
 import json
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
 
 # Set up API credentials
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+google_creds_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = google_creds_path
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 # Function to extract pre-generated summary from Document AI (if available)
-def summarize_document(project_id, location, file_path, processor_id, version_id=None):
+def summarize_document(file_path):
     """Processes a document using Google Document AI and returns the extracted summary if available."""
+    project_id = "522084706907"
+    processor_id = "97a7a6e3b25b168d"
+    version_id= "53d3ef3b90ac9580"
+    location = "us"
+    file_summary = "/Users/joshuamayhugh/Documents/Capstone/curie/pdfs/ExamRubric.pdf"
     
     opts = ClientOptions(api_endpoint=f"{location}-documentai.googleapis.com")
     docai_client = documentai.DocumentProcessorServiceClient(client_options=opts)
@@ -33,8 +42,13 @@ def summarize_document(project_id, location, file_path, processor_id, version_id
     return "No summary found in document."
 
 # Function to extract raw text from a document
-def extract_text(project_id, location, file_path, processor_id, version_id=None):
+def extract_text(file_path):
     """Extracts text from a document using Google Document AI."""
+    project_id = "curie-451919"
+    processor_id = "e023529ca8b39cc"
+    version_id = None
+    location = "us"
+    file_path = "/Users/joshuamayhugh/Documents/Capstone/curie/pdfs/ExamRubric.pdf"
     
     opts = ClientOptions(api_endpoint=f"{location}-documentai.googleapis.com")
     docai_client = documentai.DocumentProcessorServiceClient(client_options=opts)
@@ -106,29 +120,7 @@ def summarize_sections_json (document_text):
         return None
 
     return json_data
-
-
-
-# === Main Execution ===
-if __name__ == "__main__":
-    # === Processor 1 === Extract Pre-generated Summary (Sql.docx.pdf)
-    project_summary = "522084706907"
-    processor_summary = "97a7a6e3b25b168d"
-    version_summary = "53d3ef3b90ac9580"
-    file_summary = "../pdfs/Sql.docx.pdf"
-
-    print("\n=== Retrieving Pre-generated Summary (Sql.docx.pdf) ===")
-    pre_generated_summary = summarize_document(project_summary, "us", file_summary, processor_summary, version_summary)
-    print(pre_generated_summary)
-
-    # === Processor 2 === Extract Text & Summarize Sections (Science.pdf)
-    project_text = "curie-451919"
-    processor_text = "e023529ca8b39cc"
-    file_text = "../pdfs/Science.pdf"
-
-    print("\n=== Extracting Text and Summarizing Sections (Science.pdf) ===")
-    extracted_text = extract_text(project_text, "us", file_text, processor_text)
-    
+def get_section_summary(extracted_text):
     if extracted_text.strip():  # Only summarize if text extraction was successful
         section_summaries = summarize_sections(extracted_text)
         print("\n=== Section Summaries (Science.pdf) ===")
@@ -138,7 +130,36 @@ if __name__ == "__main__":
 
     section_summaries_json = summarize_sections_json(extracted_text)
     # make into json file so can use to make slides
-    json_filename = "summaries.json"
-    with open(json_filename, "w") as json_file:
-        json.dump(section_summaries_json, json_file)
-    print(f"Section summaries saved to {json_filename}")
+    return dict(section_summaries_json)
+    
+
+
+# === Main Execution ===
+if __name__ == "__main__":
+    # === Processor 1 === Extract Pre-generated Summary (Sql.docx.pdf)
+    
+    file_path = "/Users/joshuamayhugh/Documents/Capstone/curie/pdfs/ExamRubric.pdf"
+    print("\n=== Retrieving Pre-generated Summary (Sql.docx.pdf) ===")
+    pre_generated_summary = summarize_document(file_path)
+    print(pre_generated_summary)
+
+    # === Processor 2 === Extract Text & Summarize Sections (Science.pdf)
+    
+    file_text = "/Users/joshuamayhugh/Documents/Capstone/curie/pdfs/ExamRubric.pdf"
+
+    print("\n=== Extracting Text and Summarizing Sections (Science.pdf) ===")
+    extracted_text = extract_text(file_path)
+    print(get_section_summary(extracted_text))
+    # if extracted_text.strip():  # Only summarize if text extraction was successful
+    #     section_summaries = summarize_sections(extracted_text)
+    #     print("\n=== Section Summaries (Science.pdf) ===")
+    #     print(section_summaries)
+    # else:
+    #     print("No text extracted from document.")
+
+    # section_summaries_json = summarize_sections_json(extracted_text)
+    # # make into json file so can use to make slides
+    # json_filename = "summaries.json"
+    # with open(json_filename, "w") as json_file:
+    #     json.dump(section_summaries_json, json_file)
+    # print(f"Section summaries saved to {json_filename}")

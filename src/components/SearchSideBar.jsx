@@ -3,6 +3,8 @@ import SearchFilterSidebar from "./SearchFilterSidebar";
 import { searchAPI } from "../backend/Search"; // adjust the import path as needed
 import { useGlobal } from "./GlobalContext";
 import { stringify } from "postcss";
+import { PDFDownload } from "../backend/PdfDownload";
+
 export default function Sidebar() {
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [researchPapers, setResearchPapers] = useState([]);
@@ -17,7 +19,7 @@ export default function Sidebar() {
       query: search,
       year: "2005-",
       onlyOpenAccess: false,
-      fields: "title,url,citationCount,publicationTypes,publicationDate",
+      fields: "title,url,citationCount,publicationTypes,publicationDate,openAccessPdf",
     })
       .then((data) => {
         setResearchPapers(data);
@@ -32,7 +34,17 @@ export default function Sidebar() {
 
   const handlePaperClick = (paper) => {
     console.log("Updating Paper");
-    setActivePaper(paper)
+    setActivePaper(paper);
+    console.log(paper)
+    if(paper.openAccessPdf && paper.openAccessPdf.url){
+      console.log("Downloading PDF");
+      console.log(paper.openAccessPdf.url);
+      PDFDownload(paper.openAccessPdf.url);
+    }
+    else{
+      console.log("No PDF Found");
+    }
+      
     console.log(paper);
 
   }
