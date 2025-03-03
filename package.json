@@ -10,8 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@auth0/auth0-react": "^2.3.0",
     "@heroicons/react": "^2.2.0",
+    "@react-oauth/google": "^0.12.1",
     "autoprefixer": "^10.4.20",
+    "axios": "^1.8.1",
     "bootstrap": "^5.3.3",
     "postcss": "^8.5.2",
     "preline": "^2.7.0",
