@@ -1,10 +1,10 @@
 import os
 import subprocess
 import json
-from pptx import Presentation
-from pptx.util import Pt
-from pptx.dml.color import RGBColor
 import shutil
+import pymupdf
+from PIL import Image
+import io
 
 # Get the base directory where this script is located (Curie folder)
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -12,21 +12,43 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 # Define paths relative to Curie folder
 slides_dir = os.path.join(base_dir, "slides")
 summaries_file = os.path.join(base_dir, "summaries", "summaries.json")
+pdf_path = os.path.join(base_dir, "pdfs", "science.pdf")
+output_folder = os.path.join(slides_dir, "extracted_images")  # Move images inside slides folder
 
-# Ensure 'slides' directory exists
+
 os.makedirs(slides_dir, exist_ok=True)
+os.makedirs(output_folder, exist_ok=True)
 
-# Check if summaries.json exists
+# Load JSON data from summaries.json
 if not os.path.exists(summaries_file):
     print(f"Error: The file '{summaries_file}' was not found.")
     exit(1)
 
-# Load JSON data from summaries.json
 with open(summaries_file, "r") as json_file:
     data = json.load(json_file)
 
-# choose a template- look at options on Latex website
-# https://mpetroff.net/files/beamer-theme-matrix/
+# Extract images from PDF
+doc = pymupdf.open(pdf_path)
+image_files = []
+
+for page_num in range(len(doc)):
+    page = doc[page_num]
+    images = page.get_images(full=True)
+
+    for img_index, img in enumerate(images):
+        xref = img[0]
+        base_image = doc.extract_image(xref)
+        image_bytes = base_image["image"]
+        img_ext = base_image["ext"]
+
+        # Convert image to PNG for LaTeX compatibility
+        image = Image.open(io.BytesIO(image_bytes))
+        filename = f"figure_{page_num + 1}_{img_index + 1}.png"  # Use PNG format
+        image_path = os.path.join(output_folder, filename)
+        image.save(image_path, format="PNG")
+        image_files.append(filename)
+
+print(f"Extracted {len(image_files)} images.")
 
 # LaTeX Template
 latex_template = f"""\\documentclass{{beamer}}
@@ -83,9 +105,20 @@ latex_template = f"""\\documentclass{{beamer}}
 \\begin{{frame}}{{Conclusion}}
     {data["sections"]["Conclusion"]["summary"]}
 \\end{{frame}}
-
-\\end{{document}}
 """
+
+# Add extracted images as slides
+for img in image_files:
+    latex_template += f"""
+\\begin{{frame}}{{Extracted Figure}}
+    \\centering
+    \\begin{{figure}}
+        \\includegraphics[width=0.8\\textwidth]{{extracted_images/{img}}}  % Relative path inside slides/
+    \\end{{figure}}
+\\end{{frame}}
+"""
+
+latex_template += "\n\\end{document}"
 
 # Save LaTeX file in 'slides' directory
 tex_filename = os.path.join(slides_dir, "Academic_Presentation.tex")
@@ -94,7 +127,7 @@ with open(tex_filename, "w") as tex_file:
 
 print(f"LaTeX file '{tex_filename}' created successfully!")
 
-# Run pdflatex to generate PDF inside 'slides' directory
+# Compile LaTeX file into PDF
 subprocess.run(["pdflatex", "-output-directory", slides_dir, tex_filename])
 
 # Move auxiliary files (like .snm, .log, etc.) into the slides directory
@@ -102,11 +135,4 @@ for file in os.listdir(slides_dir):
     if file.endswith((".aux", ".log", ".snm", ".toc", ".out")):
         shutil.move(os.path.join(slides_dir, file), os.path.join(slides_dir, file))
 
-# Optionally: Convert PDF to PowerPoint (if pdf2pptx is installed)
-# try:
-#     from pdf2pptx import convert
-#     pptx_filename = os.path.join(slides_dir, "Academic_Presentation.pptx")
-#     convert(os.path.join(slides_dir, "Academic_Presentation.pdf"), pptx_filename)
-#     print(f"PowerPoint file '{pptx_filename}' created successfully!")
-# except ImportError:
-#     print("Install pdf2pptx with 'pip install pdf2pptx' to enable PDF-to-PPT conversion.")
+print("Presentation PDF generated successfully!")
