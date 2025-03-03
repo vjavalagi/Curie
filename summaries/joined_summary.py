@@ -2,6 +2,7 @@ from google.api_core.client_options import ClientOptions
 from google.cloud import documentai
 from openai import OpenAI
 import os
+import json
 
 # Set up API credentials
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -69,6 +70,45 @@ def summarize_sections(document_text):
     
     return response.choices[0].message.content.strip()
 
+def summarize_sections_json (document_text):
+    """Generates a one-sentence summary per section and returns it in JSON format."""
+    
+    prompt = f"""
+    Extract the title, authors, and provide a two-sentence summary as bullet points for each relevant section of the document. This text
+    is an academic paper
+    The summary should be concise and no more than two sentences per section. Each section needs a summary and a portion of the json.
+    Return a string that I can parse into a json using, json_data = json.loads(json_response)
+
+    Document:
+    {document_text}
+    """
+    
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "system", "content": "You are a subject matter expert."},
+                  {"role": "user", "content": prompt}]
+    )
+    #print(response.choices[0].message.content.strip())
+    json_response = response.choices[0].message.content.strip()
+
+    # start json at {
+    json_response = json_response[json_response.index("{"):]
+    # end json at }
+    json_response = json_response[:json_response.rindex("}")+1]
+
+    print(json_response)
+
+    # Parse the string into JSON (if it's in proper format)
+    try:
+        json_data = json.loads(json_response)
+    except json.JSONDecodeError:
+        print("Error decoding JSON. The response might not be in valid JSON format.")
+        return None
+
+    return json_data
+
+
+
 # === Main Execution ===
 if __name__ == "__main__":
     # === Processor 1 === Extract Pre-generated Summary (Sql.docx.pdf)
@@ -95,3 +135,10 @@ if __name__ == "__main__":
         print(section_summaries)
     else:
         print("No text extracted from document.")
+
+    section_summaries_json = summarize_sections_json(extracted_text)
+    # make into json file so can use to make slides
+    json_filename = "summaries.json"
+    with open(json_filename, "w") as json_file:
+        json.dump(section_summaries_json, json_file)
+    print(f"Section summaries saved to {json_filename}")
