@@ -9,7 +9,7 @@ export default function SearchBar({ variant = "lightgray" }) {
   const location = useLocation();
   
   const bgColor = variant === "lightblue" ? "bg-curieLightBlue" : "bg-curieLightGray";
-  const textColor = variant === "lightblue" ? "text-curieLightGray" : "text-curieBlue";
+  const textColor = variant === "lightblue" ? "text-curieBlue" : "text-curieBlue";
 
   const handleSearch = (searchQuery) => {
     console.log("Search landing clicked");
