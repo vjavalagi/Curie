@@ -21,17 +21,32 @@ os.makedirs(pdf_output_path, exist_ok=True)
 SEMANTIC_SCHOLAR_API_KEY = os.getenv('SEMANTICAPIKEY')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-def get_pdf(download_url):
-    """Download a PDF from the given URL and save it locally."""
+def get_pdf(download_url, title):
+    """Download a PDF from the given URL and save it using the paper's title."""
     http = urllib3.PoolManager()
     print(f"Attempting to download PDF from: {download_url}")
-    response = http.request('GET', download_url)
-    print("Status:", response.status)
-    filename = "pdfs/" + str(hash(download_url)) + ".pdf"
+    response = http.request(
+            'GET',
+            download_url,
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+                'Accept': 'application/pdf',
+                'Referer': 'https://www.semanticscholar.org/'  # Simulating a request from Semantic Scholar
+        }
+    )
+
+    if response.status != 200:
+        print("Failed to download PDF:", response.status)
+        return None
+
+    filename = f"pdfs/{title}.pdf"
+
     with open(filename, 'wb') as file:
         file.write(response.data)
+
     print("Completed download:", filename)
     return filename
+
 def sortCriteria(a,b):
     pass
 
@@ -94,17 +109,23 @@ def api_search():
 @app.route('/api/download-pdf', methods=['POST'])
 def api_download_pdf():
     """
-    Expects JSON body with a key 'url', e.g.,
-    { "url": "https://example.com/path/to/file.pdf" }
+    Expects JSON body with 'url' and 'title', e.g.,
+    { "url": "https://example.com/path/to/file.pdf", "title": "Paper Title" }
     """
     data = request.get_json()
     download_url = data.get('url')
+    title = data.get('title', 'untitled')  # Default title if not provided
+
     if not download_url:
         return jsonify({"error": "No URL provided"}), 400
-    
-    filename = get_pdf(download_url)
-    return jsonify({"message": "PDF downloaded", "filename": filename})
 
+    # Sanitize title for filename
+    safe_title = "".join(c if c.isalnum() or c in (" ", "_", "-") else "_" for c in title).strip()
+    safe_title = safe_title.replace(" ", "_")  # Replace spaces with underscores
+
+    filename = get_pdf(download_url, safe_title)
+    
+    return jsonify({"message": "PDF downloaded", "filename": filename})
 if __name__ == '__main__':
     # Run on port 5001
     app.run(debug=True, port=5001)
