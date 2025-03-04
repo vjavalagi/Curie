@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { searchAPI } from "../backend/Search"; // adjust the import path as needed
 import { useGlobal } from "./GlobalContext";
+import { stringify } from "postcss";
+import { PDFDownload } from "../backend/PdfDownload";
 
-export default function Sidebar({ selectedFilter }) {
+export default function Sidebar() {
+  const [selectedFilter, setSelectedFilter] = useState("All");
   const [researchPapers, setResearchPapers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -14,7 +17,7 @@ export default function Sidebar({ selectedFilter }) {
       query: search,
       year: "2005-",
       onlyOpenAccess: false,
-      fields: "title,url,citationCount,publicationTypes,publicationDate",
+      fields: "title,url,citationCount,publicationTypes,publicationDate,openAccessPdf",
     })
       .then((data) => {
         setResearchPapers(data);
@@ -28,9 +31,24 @@ export default function Sidebar({ selectedFilter }) {
   }, [search]);
 
   const handlePaperClick = (paper) => {
+    console.log("Updating Paper");
     setActivePaper(paper);
-  };
+    console.log(paper)
+    if(paper.openAccessPdf && paper.openAccessPdf.url){
+      console.log("Downloading PDF");
+      console.log(paper.openAccessPdf.url);
+      PDFDownload(paper.openAccessPdf.url);
+    }
+    else{
+      console.log("No PDF Found");
+    }
+      
+    console.log(paper);
 
+  }
+
+  // Filter papers based on the selected category.
+  // Here we assume that the "publicationTypes" property is an array.
   const filteredPapers =
     selectedFilter === "All"
       ? researchPapers

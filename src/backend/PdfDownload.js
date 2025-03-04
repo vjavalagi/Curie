@@ -17,13 +17,13 @@ function PDFDownload(pdfUrl) {
   }
 
   
-  export default PDFDownload;
+export { PDFDownload };
   
 //] function with your PDF URL Here is an exmpale
-PDFDownload("https://www.mdpi.com/2079-8954/12/3/103/pdf?version=1710867327")
-  .then(data => {
-    console.log("PDF downloaded successfully:", data);
-  })
-  .catch(error => {
-    console.error("An error occurred:", error);
-  });
+// PDFDownload("https://www.mdpi.com/2079-8954/12/3/103/pdf?version=1710867327")
+//   .then(data => {
+//     console.log("PDF downloaded successfully:", data);
+//   })
+//   .catch(error => {
+//     console.error("An error occurred:", error);
+//   });
