@@ -6,7 +6,7 @@ export default function SearchFilterSidebar({ onFilterSelect }) {
   const filters = ["All", "Security", "AI", "Cloud", "Blockchain"];
 
   return (
-    <div className="w-1/3 border-r p-4 bg-gray-100 rounded-lg">
+    <div className="w-1/6 border-r p-4 bg-gray-100 rounded-lg">
       <h3 className="font-bold text-lg mb-3">Filter</h3>
       <ul className="space-y-2">
         {filters.map((filter, index) => (
