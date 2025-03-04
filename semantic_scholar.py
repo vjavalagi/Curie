@@ -2,7 +2,7 @@ import os
 import json
 import requests
 import urllib3
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from dotenv import load_dotenv, find_dotenv
 from flask_cors import CORS
 from gpt import get_foundational_papers
@@ -104,6 +104,25 @@ def api_download_pdf():
     
     filename = get_pdf(download_url)
     return jsonify({"message": "PDF downloaded", "filename": filename})
+
+@app.route('/api/list-pdfs', methods=['GET'])
+def list_pdfs():
+    """List all saved PDFs in the pdfs directory."""
+    pdf_directory = "pdfs/"
+    try:
+        pdf_files = [
+            {"title": f[:-4], "filename": f}  # Remove ".pdf" from title
+            for f in os.listdir(pdf_directory) if f.endswith(".pdf")
+        ]
+        return jsonify(pdf_files)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/pdfs/<filename>', methods=['GET'])
+def serve_pdf(filename):
+    """Serve the PDFs so they can be accessed via frontend."""
+    return send_from_directory("pdfs", filename)
+
 
 if __name__ == '__main__':
     # Run on port 5001
