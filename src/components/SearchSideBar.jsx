@@ -37,7 +37,7 @@ export default function Sidebar() {
     if(paper.openAccessPdf && paper.openAccessPdf.url){
       console.log("Downloading PDF");
       console.log(paper.openAccessPdf.url);
-      PDFDownload(paper.openAccessPdf.url);
+      PDFDownload(paper.openAccessPdf.url, paper.title);
     }
     else{
       console.log("No PDF Found");

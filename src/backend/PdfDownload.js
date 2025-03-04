@@ -1,12 +1,13 @@
-function PDFDownload(pdfUrl) {
+function PDFDownload(pdfUrl, pdfTitle) {
     const baseUrl = 'http://127.0.0.1:5001/api/download-pdf';
     
+    console.log("Sending PDF download request with title:", pdfTitle);
     return fetch(baseUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ url: pdfUrl })
+      body: JSON.stringify({ url: pdfUrl, title: pdfTitle })
     })
     .then(response => {
       if (!response.ok) {
