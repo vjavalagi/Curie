@@ -36,16 +36,16 @@ export default function Sidebar() {
     console.log("Updating Paper");
     setActivePaper(paper);
     console.log(paper)
-    if(paper.openAccessPdf && paper.openAccessPdf.url){
-      console.log("Downloading PDF");
-      console.log(paper.openAccessPdf.url);
-      PDFDownload(paper.openAccessPdf.url);
-    }
-    else{
-      console.log("No PDF Found");
-    }
+    // if(paper.openAccessPdf && paper.openAccessPdf.url){
+    //   console.log("Downloading PDF");
+    //   console.log(paper.openAccessPdf.url);
+    //   PDFDownload(paper.openAccessPdf.url, paper.title);
+    // }
+    // else{
+    //   console.log("No PDF Found");
+    // }
       
-    console.log(paper);
+    // console.log(paper);
 
   }
 
