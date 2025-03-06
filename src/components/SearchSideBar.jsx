@@ -59,7 +59,7 @@ export default function Sidebar() {
   return (
     <aside className="flex h-screen w-1/4 bg-white border-r shadow-md overflow-hidden">
       <div className="p-4 overflow-y-auto">
-        <h2 className="text-xl font-semibold mb-3">Research Papers</h2>
+        <h2 className="text-xl font-semibold mb-3"> 	&nbsp;       	&nbsp;Research Papers</h2>
         {loading ? (
           <p>Loading research papers...</p>
         ) : error ? (
