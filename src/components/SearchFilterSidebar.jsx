@@ -9,7 +9,7 @@ export default function SearchFilterSidebar() {
     if (window.HSStaticMethods && window.HSStaticMethods.autoInit) {
       window.HSStaticMethods.autoInit();
     }
-  }, []);
+  }, [isOpen]);
 
   return (
     <div className="relative">
