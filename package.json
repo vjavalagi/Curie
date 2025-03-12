@@ -14,10 +14,12 @@
     "autoprefixer": "^10.4.20",
     "bootstrap": "^5.3.3",
     "nouislider": "^15.8.1",
+    "pdfjs-dist": "^4.10.38",
     "postcss": "^8.5.2",
     "preline": "^2.7.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-pdf": "^9.2.1",
     "routes": "^2.1.0",
     "tailwindcss": "^3.4.17"
   },
