@@ -4,25 +4,26 @@ import { searchAPI } from "../backend/Search"; // adjust the import path as need
 import { useGlobal } from "./GlobalContext";
 import { stringify } from "postcss";
 import { PDFDownload } from "../backend/PdfDownload";
+import { SummarizeDocument } from "../backend/SummarizeDocument";
+import { SummarizeSections } from "../backend/SummarizeSections";
 
 export default function Sidebar() {
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [researchPapers, setResearchPapers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const {search, setSearch, setActivePaper} = useGlobal();
+  const {search, setSearch, setActivePaper, setActiveSummary} = useGlobal();
   // when page first render set the search query
   useEffect(() => {
     setLoading(true);
     console.log(search);
     searchAPI({
-      query: search,
-      year: "2005-",
-      onlyOpenAccess: false,
-      fields: "title,url,citationCount,publicationTypes,publicationDate,openAccessPdf",
+      topic: search,
+      limit: 40,
     })
       .then((data) => {
         setResearchPapers(data);
+        console.log(data);
         setLoading(false);
       })
       .catch((err) => {
@@ -32,22 +33,23 @@ export default function Sidebar() {
       });
   }, [search]);
 
-  const handlePaperClick = (paper) => {
-    console.log("Updating Paper");
-    setActivePaper(paper);
-    console.log(paper)
-    if(paper.openAccessPdf && paper.openAccessPdf.url){
-      console.log("Downloading PDF");
-      console.log(paper.openAccessPdf.url);
-      PDFDownload(paper.openAccessPdf.url);
+  const handlePaperClick = async (paper) => {
+    try {
+      console.log("Updating Paper");
+      setActivePaper(paper);
+      setActiveSummary(null);
+      console.log("Downloading PDF for paper:", paper.title);
+      await PDFDownload(paper); // Wait for PDF download to complete
+      console.log("PDF download complete. Proceeding to summarize sections.");
+     
+      const sumresp = await SummarizeSections(paper.title);
+      setActiveSummary(sumresp);
+      console.log("Summary complete");
+      console.log("activeSummary changed:", sumresp);
+    } catch (error) {
+      console.error("Error handling paper click:", error);
     }
-    else{
-      console.log("No PDF Found");
-    }
-      
-    console.log(paper);
-
-  }
+  };
 
   // Filter papers based on the selected category.
   // Here we assume that the "publicationTypes" property is an array.
@@ -84,8 +86,9 @@ export default function Sidebar() {
             
             >
               <span className="font-semibold">{paper.title}</span>
-              <p className="text-sm text-gray-500">{paper.publicationDate}</p>
-              <p className="text-sm text-gray-500">{"Cited: " + paper.citationCount}</p>
+              <p className="text-sm text-gray-500">{paper.authors.join(", ")}</p>
+              <p className="text-sm text-gray-500">{paper.published}</p>
+      
             </button>
           ))
         )}
