@@ -1,21 +1,47 @@
-import { motion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
 
 export default function InfoSection({ infoRef }) {
+  const title = "Welcome to Curie";
+  const titleRef = useRef(null);
+  const isInView = useInView(titleRef, { once: true });
+
+  const containerVariants = {
+    hidden: { opacity: 1 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 },
+    },
+  };
+
+  const letterVariants = {
+    hidden: { y: 50, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 200 } },
+  };
+
   return (
     <section
       ref={infoRef}
       className="h-screen flex flex-col justify-center items-center p-12 snap-start"
-      style={{ backgroundColor: "#f4f8fc" }} // Fixed background color for InfoSection
+      style={{ backgroundColor: "#f4f8fc" }}
     >
       <div className="max-w-4xl text-center text-curieBlue">
+        {/* Rolling Letter Animation */}
         <motion.h2
-          className="text-4xl font-bold mb-6 text-curieBlue"
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 1 }}
+          ref={titleRef}
+          className="text-4xl font-bold mb-6 text-curieBlue flex justify-center"
+          variants={containerVariants}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
         >
-          Welcome to Curie
+          {title.split("").map((letter, index) => (
+            <motion.span key={index} variants={letterVariants}>
+              {letter === " " ? "\u00A0" : letter}
+            </motion.span>
+          ))}
         </motion.h2>
+
+        {/* Description */}
         <motion.p
           className="text-lg text-curieBlue"
           initial={{ y: 50, opacity: 0 }}
@@ -27,6 +53,7 @@ export default function InfoSection({ infoRef }) {
           research workflow.
         </motion.p>
 
+        {/* Feature Cards */}
         <motion.div
           className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6"
           initial={{ opacity: 0 }}
