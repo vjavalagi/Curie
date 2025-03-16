@@ -6,7 +6,12 @@ from flask import Flask, request, jsonify
 from dotenv import load_dotenv, find_dotenv
 from flask_cors import CORS
 from gpt import get_foundational_papers
+from summaries.joined_summary import summarize_document, extract_text, summarize_sections
+from arxiv_api import ArxivAPI
+from arxiv import Client, Search, SortCriterion
 
+
+arxiv = ArxivAPI()
 # Load environment variables from .env file
 load_dotenv(find_dotenv())
 
@@ -21,17 +26,27 @@ os.makedirs(pdf_output_path, exist_ok=True)
 SEMANTIC_SCHOLAR_API_KEY = os.getenv('SEMANTICAPIKEY')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
-def get_pdf(download_url):
+def get_whole_summary(name):
+    return summarize_document(name)
+
+def get_section_summaries(name):
+    print("Getting Section Summaries", name)
+    print("extracting text")
+    text = extract_text(name)
+    print(text)
+    print("summarizing sections")
+    return summarize_sections(text)
+
+def get_pdf(obj, name = None):
     """Download a PDF from the given URL and save it locally."""
-    http = urllib3.PoolManager()
-    print(f"Attempting to download PDF from: {download_url}")
-    response = http.request('GET', download_url)
-    print("Status:", response.status)
-    filename = "pdfs/" + str(hash(download_url)) + ".pdf"
-    with open(filename, 'wb') as file:
-        file.write(response.data)
-    print("Completed download:", filename)
-    return filename
+    print(obj)
+    print(type(obj))
+    name = name if name else obj["title"]
+    if not name.endswith(".pdf"):
+        name += ".pdf"
+    arxiv.save_pdf(obj, name)
+    return name
+    
 def sortCriteria(a,b):
     pass
 
@@ -42,25 +57,50 @@ Bulk Search, returns as many as possible https://api.semanticscholar.org/graph/v
 
 Relevance Search, returns the most relevant papers https://api.semanticscholar.org/graph/v1/paper/search
 '''
-def search_semantic_scholar(query_params, only_open_access=False):
-    url = "https://api.semanticscholar.org/graph/v1/paper/search/"
-    headers = {"x-api-key": SEMANTIC_SCHOLAR_API_KEY}
+# def search_semantic_scholar(query_params, only_open_access=False):
+#     url = "https://api.semanticscholar.org/graph/v1/paper/search/"
+#     headers = {"x-api-key": SEMANTIC_SCHOLAR_API_KEY}
     
-    response = requests.get(url, params=query_params, headers=headers)
-    print("Response status code:", response.status_code)
+#     response = requests.get(url, params=query_params, headers=headers)
+#     print("Response status code:", response.status_code)
     
-    try:
-        response_json = response.json()
-    except Exception as e:
-        print("Error parsing JSON:", e)
-        return {"error": "Invalid response from API"}
+#     try:
+#         response_json = response.json()
+#     except Exception as e:
+#         print("Error parsing JSON:", e)
+#         return {"error": "Invalid response from API"}
     
-    data = response_json.get('data', [])
-    if only_open_access:
-        data = [d for d in data if 'openAccessPdf' in d and d['openAccessPdf']]
+#     data = response_json.get('data', [])
+#     if only_open_access:
+#         data = [d for d in data if 'openAccessPdf' in d and d['openAccessPdf']]
     
-    return data
+#     return data
 
+
+    
+@app.route('/api/summarize-sections', methods=['GET'])
+def api_summarize_sections():
+    """
+    Example: GET /api/summarize-sections?file_path=/path/to/file.pdf
+    """
+    print("File path", request.args.get('file_path'))
+    file_path = "./pdfs/" + request.args.get('file_path', 'ExamRubric') + ".pdf"
+    print(file_path)
+    print("FILE PATH for section summaries", file_path)
+    summary = get_section_summaries(file_path)
+    print("SUMMARY", summary)
+    return jsonify({"summary": summary})
+
+
+@app.route('/api/summarize', methods=['GET'])
+def api_summarize():
+    """
+    Example: GET /api/summarize?file_path=/path/to/file.pdf
+    """
+    file_path = request.args.get('file_path', 'pdfs/ExamRubric.pdf')
+    print("FILE PATH", file_path)
+    summary = get_whole_summary(file_path)
+    return jsonify({"summary": summary})
 
 @app.route('/api/timeline', methods=['GET'])
 def api_timeline():
@@ -72,38 +112,24 @@ def api_timeline():
 @app.route('/api/search', methods=['GET'])
 def api_search():
     """
-    Example: GET /api/search?query=generative+ai&year=2020-&only_open_access=true
     """
-    query = request.args.get('query', 'generative ai')
-    year = request.args.get('year', '2005-')
-    fields = request.args.get('fields', 'title,url,citationCount,publicationTypes,publicationDate,openAccessPdf')
-    only_open_access = request.args.get('only_open_access', 'true').lower() == 'true'
-    
-    query_params = {
-        "query": query,
-        "fields": fields,
-        "year": year
-    }
-    
-    results = search_semantic_scholar(query_params, only_open_access)
-    if results and isinstance(results, list):
-        print(results[0])
-    
+    topic = request.args.get('topic', 'Computer Science')
+    limit = int(request.args.get('limit', 7))
+    results = arxiv.search(topic, limit, SortCriterion.Relevance)
     return jsonify(results)
 
 @app.route('/api/download-pdf', methods=['POST'])
 def api_download_pdf():
     """
-    Expects JSON body with a key 'url', e.g.,
-    { "url": "https://example.com/path/to/file.pdf" }
+    Example: POST /api/download-pdf
+    {
+        "entry_id": "1234.56789",
+        "title": "example.pdf"
+    }
     """
     data = request.get_json()
-    download_url = data.get('url')
-    if not download_url:
-        return jsonify({"error": "No URL provided"}), 400
-    
-    filename = get_pdf(download_url)
-    return jsonify({"message": "PDF downloaded", "filename": filename})
+    get_pdf(data)
+    return jsonify({"success": True})
 
 if __name__ == '__main__':
     # Run on port 5001
