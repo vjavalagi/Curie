@@ -11,7 +11,6 @@ export default function LandingPage() {
   const infoRef = useRef(null);
   const faqRef = useRef(null);
   const [backgroundColor, setBackgroundColor] = useState("#f4f4f4");
-  const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
     const handleIntersection = (entries) => {
@@ -33,11 +32,6 @@ export default function LandingPage() {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    const timer = setTimeout(() => setShowContent(true), 2500);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <div
       className="w-screen h-screen overflow-y-scroll scroll-smooth"
@@ -51,26 +45,32 @@ export default function LandingPage() {
           <ProfileIcon />
         </div>
 
+        {/* Curie Logo Slide in from Left */}
         <motion.img
           src={curieLogo}
           alt="Curie Logo"
           className="w-48 mb-8"
-          initial={{ opacity: 0, y: -100 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 2, delay: 0 }}
+          initial={{ x: -200, opacity: 0 }} // Start offscreen to the left
+          animate={{ x: 0, opacity: 1 }} // Slide to center and fade in
+          transition={{ duration: 1.5, ease: "easeOut" }}
         />
 
-        {showContent && (
-          <>
-            <SearchBar variant="lightgray" />
-            <button
-              onClick={() => infoRef.current.scrollIntoView({ behavior: "smooth" })}
-              className="mt-8 text-blue-500 underline"
-            >
-              Learn More
-            </button>
-          </>
-        )}
+        {/* Search Bar Slide in from Right and expand to full width */}
+        <motion.div
+          initial={{ x: "100%", opacity: 0, width: "50%" }} // Start offscreen to the right with smaller width
+          animate={{ x: 0, opacity: 1, width: "100%" }} // Slide to center and expand to full width
+          transition={{ duration: 1.5, ease: "easeOut" }} // Same duration and ease for both
+          className="flex justify-center"
+        >
+          <SearchBar variant="lightgray" />
+        </motion.div>
+
+        <button
+          onClick={() => infoRef.current.scrollIntoView({ behavior: "smooth" })}
+          className="mt-8 text-blue-500 underline"
+        >
+          Learn More
+        </button>
       </section>
 
       <InfoSection infoRef={infoRef} />

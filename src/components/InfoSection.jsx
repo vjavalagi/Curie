@@ -1,5 +1,6 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
+import hat from "../assets/hat.png"; // Import the image correctly
 
 export default function InfoSection({ infoRef }) {
   const title = "Welcome to Curie";
@@ -73,9 +74,14 @@ export default function InfoSection({ infoRef }) {
 function FeatureCard({ title, description }) {
   return (
     <motion.div
-      className="bg-white bg-opacity-10 p-6 rounded-lg shadow-lg text-left"
+      className="bg-white bg-opacity-10 p-6 rounded-lg shadow-lg text-left relative"
       whileHover={{ scale: 1.05 }}
     >
+      <img
+        src={hat} // Use the imported image
+        alt="Hat"
+        className="absolute top-2 left-2 w-8 h-8" // Adjust size and positioning
+      />
       <h3 className="text-xl font-semibold text-curieBlue">{title}</h3>
       <p className="text-black mt-2">{description}</p>
     </motion.div>

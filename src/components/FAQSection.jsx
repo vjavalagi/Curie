@@ -27,7 +27,7 @@ export default function FAQSection({ faqRef }) {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setBgColor(entry.isIntersecting ? "rgba(25, 85, 175, 1)" : "rgba(255, 255, 255, 1)");
+        setBgColor(entry.isIntersecting ? "#1a2d8d" : "rgba(255, 255, 255, 1)");
       },
       { threshold: 0.5 }
     );
