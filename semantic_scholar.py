@@ -2,7 +2,7 @@ import os
 import json
 import requests
 import urllib3
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from dotenv import load_dotenv, find_dotenv
 from flask_cors import CORS
 from gpt import get_foundational_papers

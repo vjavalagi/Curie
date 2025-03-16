@@ -1,6 +1,10 @@
 import React, { useEffect } from "react";
 import Timeline from "./Timeline";
 import { useGlobal } from "./GlobalContext";
+import { PDFDownload } from "../backend/PdfDownload"; // Ensure correct path
+import { useState } from "react";
+
+
 
 export default function SearchLargeView() {
   const { search, activePaper, setActivePaper, activeSummary } = useGlobal();
@@ -15,6 +19,8 @@ export default function SearchLargeView() {
   }, [activeSummary]);
 
   const handleDeepDiveClick = () => {
+    console.log("!!Current search value before download:", search);
+
     setActivePaper("");
     console.log("Emptying paper", activePaper);
   };
@@ -24,14 +30,34 @@ export default function SearchLargeView() {
       <div className="flex justify-between items-center mb-4">
         {/* Beginner Buttons on Left */}
         <div className="flex gap-2">
-          <button className="px-4 py-2 bg-blue-300 text-white rounded-lg shadow-md">
+        <div class="inline-flex rounded-lg shadow-2xs">
+          <button type="button" class="py-3 px-4 inline-flex items-center gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg text-sm font-medium focus:z-10 border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800">
             Beginner
           </button>
-          <button className="px-4 py-2 bg-blue-400 text-white rounded-lg shadow-md">
+          <button type="button" class="py-3 px-4 inline-flex items-center gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg text-sm font-medium focus:z-10 border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800">
             Intermediate
           </button>
-          <button className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md">
+          <button type="button" class="py-3 px-4 inline-flex items-center gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg text-sm font-medium focus:z-10 border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800">
             Expert
+          </button>
+        </div>
+        <button
+            type="button"
+            className="flex justify-center items-center px-4 py-2 min-w-[150px] text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+            onClick={handlePdfDownloadClick}
+            disabled={!activePaper?.openAccessPdf?.url || isDownloading} 
+          >
+            {isDownloading ? (
+              <span
+                className="animate-spin inline-block size-4 border-3 border-current border-t-transparent text-blue-600 rounded-full dark:text-blue-500"
+                role="status"
+                aria-label="loading"
+              >
+                <span className="sr-only">Loading...</span>
+              </span>
+            ) : (
+              "Download to Profile"
+            )}
           </button>
         </div>
 
