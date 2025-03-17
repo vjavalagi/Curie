@@ -14,6 +14,7 @@
     "autoprefixer": "^10.4.20",
     "bootstrap": "^5.3.3",
     "framer-motion": "^12.4.10",
+    "nouislider": "^15.8.1",
     "pdfjs-dist": "^4.10.38",
     "postcss": "^8.5.2",
     "preline": "^2.7.0",

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import SearchFilterSidebar from "./SearchFilterSidebar";
 import { searchAPI } from "../backend/Search"; // adjust the import path as needed
 import { useGlobal } from "./GlobalContext";
 import { stringify } from "postcss";
@@ -10,11 +9,10 @@ export default function Sidebar() {
   const [researchPapers, setResearchPapers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const {search, setSearch, setActivePaper} = useGlobal();
-  // when page first render set the search query
+  const { search, setSearch, setActivePaper } = useGlobal();
+
   useEffect(() => {
     setLoading(true);
-    console.log(search);
     searchAPI({
       query: search,
       year: "2005-",
@@ -59,14 +57,9 @@ export default function Sidebar() {
         );
 
   return (
-    <aside className="flex h-screen w-2/5 bg-white border-r shadow-md overflow-hidden">
-      {/* Left Filter Sidebar */}
-      <SearchFilterSidebar onFilterSelect={setSelectedFilter} />
-
-      {/* Research Paper List */}
-      <div className="w-2/3 p-4 overflow-y-auto">
-        <h2 className="text-xl font-semibold mb-3">Research Papers</h2>
-
+    <aside className="flex h-screen w-1/4 bg-white border-r shadow-md overflow-hidden">
+      <div className="p-4 overflow-y-auto">
+        <h2 className="text-xl font-semibold mb-3"> 	&nbsp;       	&nbsp;Research Papers</h2>
         {loading ? (
           <p>Loading research papers...</p>
         ) : error ? (
@@ -81,11 +74,12 @@ export default function Sidebar() {
               key={paper.paperId || paper.title}
               className="w-full p-4 bg-gray-50 border hover:bg-gray-200 rounded-lg text-left mb-2"
               onClick={() => handlePaperClick(paper)}
-            
             >
               <span className="font-semibold">{paper.title}</span>
               <p className="text-sm text-gray-500">{paper.publicationDate}</p>
-              <p className="text-sm text-gray-500">{"Cited: " + paper.citationCount}</p>
+              <p className="text-sm text-gray-500">
+                {"Cited: " + paper.citationCount}
+              </p>
             </button>
           ))
         )}
