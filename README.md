@@ -6,7 +6,7 @@ We are going to put all files in the components folder, with pages being marked 
 
 To use the semantic scholar api:
 pip install -r requirements.txt
-python3 semantic_scholar.py
+python3 arxiv.py
 
 go to terminal and run these to test
 
