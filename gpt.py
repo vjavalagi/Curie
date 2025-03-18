@@ -47,7 +47,7 @@ def get_foundational_papers(Topic):
     messages = [
         {"role": "system", "content": "You are a helpful assistant that outputs strictly formatted JSON according to the provided schema."},
         {"role": "user", "content": (
-            f"Please provide the dates, titles, and authors of the 10 most important foundational papers in {Topic}."
+            f"Please provide the dates, titles, and authors of the 10 most important foundational papers by most impactful citations in {Topic}."
             "Ensure each entry includes the date, title, and author. Do not include any additional text."
         )}
     ]

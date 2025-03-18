@@ -48,3 +48,14 @@ prob best one, fastest and most semantically correct
 
 
 
+# Arxiv docs
+Each document in this collection is a JSON object with the following fields:
+
+    entry_id: A unique identifier for the document.
+    published: The publication date in ISO 8601 format.
+    updated: The date when the document was last updated, in ISO 8601 format.
+    title: The title of the document.
+    summary: A brief abstract or summary of the document.
+    authors: A list of the document's authors.
+    journal_ref: A reference to the journal or conference where the document was published (if available).
+    links: A list of URLs related to the document, such as the abstract page or the PDF.

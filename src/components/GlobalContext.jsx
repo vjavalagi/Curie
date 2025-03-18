@@ -10,8 +10,9 @@ export const GlobalProvider = ({ children }) => {
   const updateSearch = (query) => setSearch(query);
   const updateUser = (query) => setUser(query);
   const updateActiverPaper = (query) => setActivePaper(query);
+  const [activeSummary, setActiveSummary] = useState();
   return (
-    <GlobalContext.Provider value={{ search, user, activePaper, setSearch, updateSearch, setActivePaper }}>
+    <GlobalContext.Provider value={{ search, user, activePaper, activeSummary, setActiveSummary, setSearch, updateSearch, setActivePaper }}>
       {children}
     </GlobalContext.Provider>
   );
