@@ -35,19 +35,22 @@ export default function Sidebar() {
 
   const handlePaperClick = async (paper) => {
     try {
-      console.log("Updating Paper");
+      console.log("Updating Paper", paper);
       setActivePaper(paper);
-      setActiveSummary(null);
+      // Set to undefined to indicate summary is loading
+      setActiveSummary(undefined);
       console.log("Downloading PDF for paper:", paper.title);
-      await PDFDownload(paper); // Wait for PDF download to complete
+      await PDFDownload(paper);
       console.log("PDF download complete. Proceeding to summarize sections.");
-     
+      
       const sumresp = await SummarizeSections(paper.title);
+      // If sumresp is falsy, it will be treated as "no summary available"
       setActiveSummary(sumresp);
-      console.log("Summary complete");
-      console.log("activeSummary changed:", sumresp);
+      console.log("Summary complete", sumresp);
     } catch (error) {
       console.error("Error handling paper click:", error);
+      // On error, set the summary to null so that the UI can show a fallback message
+      setActiveSummary(null);
     }
   };
 
