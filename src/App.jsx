@@ -3,7 +3,6 @@ import { useState } from "react";
 import Header from "./components/Header";
 import LandingPage from "./Pages/LandingPage";
 import Profile from "./Pages/ProfilePage";
-import Login from "./Pages/Login";
 import SearchPage from "./Pages/SearchPage";
 import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
@@ -17,7 +16,6 @@ function App() {
         <GlobalProvider>
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<Login />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="*" element={<h1>Not Found</h1>} />
