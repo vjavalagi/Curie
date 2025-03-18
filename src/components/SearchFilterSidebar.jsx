@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { Range, getTrackBackground } from "react-range";
 
 export default function SearchFilterSidebar() {
   const [isOpen, setIsOpen] = useState(true);
+  const [values, setValues] = useState([0, 2025]);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
@@ -29,72 +31,7 @@ export default function SearchFilterSidebar() {
                 data-hs-accordion-always-open
               >
                 <ul className="space-y-1">
-
-                  <li className="hs-accordion" id="users-accordion">
-                    <button
-                      type="button"
-                      className="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100"
-                      aria-expanded="true"
-                      aria-controls="users-accordion-collapse-1"
-                    >
-                      <svg
-                        className="size-4"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                        <circle cx="9" cy="7" r="4" />
-                        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                      </svg>
-                      Citation Count
-                      <svg
-                        className="hs-accordion-active:block ms-auto hidden size-4 text-gray-600 group-hover:text-gray-500"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="m18 15-6-6-6 6" />
-                      </svg>
-                      <svg
-                        className="hs-accordion-active:hidden ms-auto block size-4 text-gray-600 group-hover:text-gray-500"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="m6 9 6 6 6-6" />
-                      </svg>
-                    </button>
-
-                    <div
-                      id="users-accordion-collapse-1"
-                      className="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 hidden"
-                      role="region"
-                      aria-labelledby="users-accordion"
-                    >
-                    {/* Placeholder comment for users dropdown */}
-                    </div>
-                  </li>
-
+                  {/* Existing accordion items */}
                   <li className="hs-accordion" id="account-accordion">
                     <button
                       type="button"
@@ -159,11 +96,59 @@ export default function SearchFilterSidebar() {
 
                     <div
                       id="account-accordion-sub-1-collapse-1"
-                      className="hs-accordion-content w-full overflow-hidden transition-[height] duration-300 hidden"
+                      className="hs-accordion-content overflow-hidden transition-[height] duration-300 hidden"
                       role="region"
                       aria-labelledby="account-accordion"
                     >
-                    {/* Placeholder comment for account dropdown */}
+                      <div className="mt-2 ml-4 mr-4">
+                      <Range
+                          values={values}
+                          step={1}
+                          min={0}
+                          max={2025}
+                          onChange={(values) => setValues(values)}
+                          renderTrack={({ props, children }) => (
+                            <div
+                              {...props}
+                              style={{
+                                ...props.style,
+                                height: "6px",
+                                width: "100%",
+                                borderRadius: "4px",
+                                background: getTrackBackground({
+                                  values,
+                                  colors: ["#E5E7EB", "#1a2d8d", "#E5E7EB"], // Soft gray & blue theme
+                                  min: 0,
+                                  max: 2025,
+                                }),
+                                boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                                transition: "background 0.3s ease",
+                              }}
+                            >
+                              {children}
+                            </div>
+                          )}
+                          renderThumb={({ props }) => (
+                            <div
+                              {...props}
+                              style={{
+                                ...props.style,
+                                height: "18px",
+                                width: "18px",
+                                borderRadius: "50%",
+                                backgroundColor: "#1a2d8d", // Blue theme color
+                                boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)",
+                                border: "2px solid white",
+                                transition: "transform ease-in-out",
+                              }}
+                            />
+                          )}
+                        />
+                        <div className="flex justify-between mt-2">
+                          <span>{values[0]}</span>
+                          <span>{values[1]}</span>
+                        </div>
+                      </div>
                     </div>
                   </li>
 
@@ -230,7 +215,6 @@ export default function SearchFilterSidebar() {
                     {/* Placeholder comment for projects dropdown */}
                     </div>
                   </li>
-
                 </ul>
               </div>
             </nav>
