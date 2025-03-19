@@ -1,17 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { Range, getTrackBackground } from "react-range";
 
-export default function SearchFilterSidebar() {
+export default function SearchFilterSidebar({ minYear, maxYear, onYearRangeChange }) {
   const [isOpen, setIsOpen] = useState(true);
-  const [values, setValues] = useState([0, 2025]);
+  const [values, setValues] = useState([minYear, maxYear]);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
   useEffect(() => {
+    setValues([minYear, maxYear]);
     if (window.HSStaticMethods && window.HSStaticMethods.autoInit) {
       window.HSStaticMethods.autoInit();
     }
-  }, [isOpen]);
+  }, [minYear, maxYear]);
+
+  const handleRangeChange = (values) => {
+    setValues(values);
+    onYearRangeChange(values);
+  };
 
   return (
     <div className="relative">
@@ -101,12 +107,12 @@ export default function SearchFilterSidebar() {
                       aria-labelledby="account-accordion"
                     >
                       <div className="mt-2 ml-4 mr-4">
-                      <Range
+                        <Range
                           values={values}
                           step={1}
-                          min={0}
-                          max={2025}
-                          onChange={(values) => setValues(values)}
+                          min={minYear}
+                          max={maxYear}
+                          onChange={handleRangeChange}
                           renderTrack={({ props, children }) => (
                             <div
                               {...props}
@@ -118,8 +124,8 @@ export default function SearchFilterSidebar() {
                                 background: getTrackBackground({
                                   values,
                                   colors: ["#E5E7EB", "#1a2d8d", "#E5E7EB"], // Soft gray & blue theme
-                                  min: 0,
-                                  max: 2025,
+                                  min: minYear,
+                                  max: maxYear,
                                 }),
                                 boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
                                 transition: "background 0.3s ease",

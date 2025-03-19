@@ -1,19 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { searchAPI } from "../backend/Search"; // adjust the import path as needed
 import { useGlobal } from "./GlobalContext";
-import { stringify } from "postcss";
 import { PDFDownload } from "../backend/PdfDownload";
-import { SummarizeDocument } from "../backend/SummarizeDocument";
 import { SummarizeSections } from "../backend/SummarizeSections";
 
-export default function Sidebar() {
-  const [selectedFilter, setSelectedFilter] = useState("All");
+export default function Sidebar({ selectedFilter, yearRange }) {
   const [researchPapers, setResearchPapers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const {search, setSearch, setActivePaper, setActiveSummary} = useGlobal();
-  // when page first render set the search query
-  //const { search, setSearch, setActivePaper } = useGlobal();
+  const { search, setSearch, setActivePaper, setActiveSummary } = useGlobal();
 
   useEffect(() => {
     setLoading(true);
@@ -54,19 +49,20 @@ export default function Sidebar() {
     }
   };
 
-  // Filter papers based on the selected category.
-  // Here we assume that the "publicationTypes" property is an array.
-  const filteredPapers =
-    selectedFilter === "All"
-      ? researchPapers
-      : researchPapers.filter((paper) =>
-          paper.publicationTypes?.includes(selectedFilter)
-        );
+  // Filter papers based on the selected category and year range.
+  const filteredPapers = researchPapers.filter((paper) => {
+    const publishedYear = new Date(paper.published).getFullYear();
+    return (
+      (selectedFilter === "All" || paper.publicationTypes?.includes(selectedFilter)) &&
+      publishedYear >= yearRange[0] &&
+      publishedYear <= yearRange[1]
+    );
+  });
 
   return (
     <aside className="flex h-screen w-1/4 bg-white border-r shadow-md overflow-hidden">
       <div className="p-4 overflow-y-auto">
-        <h2 className="text-xl font-semibold mb-3"> 	&nbsp;       	&nbsp;Research Papers</h2>
+        <h2 className="text-xl font-semibold mb-3">Research Papers</h2>
         {loading ? (
           <p>Loading research papers...</p>
         ) : error ? (
@@ -85,7 +81,6 @@ export default function Sidebar() {
               <span className="font-semibold">{paper.title}</span>
               <p className="text-sm text-gray-500">{paper.authors.join(", ")}</p>
               <p className="text-sm text-gray-500">{paper.published}</p>
-      
             </button>
           ))
         )}
