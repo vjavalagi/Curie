@@ -1,4 +1,3 @@
-// SearchPage.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Header from "../components/Header";
@@ -16,6 +15,8 @@ export default function SearchPage() {
   const [yearRange, setYearRange] = useState([0, 2025]);
   const [minYear, setMinYear] = useState(0);
   const [maxYear, setMaxYear] = useState(2025);
+  const [researchPapers, setResearchPapers] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const handleYearRangeChange = (range) => {
     setYearRange(range);
@@ -23,18 +24,22 @@ export default function SearchPage() {
 
   useEffect(() => {
     const fetchPapers = async () => {
-      // Now use the dynamic search query instead of a hard-coded value.
+      setLoading(true);
+      // Use the dynamic search query from global state.
       const papers = await searchAPI({ topic: search, limit: 40 });
-      const years = papers.map((paper) =>
-        new Date(paper.published).getFullYear()
-      );
-      const newMinYear = Math.min(...years);
-      const newMaxYear = Math.max(...years);
-      setMinYear(newMinYear);
-      setMaxYear(newMaxYear);
-      setYearRange([newMinYear, newMaxYear]);
+      setResearchPapers(papers);
+      setLoading(false);
+      if (papers.length > 0) {
+        const years = papers.map((paper) =>
+          new Date(paper.published).getFullYear()
+        );
+        const newMinYear = Math.min(...years);
+        const newMaxYear = Math.max(...years);
+        setMinYear(newMinYear);
+        setMaxYear(newMaxYear);
+        setYearRange([newMinYear, newMaxYear]);
+      }
     };
-
     fetchPapers();
   }, [search]);
 
@@ -47,7 +52,12 @@ export default function SearchPage() {
           maxYear={maxYear}
           onYearRangeChange={handleYearRangeChange}
         />
-        <SearchSideBar selectedFilter={selectedFilter} yearRange={yearRange} />
+        <SearchSideBar
+          selectedFilter={selectedFilter}
+          yearRange={yearRange}
+          researchPapers={researchPapers}
+          loading={loading}
+        />
         <SearchLargeView />
       </div>
     </div>
