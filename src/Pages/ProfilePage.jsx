@@ -6,6 +6,7 @@ import SaveGroupingButton from "../components/SaveGroupingButton";
 import WelcomeMessage from "../components/WelcomeMessage";
 import BreadcrumbNavigation from "../components/BreadcrumbNavigation";
 import PdfViewer from "../components/PdfViewer"; // Import the new iframe-based PDF viewer
+import Card from "../components/Card";
 
 export default function ProfilePage() {
   const [pdfs, setPdfs] = useState([]);
@@ -35,6 +36,10 @@ export default function ProfilePage() {
           {/* PDF List Section */}
           <div className="w-full max-w-6xl mx-auto mt-4 p-4 bg-white rounded-lg shadow-md">
             <h2 className="text-lg font-semibold mb-3 text-center">Saved PDFs</h2>
+
+            <Card />
+
+
             <div className="flex flex-wrap gap-6 justify-center">
               {pdfs.length > 0 ? (
                 pdfs.map((pdf, index) => (

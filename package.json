@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@floating-ui/dom": "^1.6.13",
     "@heroicons/react": "^2.2.0",
+    "@preline/dropdown": "^3.0.1",
     "autoprefixer": "^10.4.20",
     "bootstrap": "^5.3.3",
     "framer-motion": "^12.4.10",
