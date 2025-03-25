@@ -23,25 +23,25 @@ export default function SearchLargeView() {
 
   return (
     <main className="flex-1 p-4 pt-4 overflow-auto">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex items-center justify-between mb-4">
         {/* Beginner Buttons on Left */}
         <div className="flex gap-2">
           <div className="inline-flex rounded-lg shadow-2xs">
             <button
               type="button"
-              className="py-3 px-4 inline-flex items-center gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg text-sm font-medium border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+              className="inline-flex items-center px-4 py-3 text-sm font-medium text-gray-800 bg-white border border-gray-200 gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
             >
               Beginner
             </button>
             <button
               type="button"
-              className="py-3 px-4 inline-flex items-center gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg text-sm font-medium border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+              className="inline-flex items-center px-4 py-3 text-sm font-medium text-gray-800 bg-white border border-gray-200 gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
             >
               Intermediate
             </button>
             <button
               type="button"
-              className="py-3 px-4 inline-flex items-center gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg text-sm font-medium border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+              className="inline-flex items-center px-4 py-3 text-sm font-medium text-gray-800 bg-white border border-gray-200 gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
             >
               Expert
             </button>
@@ -50,7 +50,7 @@ export default function SearchLargeView() {
 
         {/* Deep Dive Button on Right */}
         <button
-          className="px-4 py-2 bg-curieBlue text-white rounded-lg shadow-md hover:bg-blue-600"
+          className="px-4 py-2 text-white rounded-lg shadow-md bg-curieBlue hover:bg-blue-600"
           onClick={handleDeepDiveClick}
         >
           Deep Dive ✨
@@ -59,16 +59,16 @@ export default function SearchLargeView() {
 
       {/* Main content: render active paper details if available, otherwise a search summary */}
       {!activePaper ? (
-        <section className="bg-white p-6 rounded-lg shadow-md">
+        <section className="p-6 bg-white rounded-lg shadow-md">
           <h1 className="text-2xl font-bold">{search}</h1>
-          <h2 className="text-lg font-semibold mt-2">Summary</h2>
+          <h2 className="mt-2 text-lg font-semibold">Summary</h2>
           <p className="text-gray-700">
             Shows an AI-generated summary of the field itself along with a timeline.
           </p>
           <Timeline search={search} />
         </section>
       ) : (
-        <section className="bg-white p-6 rounded-lg shadow-md">
+        <section className="p-6 bg-white rounded-lg shadow-md">
           <h1 className="text-2xl font-bold">{activePaper.title}</h1>
           <p className="text-sm text-gray-500">
             Publication Date: {activePaper.published}
@@ -81,7 +81,7 @@ export default function SearchLargeView() {
             href={activePaper.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-curieBlue underline"
+            className="underline text-curieBlue"
           >
             View Paper
           </a>
@@ -90,14 +90,14 @@ export default function SearchLargeView() {
 
       {/* Render active summary section if an active paper is selected */}
       {activePaper && (
-  <section className="bg-white p-6 mt-4 rounded-lg shadow-md">
+  <section className="p-6 mt-4 bg-white rounded-lg shadow-md">
     <h3 className="text-xl font-semibold">Active Summary</h3>
     {activeSummary === undefined ? (
       // Loading indicator
-      <div className="flex justify-center items-center mt-4">
-        <div className="w-full bg-gray-200 rounded-full h-2">
+      <div className="flex items-center justify-center mt-4">
+        <div className="w-full h-2 bg-gray-200 rounded-full">
           <div
-            className="bg-curieBlue h-2 rounded-full animate-pulse"
+            className="h-2 rounded-full bg-curieBlue animate-pulse"
             style={{ width: "50%" }}
           ></div>
         </div>
