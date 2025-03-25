@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from dotenv import load_dotenv, find_dotenv
 from flask_cors import CORS
 from gpt import get_foundational_papers
-from summaries.joined_summary import summarize_document, extract_text, summarize_sections
+from summaries.joined_summary import summarize_document, extract_text, extract_text_pymu,  summarize_sections
 from arxiv_api import ArxivAPI
 from arxiv import Client, Search, SortCriterion
 
@@ -32,7 +32,8 @@ def get_whole_summary(name):
 def get_section_summaries(name):
     print("Getting Section Summaries", name)
     print("extracting text")
-    text = extract_text(name)
+    #text = extract_text(name)
+    text = extract_text_pymu(name)
     print(text)
     print("summarizing sections")
     return summarize_sections(text)
