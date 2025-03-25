@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Ensure react-router-dom is installed
 
-export default function SignUp() {
+export default function CreateAccount() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     username: "",
@@ -38,9 +38,9 @@ export default function SignUp() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-neutral-900">
-      <div className="w-full max-w-md p-6 bg-white shadow-lg rounded-md">
-        <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-white">Sign up</h1>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-neutral-900">
+      <div className="w-full max-w-md p-6 bg-white rounded-md shadow-lg">
+        <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-white">Create Account</h1>
         <p className="mt-2 text-sm text-center text-gray-600 dark:text-neutral-400">
           Already have an account? 
           <a href="/login" className="text-blue-600 hover:underline dark:text-blue-500"> Sign in here</a>
@@ -86,7 +86,7 @@ export default function SignUp() {
               name="acceptedTerms" 
               checked={form.acceptedTerms} 
               onChange={handleChange} 
-              className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+              className="w-4 h-4 text-blue-600 border-gray-300 rounded"
             />
             <label htmlFor="terms" className="ml-2 text-sm dark:text-white">
               I accept the <a href="#" className="text-blue-600 hover:underline dark:text-blue-500">Terms and Conditions</a>
@@ -94,9 +94,9 @@ export default function SignUp() {
           </div>
           <button 
             type="submit" 
-            className="w-full p-2 mt-4 bg-curieBlue text-white rounded-md hover:bg-blue-700 focus:outline-none"
+            className="w-full p-2 mt-4 text-white rounded-md bg-curieBlue hover:bg-blue-700 focus:outline-none"
           >
-            Sign up
+            Create Account
           </button>
         </form>
       </div>
