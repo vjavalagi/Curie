@@ -249,7 +249,7 @@ def create_files_table():
         ],
         ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
     )
-    print("✅ Table 'Files' created successfully.")
+    print("Table 'Files' created successfully.")
 def upload_to_s3(file_path, s3_key, bucket_name="curie-file-storage"):
     s3 = session.client("s3")
     try:
@@ -257,7 +257,7 @@ def upload_to_s3(file_path, s3_key, bucket_name="curie-file-storage"):
         s3_url = f"https://{bucket_name}.s3.amazonaws.com/{s3_key}"
         return {"success": True, "s3_url": s3_url}
     except ClientError as e:
-        print("❌ Upload failed:", e)
+        print("Upload failed:", e)
         return {"success": False, "error": str(e)}
 
 def upload_folder_to_s3(folder_path, s3_prefix="", bucket_name="curie-file-storage"):
@@ -274,9 +274,9 @@ def upload_folder_to_s3(folder_path, s3_prefix="", bucket_name="curie-file-stora
                 s3.upload_file(local_path, bucket_name, s3_key)
                 s3_url = f"https://{bucket_name}.s3.amazonaws.com/{s3_key}"
                 uploaded_files.append(s3_url)
-                print(f"✅ Uploaded {file_name} -> {s3_url}")
+                print(f"Uploaded {file_name} -> {s3_url}")
             except ClientError as e:
-                print(f"❌ Failed to upload {file_name}:", e)
+                print(f"Failed to upload {file_name}:", e)
 
     return uploaded_files
 
@@ -286,7 +286,7 @@ def preview_image_urls(s3_urls):
             print(f"🖼 Image preview URL: {url}")
 
 # uploaded_urls = upload_folder_to_s3("./ProfilePictures", "profile-pictures/")
-# uploaded_urls = upload_folder_to_s3("./ProfilePictures", "profile-pictures/")
+uploaded_urls = upload_folder_to_s3("./ProfilePictures", "profile-pictures/")
 
 # generate_test_files_with_arxiv()
 print ( preview_image_urls('https://curie-file-storage.s3.amazonaws.com/profile-pictures/preline.png')) 
