@@ -35,7 +35,10 @@ class ArxivAPI():
         entry_id = result["entry_id"]   
         try:
             paper = next(Client().results(Search(id_list=[entry_id])))
-            paper.download_pdf(dirpath=self.pdfpath, filename=filename)
+            print(type(paper))
+            print(paper)
+            result = paper.download_pdf(dirpath=self.pdfpath, filename=filename)
+            print(result)
             return filename
         except Exception as e:
             print("Error downloading PDF:", e)

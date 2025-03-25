@@ -5,12 +5,15 @@ import os
 import json
 from dotenv import load_dotenv, find_dotenv
 from pydantic import BaseModel
+import pymupdf
 load_dotenv(find_dotenv())
 
 '''
 Introduction, Methods, Results, Discussion, Conclusion.
 '''
 class Summary(BaseModel):
+    title: str
+    authors: str
     introduction: str
     methods: str
     results: str
@@ -23,6 +26,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = google_creds_path
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 # Function to extract pre-generated summary from Document AI (if available)
+
 def summarize_document(file_path):
     """Processes a document using Google Document AI and returns the extracted summary if available."""
     project_id = "522084706907"
@@ -51,6 +55,14 @@ def summarize_document(file_path):
 
     return "No summary found in document."
 
+def extract_text_pymu(filepath):
+    # Open the PDF file
+    doc = pymupdf.open(filepath)
+    text = ""
+    # Iterate over each page in the PDF
+    for page in doc:
+        text += page.get_text()  # Extract text from the page
+    return text
 # Function to extract raw text from a document
 def extract_text(file_path):
     """Extracts text from a document using Google Document AI."""
