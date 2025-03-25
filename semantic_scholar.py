@@ -2,7 +2,7 @@ import os
 import json
 import requests
 import urllib3
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, make_response
 from dotenv import load_dotenv, find_dotenv
 from flask_cors import CORS
 from gpt import get_foundational_papers
@@ -20,7 +20,7 @@ load_dotenv(find_dotenv())
 
 # Create your Flask app once
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app, origins=["http://localhost:5173"])  # Enable CORS for all routes
 
 # Set up the path for storing PDFs
 pdf_output_path = "pdfs/"
@@ -146,25 +146,35 @@ def api_download_pdf():
     get_pdf(data)
     return jsonify({"success": True})
 
-@app.route("/generate-presigned-url", methods=["POST"])
-def generate_presigned_url():
-    data = request.get_json()
-    filename = data["filename"]
-    file_type = data["fileType"]
+@app.route("/api/s3-url", methods=["GET"])
+def get_presigned_url():
+    filename = request.args.get("filename")
     
+    if not filename:
+        return boto3.make_response(jsonify({"error": "Missing filename"}), 400)
+
+    # Example of your presigned URL logic
+    # Assuming you have boto3 already configured
+    import boto3
+    s3_client = boto3.client('s3')
+    bucket_name = "curie-file-storage"
+
     try:
         presigned_url = s3_client.generate_presigned_url(
             "put_object",
-            Params={
-                "Bucket": S3_BUCKET_NAME,
-                "Key": filename,
-                "ContentType": file_type
-            },
+            Params={"Bucket": bucket_name, "Key": filename},
             ExpiresIn=3600
         )
-        return jsonify({"uploadUrl": presigned_url, "fileUrl": f"https://{S3_BUCKET_NAME}.s3.amazonaws.com/{filename}"})
-    except ClientError as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return make_response(jsonify({"error": str(e)}), 500)
+
+    # Create response and manually set CORS headers
+    response = make_response(jsonify({"url": presigned_url}))
+    response.headers["Access-Control-Allow-Origin"] = "http://localhost:5173"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+
+    return response
 
 if __name__ == '__main__':
     # Run on port 5001
