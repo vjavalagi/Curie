@@ -53,7 +53,7 @@ export default function SearchLargeView() {
           className="px-4 py-2 bg-curieBlue text-white rounded-lg shadow-md hover:bg-blue-600"
           onClick={handleDeepDiveClick}
         >
-          Deep Dive ✨
+          Contextualize ✨
         </button>
       </div>
 
