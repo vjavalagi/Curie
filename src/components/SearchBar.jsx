@@ -1,12 +1,14 @@
 import { useGlobal } from "./GlobalContext";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function SearchBar({ variant = "lightgray" }) {
-  const {setSearch } = useGlobal();
-  const [tempSearch, setTempSearch] = useState("");
+  const {search, setSearch} = useGlobal();
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Load the last search from localStorage or default to an empty string
+  const [tempSearch, setTempSearch] = useState(localStorage.getItem("lastSearch") || search);
   
   const bgColor = variant === "lightblue" ? "bg-curieLightBlue" : "bg-curieLightGray";
   const textColor = variant === "lightblue" ? "text-curieBlue" : "text-curieBlue";
@@ -14,11 +16,17 @@ export default function SearchBar({ variant = "lightgray" }) {
   const handleSearch = (searchQuery) => {
     console.log("Search landing clicked");
     setSearch(searchQuery);
+
     if (location.pathname !== "/search") {
       navigate(`/search`);
     }
-    setTempSearch("");
+    // Optionally, save the search term in localStorage
+    localStorage.setItem("lastSearch", searchQuery);
   };
+
+  useEffect(() => {
+    setTempSearch(search); // Sync tempSearch when global search changes
+  }, [search]);
 
   return (
     <div className={`w-full max-w-xl flex items-center rounded-full px-4 py-2 focus-within:ring-2 bg-white focus-within:ring-curieBlue ${bgColor}`}>
@@ -32,7 +40,7 @@ export default function SearchBar({ variant = "lightgray" }) {
       />
       <button
         onClick={() => handleSearch(tempSearch)}
-        className="bg-curieBlue hover:bg-blue-600 text-curieLightGray font-semibold py-1 px-6 rounded-full"
+        className="px-6 py-1 font-semibold rounded-full bg-curieBlue hover:bg-blue-600 text-curieLightGray"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
