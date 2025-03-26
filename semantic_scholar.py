@@ -8,6 +8,7 @@ from flask_cors import CORS
 from gpt import get_foundational_papers
 from summaries.joined_summary import summarize_document, extract_text, extract_text_pymu,  summarize_sections
 from arxiv_api import ArxivAPI
+from slide_gen import generate_presentation
 from arxiv import Client, Search, SortCriterion
 
 
@@ -118,7 +119,11 @@ def api_search():
     limit = int(request.args.get('limit', 7))
     results = arxiv.search(topic, limit, SortCriterion.Relevance)
     return jsonify(results)
-
+@app.route('/api/gen-slides', methods=['POST'])
+def api_generate_slides():
+    path = request.args.get("path")
+    generate_presentation(path)
+    return 
 @app.route('/api/download-pdf', methods=['POST'])
 def api_download_pdf():
     """
