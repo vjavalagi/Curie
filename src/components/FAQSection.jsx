@@ -63,11 +63,11 @@ export default function FAQSection({ faqRef }) {
             onClick={() => toggleFAQ(index)}
           >
             <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-yellow-300">{item.question}</h3>
+              <h3 className="text-lg font-semibold text-curieYellow">{item.question}</h3>
               <motion.span
                 animate={{ rotate: openIndex === index ? 180 : 0 }}
                 transition={{ duration: 0.3 }}
-                className="text-yellow-300 text-xl"
+                className="text-curieYellow text-xl"
               >
                 ▼
               </motion.span>

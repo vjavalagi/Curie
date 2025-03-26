@@ -5,16 +5,27 @@ export default function DirectoryDropdown({ currentDirectory, folders, onSelect 
 
   return (
     <div className="w-48 h-screen bg-gray-100 border-r border-gray-300 p-1.5 flex flex-col rounded-lg gap-y-2">
-      <button type="button" className="text-white bg-gradient-to-br w-3/4 from-curieBlue to-blue-500 hover:bg-gradient-to-bl rounded-xl text-base px-6 py-3 mt-2 mb-1">
-        <div className="flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6 mr-2">
+      <button
+        type="button"
+        className="text-white w-3/4 bg-curieBlue rounded-xl text-base px-6 py-3 mt-2 mb-1 transition-all duration-200 hover:bg-blue-700 hover:shadow-lg hover:ring-2 hover:ring-blue-300/60"
+      >
+        <div className="flex items-center justify-center gap-2">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="1.5"
+            stroke="currentColor"
+            className="w-6 h-6 transition-transform duration-200 group-hover:scale-110"
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
           <p className="font-semibold">New</p>
         </div>
       </button>
+
       
-      <button type="button" className="relative py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-full bg-gray-150 border border-gray-150 text-gray-800 shadow-2xs hover:bg-gray-200 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none">
+      <button type="button" className="relative py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-full bg-white border border-gray-150 text-gray-800 shadow-2xs hover:bg-gray-200 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none">
         
         
         <span className="font-semibold">Tag 1</span>
@@ -34,7 +45,7 @@ export default function DirectoryDropdown({ currentDirectory, folders, onSelect 
         </svg>
       </button>
       
-      <button type="button" className="relative py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-full bg-gray-150 border border-gray-150 text-gray-800 shadow-2xs hover:bg-gray-200 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none">
+      <button type="button" className="relative py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-full bg-white border border-gray-150 text-gray-800 shadow-2xs hover:bg-gray-200 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none">
         <span className="font-semibold">Tag 2</span>
 
         <svg

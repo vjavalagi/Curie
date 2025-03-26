@@ -12,6 +12,7 @@ export default {
         curieLightBlue: '#e8ecfc',
         curieLightGray: "#ebeaef",
         curieTeal: "#cbf8fc",
+        curieYellow: "#ffc928",
       },
     },
     gridTemplateColumns: {
