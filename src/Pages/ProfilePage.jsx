@@ -7,10 +7,7 @@ import BreadcrumbNavigation from "../components/BreadcrumbNavigation";
 import Card from "../components/Card";
 
 export default function ProfilePage() {
-  const [tags, setTags] = useState([
-    { name: "Tag 1", color: "#EF4444" },
-    { name: "Tag 2", color: "#3B82F6" },
-  ]);
+  const [tags, setTags] = useState([]);
 
   const [pdfTags, setPdfTags] = useState({});
   const dummyCards = [1, 2, 3, 4, 5];
@@ -22,14 +19,15 @@ export default function ProfilePage() {
     "#10B981", "#0EA5E9", "#F59E0B", "#7C3AED", "#DC2626"
   ];
 
-  const handleAddTag = () => {
+  const handleAddTag = (name) => {
     const index = tags.length % presetColors.length;
     const newTag = {
-      name: `Tag ${tags.length + 1}`,
+      name,
       color: presetColors[index],
     };
     setTags((prev) => [...prev, newTag]);
   };
+  
 
   const handleRemoveTagGlobally = (tagName) => {
     setTags((prev) => prev.filter((t) => t.name !== tagName));
