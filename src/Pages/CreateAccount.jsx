@@ -1,105 +1,158 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Ensure react-router-dom is installed
+import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-export default function CreateAccount() {
+const CreateAccount = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     username: "",
+    email: "",
     password: "",
     confirmPassword: "",
-    acceptedTerms: false,
+    photo: null,
+    previewUrl: null,
   });
 
+  const [message, setMessage] = useState("");
+
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleFileChange = (e) => {
+    const photo = e.target.files[0];
+    if (photo) {
+      setForm((prev) => ({
+        ...prev,
+        photo,
+        previewUrl: URL.createObjectURL(photo),
+      }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (form.password !== form.confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
-    
-    if (!form.acceptedTerms) {
-      alert("You must accept the terms and conditions.");
+    const { username, email, password, confirmPassword, photo } = form;
+
+    if (!username || !email || !password || !confirmPassword || !photo) {
+      setMessage("❌ All fields are required.");
       return;
     }
 
-    // Save user credentials in localStorage (Temporary authentication method)
-    localStorage.setItem("user", JSON.stringify({ username: form.username, password: form.password }));
+    if (password !== confirmPassword) {
+      setMessage("❌ Passwords do not match.");
+      return;
+    }
 
-    alert("Account created successfully! Redirecting to login...");
-    navigate("/login"); // Redirect to login page
+    try {
+      let photoUrl = "";
+
+      const { data } = await axios.get("http://localhost:5001/api/s3-url", {
+        params: { filename: `ProfilePictures/${photo.name}` },
+      });
+
+      await axios.put(data.url, photo, {
+        headers: { "Content-Type": photo.type },
+      });
+
+      photoUrl = data.url.split("?")[0];
+
+      const response = await axios.post("http://localhost:5001/api/create-user", {
+        username,
+        email,
+        password,
+        photo_url: photoUrl,
+      });
+
+      if (response.data.message) {
+        setMessage("✅ Account created successfully!");
+        setTimeout(() => navigate("/login"), 1500);
+      } else {
+        setMessage("❌ " + (response.data.error || "Failed to create account."));
+      }
+    } catch (error) {
+      console.error(error);
+      setMessage("❌ An error occurred while creating the account.");
+    }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-neutral-900">
       <div className="w-full max-w-md p-6 bg-white rounded-md shadow-lg">
         <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-white">Create Account</h1>
-        <p className="mt-2 text-sm text-center text-gray-600 dark:text-neutral-400">
-          Already have an account? 
-          <a href="/login" className="text-blue-600 hover:underline dark:text-blue-500"> Sign in here</a>
-        </p>
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           <div>
             <label className="block text-sm dark:text-white">Username</label>
-            <input 
-              type="text" 
-              name="username" 
-              required 
-              value={form.username} 
-              onChange={handleChange} 
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            <input
+              type="text"
+              name="username"
+              required
+              value={form.username}
+              onChange={handleChange}
+              className="w-full p-2 border border-gray-300 rounded-md"
+            />
+          </div>
+          <div>
+            <label className="block text-sm dark:text-white">Email</label>
+            <input
+              type="email"
+              name="email"
+              required
+              value={form.email}
+              onChange={handleChange}
+              className="w-full p-2 border border-gray-300 rounded-md"
             />
           </div>
           <div>
             <label className="block text-sm dark:text-white">Password</label>
-            <input 
-              type="password" 
-              name="password" 
-              required 
-              value={form.password} 
-              onChange={handleChange} 
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            <input
+              type="password"
+              name="password"
+              required
+              value={form.password}
+              onChange={handleChange}
+              className="w-full p-2 border border-gray-300 rounded-md"
             />
           </div>
           <div>
             <label className="block text-sm dark:text-white">Confirm Password</label>
-            <input 
-              type="password" 
-              name="confirmPassword" 
-              required 
-              value={form.confirmPassword} 
-              onChange={handleChange} 
-              className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            <input
+              type="password"
+              name="confirmPassword"
+              required
+              value={form.confirmPassword}
+              onChange={handleChange}
+              className="w-full p-2 border border-gray-300 rounded-md"
             />
           </div>
-          <div className="flex items-center">
-            <input 
-              type="checkbox" 
-              id="terms" 
-              name="acceptedTerms" 
-              checked={form.acceptedTerms} 
-              onChange={handleChange} 
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded"
+          <div>
+            <label className="block text-sm dark:text-white">Profile Picture</label>
+            <input
+              type="file"
+              accept="image/*"
+              required
+              onChange={handleFileChange}
             />
-            <label htmlFor="terms" className="ml-2 text-sm dark:text-white">
-              I accept the <a href="#" className="text-blue-600 hover:underline dark:text-blue-500">Terms and Conditions</a>
-            </label>
+            {form.previewUrl && (
+              <img
+                src={form.previewUrl}
+                alt="Preview"
+                className="w-24 h-24 mt-2 rounded-full object-cover"
+              />
+            )}
           </div>
-          <button 
-            type="submit" 
-            className="w-full p-2 mt-4 text-white rounded-md bg-curieBlue hover:bg-blue-700 focus:outline-none"
+          <button
+            type="submit"
+            className="w-full p-2 mt-4 text-white bg-blue-600 rounded-md hover:bg-blue-700"
           >
             Create Account
           </button>
+          {message && <p className="mt-2 text-sm text-center">{message}</p>}
         </form>
       </div>
     </div>
   );
-}
+};
+
+export default CreateAccount;
