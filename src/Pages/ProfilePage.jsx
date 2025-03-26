@@ -8,16 +8,38 @@ import Card from "../components/Card";
 
 export default function ProfilePage() {
   const [tags, setTags] = useState([
-    { name: "Tag 1", color: "#1a2d8d" },
-    { name: "Tag 2", color: "#cbf8fc" },
+    { name: "Tag 1", color: "#EF4444" },
+    { name: "Tag 2", color: "#3B82F6" },
   ]);
 
   const [pdfTags, setPdfTags] = useState({});
+  const dummyCards = [1, 2, 3, 4, 5];
 
-  const dummyCards = [1, 2, 3, 4, 5]; // Dummy IDs
+  const presetColors = [
+    "#EF4444", "#F97316", "#EAB308", "#84CC16", "#22C55E",
+    "#14B8A6", "#06B6D4", "#3B82F6", "#6366F1", "#8B5CF6",
+    "#A855F7", "#D946EF", "#EC4899", "#F43F5E", "#6B7280",
+    "#10B981", "#0EA5E9", "#F59E0B", "#7C3AED", "#DC2626"
+  ];
 
-  const handleAddTag = (newTag) => {
+  const handleAddTag = () => {
+    const index = tags.length % presetColors.length;
+    const newTag = {
+      name: `Tag ${tags.length + 1}`,
+      color: presetColors[index],
+    };
     setTags((prev) => [...prev, newTag]);
+  };
+
+  const handleRemoveTagGlobally = (tagName) => {
+    setTags((prev) => prev.filter((t) => t.name !== tagName));
+    setPdfTags((prev) => {
+      const updated = {};
+      for (const key in prev) {
+        updated[key] = prev[key].filter((t) => t.name !== tagName);
+      }
+      return updated;
+    });
   };
 
   const handleAssignTag = (cardId, tag) => {
@@ -29,11 +51,22 @@ export default function ProfilePage() {
     }));
   };
 
+  const handleRemoveTagFromCard = (cardId, tagName) => {
+    setPdfTags((prev) => ({
+      ...prev,
+      [cardId]: prev[cardId].filter((t) => t.name !== tagName),
+    }));
+  };
+
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       <Header variant="lightblue" />
       <div className="flex flex-1 overflow-hidden">
-        <DirectoryDropdown tags={tags} onAddTag={handleAddTag} />
+        <DirectoryDropdown
+          tags={tags}
+          onAddTag={handleAddTag}
+          onRemoveTag={handleRemoveTagGlobally}
+        />
         <div className="flex flex-col flex-1 items-center pt-3 overflow-y-auto">
           <WelcomeMessage />
           <BreadcrumbNavigation path={[]} onNavigate={() => {}} />
@@ -47,6 +80,7 @@ export default function ProfilePage() {
                   tags={pdfTags[id] || []}
                   availableTags={tags}
                   onAssignTag={(tag) => handleAssignTag(id, tag)}
+                  onRemoveTagFromCard={(tagName) => handleRemoveTagFromCard(id, tagName)}
                 />
               ))}
             </div>

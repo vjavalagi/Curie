@@ -1,7 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import Tag from "./Tag";
 
-export default function Card({ tags = [], availableTags = [], onAssignTag }) {
+export default function Card({
+  tags = [],
+  availableTags = [],
+  onAssignTag,
+  onRemoveTagFromCard,
+}) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -98,7 +103,19 @@ export default function Card({ tags = [], availableTags = [], onAssignTag }) {
             </span>
 
             {tags.map((tag, idx) => (
-              <Tag key={idx} label={tag.name} color={tag.color} />
+              <span
+                key={idx}
+                className="py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium rounded-full text-white"
+                style={{ backgroundColor: tag.color }}
+              >
+                {tag.name}
+                <button
+                  onClick={() => onRemoveTagFromCard(tag.name)}
+                  className="ml-1 text-white hover:text-red-200 text-xs"
+                >
+                  ×
+                </button>
+              </span>
             ))}
           </div>
 
