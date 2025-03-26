@@ -10,6 +10,9 @@ from summaries.joined_summary import summarize_document, extract_text, extract_t
 from arxiv_api import ArxivAPI
 from slide_gen import generate_presentation
 from arxiv import Client, Search, SortCriterion
+import boto3
+from dotenv import load_dotenv, find_dotenv
+from botocore.exceptions import ClientError
 
 
 arxiv = ArxivAPI()
@@ -26,6 +29,17 @@ os.makedirs(pdf_output_path, exist_ok=True)
 
 SEMANTIC_SCHOLAR_API_KEY = os.getenv('SEMANTICAPIKEY')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_DEFAULT_REGION = os.getenv("AWS_DEFAULT_REGION")
+S3_BUCKET_NAME = "curie-file-storage"
+
+s3_client = boto3.client(
+    "s3",
+    region_name=AWS_DEFAULT_REGION,
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+)
 
 def get_whole_summary(name):
     return summarize_document(name)
@@ -137,6 +151,29 @@ def api_download_pdf():
     get_pdf(data)
     return jsonify({"success": True})
 
+@app.route("/generate-presigned-url", methods=["POST"])
+def generate_presigned_url():
+    data = request.get_json()
+    filename = data["filename"]
+    file_type = data["fileType"]
+    
+    try:
+        presigned_url = s3_client.generate_presigned_url(
+            "put_object",
+            Params={
+                "Bucket": S3_BUCKET_NAME,
+                "Key": filename,
+                "ContentType": file_type
+            },
+            ExpiresIn=3600
+        )
+        return jsonify({"uploadUrl": presigned_url, "fileUrl": f"https://{S3_BUCKET_NAME}.s3.amazonaws.com/{filename}"})
+    except ClientError as e:
+        return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     # Run on port 5001
     app.run(debug=True, port=5001)
+
+
+
