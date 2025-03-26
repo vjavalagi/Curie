@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Timeline from "./Timeline";
 import { useGlobal } from "./GlobalContext";
 import { PDFDownload } from "../backend/PdfDownload"; // Ensure correct path
+import ActiveSummary from "./ActiveSummary";
 
 export default function SearchLargeView() {
   const { search, activePaper, setActivePaper, activeSummary } = useGlobal();
@@ -89,59 +90,24 @@ export default function SearchLargeView() {
       )}
 
       {/* Render active summary section if an active paper is selected */}
-      {activePaper && (
-  <section className="p-6 mt-4 bg-white rounded-lg shadow-md">
-    <h3 className="text-xl font-semibold">Active Summary</h3>
-    {activeSummary === undefined ? (
-      // Loading indicator
-      <div className="flex items-center justify-center mt-4">
-        <div className="w-full h-2 bg-gray-200 rounded-full">
-          <div
-            className="h-2 rounded-full bg-curieBlue animate-pulse"
-            style={{ width: "50%" }}
-          ></div>
+    {activePaper && (
+    <section className="p-6 mt-4 bg-white rounded-lg shadow-md">
+      <h3 className="text-xl font-semibold">Active Summary</h3>
+      {activeSummary === undefined ? (
+        <div className="flex items-center justify-center mt-4">
+          <div className="w-full h-2 bg-gray-200 rounded-full">
+            <div
+              className="h-2 rounded-full bg-curieBlue animate-pulse"
+              style={{ width: "50%" }}
+            ></div>
+          </div>
         </div>
-      </div>
-    ) : activeSummary && Object.keys(activeSummary).length > 0 ? (
-      // Render summary sections if activeSummary has content
-      <>
-        {activeSummary.introduction && (
-          <div className="mt-2">
-            <h4 className="font-bold">Introduction</h4>
-            <p>{activeSummary.introduction}</p>
-          </div>
-        )}
-        {activeSummary.methods && (
-          <div className="mt-2">
-            <h4 className="font-bold">Methods</h4>
-            <p>{activeSummary.methods}</p>
-          </div>
-        )}
-        {activeSummary.results && (
-          <div className="mt-2">
-            <h4 className="font-bold">Results</h4>
-            <p>{activeSummary.results}</p>
-          </div>
-        )}
-        {activeSummary.discussion && (
-          <div className="mt-2">
-            <h4 className="font-bold">Discussion</h4>
-            <p>{activeSummary.discussion}</p>
-          </div>
-        )}
-        {activeSummary.conclusion && (
-          <div className="mt-2">
-            <h4 className="font-bold">Conclusion</h4>
-            <p>{activeSummary.conclusion}</p>
-          </div>
-        )}
-      </>
-    ) : (
-      // If activeSummary is null or an empty object
-      <p>No AI Gen summary is available for this paper.</p>
-    )}
+      ) : (
+        <ActiveSummary activeSummary={activeSummary} />
+      )}
   </section>
 )}
+
     </main>
   );
 }
