@@ -4,6 +4,8 @@ import os
 import uuid
 from datetime import datetime, timezone
 from botocore.exceptions import ClientError
+import hashlib
+
 
 # Load AWS credentials from .env
 load_dotenv(find_dotenv())
@@ -27,13 +29,14 @@ files_table = dynamodb.Table("Files")
 ### -------------------------------- ###
 ###         USER MANAGEMENT          ###
 ### -------------------------------- ###
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
 
 def create_user(username, email, photo_url, password):
-    """Creates a new user profile only if the username is not taken."""
-    hashed_pass = hash(password)
+    hashed_pass = hash_password(password)
 
     user_item = {
-        'UserID': f'USER#{username}',
+        'UserID': username,
         'Email': email,
         'PhotoURL': photo_url,
         'PasswordHash': hashed_pass,
@@ -53,7 +56,7 @@ def create_user(username, email, photo_url, password):
             raise
 
 def get_user_profile(username):
-    response = users.get_item(Key={'UserID': f'USER#{username}'})
+    response = users.get_item(Key={'UserID': username})
     return response.get("Item")
 
 def update_user_profile(username, email=None, photo_url=None):

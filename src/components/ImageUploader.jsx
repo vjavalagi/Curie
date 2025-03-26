@@ -19,7 +19,7 @@ const ImageUploader = () => {
 
     try {
       // Get a presigned URL from your backend
-      const { data } = await axios.get("http://localhost:5000/api/s3-url", {
+      const { data } = await axios.get("http://localhost:5001/api/s3-url", {
         params: { filename: file.name },
       });
 

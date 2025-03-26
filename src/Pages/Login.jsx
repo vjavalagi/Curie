@@ -1,29 +1,42 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import CurieLogo from "../assets/curie_no_background.png";
 
 export default function Login() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ username: "", password: "" });
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Retrieve stored credentials
-    const storedUser = JSON.parse(localStorage.getItem("user"));
 
-    if (!storedUser || storedUser.username !== form.username || storedUser.password !== form.password) {
-      alert("Invalid username or password.");
-      return;
+    try {
+      const response = await axios.post("http://localhost:5001/api/login", {
+        username: form.username,
+        password: form.password,
+      });
+
+      if (response.data.message === "Login successful") {
+        setMessage("✅ Login successful!");
+        setIsError(false);
+
+        // Redirect after short delay
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage(err.response?.data?.error || "❌ Login failed.");
+      setIsError(true);
     }
-
-    alert("Login successful!");
-    navigate("/dashboard"); // Redirect to a dashboard page
   };
 
   return (
@@ -65,6 +78,17 @@ export default function Login() {
             />
           </div>
 
+          {/* Message */}
+          {message && (
+            <div
+              className={`mb-4 text-center text-sm font-medium ${
+                isError ? "text-red-600" : "text-green-600"
+              }`}
+            >
+              {message}
+            </div>
+          )}
+
           <button
             type="submit"
             className="w-full px-4 py-2 text-white rounded-lg bg-curieBlue hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 dark:focus:ring-offset-gray-800"
@@ -73,7 +97,6 @@ export default function Login() {
           </button>
         </form>
 
-        {/* New "Don't have an account?" button */}
         <div className="mt-4 text-center">
           <p className="text-gray-700 dark:text-white">Don't have an account?</p>
           <button
@@ -83,8 +106,6 @@ export default function Login() {
             Click here to Create an Account
           </button>
         </div>
-
-        
       </div>
     </div>
   );
