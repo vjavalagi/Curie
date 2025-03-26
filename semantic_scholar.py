@@ -156,7 +156,7 @@ def get_presigned_url():
     try:
         presigned_url = s3_client.generate_presigned_url(
             "put_object",
-            Params={"Bucket": S3_BUCKET_NAME, "Key": f"ProfilePictures/{filename}", "ContentType": "image/png"},
+            Params={"Bucket": S3_BUCKET_NAME, "Key": filename, "ContentType": "image/png"},
             ExpiresIn=3600,
             HttpMethod="PUT"
         )

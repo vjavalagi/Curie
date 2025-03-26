@@ -288,8 +288,6 @@ def preview_image_urls(s3_urls):
         if url.lower().endswith((".png", ".jpg", ".jpeg", ".gif")):
             print(f"🖼 Image preview URL: {url}")
 
-# uploaded_urls = upload_folder_to_s3("./ProfilePictures", "profile-pictures/")
-uploaded_urls = upload_folder_to_s3("./ProfilePictures", "profile-pictures/")
 
 # generate_test_files_with_arxiv()
-print ( preview_image_urls('https://curie-file-storage.s3.amazonaws.com/profile-pictures/preline.png')) 
+#print ( preview_image_urls('https://curie-file-storage.s3.amazonaws.com/profile-pictures/preline.png')) 
