@@ -52,25 +52,29 @@ export default function Card({
                         viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                       </svg>
-                      Add to tag
+                      Add tags
                     </span>
                   </summary>
                   <div className="ml-4 mt-1 space-y-1">
-                    {availableTags.map((tag, idx) => (
-                      <button
+                  {availableTags.map((tag, idx) => {
+                    const alreadyAdded = tags.some((t) => t.name === tag.name);
+                    return (
+                        <button
                         key={idx}
-                        onClick={() => {
-                          onAssignTag(tag);
-                          setIsDropdownOpen(false);
-                        }}
-                        className="text-sm text-left text-gray-700 hover:bg-gray-200 rounded px-2 py-1 w-full"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="w-3 h-3 rounded-full" style={{ backgroundColor: tag.color }} />
-                          {tag.name}
-                        </div>
-                      </button>
-                    ))}
+                        onClick={() => !alreadyAdded && onAssignTag(tag)}
+                        className={`text-sm text-left px-2 py-1 w-full rounded flex items-center gap-2 ${
+                            alreadyAdded
+                            ? "text-gray-400 cursor-not-allowed opacity-60"
+                            : "text-gray-700 hover:bg-gray-200"
+                        }`}
+                        disabled={alreadyAdded}
+                        >
+                        <span className="w-3 h-3 rounded-full" style={{ backgroundColor: tag.color }} />
+                        {tag.name}
+                        {alreadyAdded && <span className="text-xs ml-auto">(Added)</span>}
+                        </button>
+                    );
+                    })}
                   </div>
                 </details>
 
