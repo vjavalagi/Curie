@@ -12,6 +12,7 @@ from arxiv import Client, Search, SortCriterion
 import boto3
 from dotenv import load_dotenv, find_dotenv
 from botocore.exceptions import ClientError
+from aws import *
 
 
 arxiv = ArxivAPI()
@@ -149,36 +150,67 @@ def api_download_pdf():
 @app.route("/api/s3-url", methods=["GET"])
 def get_presigned_url():
     filename = request.args.get("filename")
-    
     if not filename:
-        return boto3.make_response(jsonify({"error": "Missing filename"}), 400)
-
-    # Example of your presigned URL logic
-    # Assuming you have boto3 already configured
-    import boto3
-    s3_client = boto3.client('s3')
-    bucket_name = "curie-file-storage"
+        return make_response(jsonify({"error": "Missing filename"}), 400)
 
     try:
         presigned_url = s3_client.generate_presigned_url(
             "put_object",
-            Params={"Bucket": bucket_name, "Key": filename},
-            ExpiresIn=3600
+            Params={"Bucket": S3_BUCKET_NAME, "Key": f"ProfilePictures/{filename}", "ContentType": "image/png"},
+            ExpiresIn=3600,
+            HttpMethod="PUT"
         )
+        response = make_response(jsonify({"url": presigned_url}))
+        response.headers["Access-Control-Allow-Origin"] = "http://localhost:5173"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+        return response
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
+    
+@app.route("/api/create-user", methods=["POST"])
+def api_create_user():
+    data = request.get_json()
+    username = data.get("username")
+    email = data.get("email")
+    photo_url = data.get("photo_url")
+    password = data.get("password")
 
-    # Create response and manually set CORS headers
-    response = make_response(jsonify({"url": presigned_url}))
-    response.headers["Access-Control-Allow-Origin"] = "http://localhost:5173"
-    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-    response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    if not all([username, email, photo_url, password]):
+        return jsonify({"error": "Missing fields"}), 400
 
-    return response
+    result = create_user(username, email, photo_url, password)
+    return jsonify(result)
+
+@app.route("/api/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+
+    if not username or not password:
+        return jsonify({"error": "Missing username or password"}), 400
+
+    user = users.get_item(Key={"UserID": username}).get("Item")
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    hashed_input = hashlib.sha256(password.encode()).hexdigest()
+    if hashed_input != user["PasswordHash"]:
+        return jsonify({"error": "Incorrect password"}), 401
+
+    return jsonify({"message": "Login successful", "user": user}), 200
+
+
+@app.route("/api/test")
+def test_cors():
+    return jsonify({"message": "CORS is working!"})
+
+
 
 if __name__ == '__main__':
     # Run on port 5001
-    app.run(debug=True, port=5001)
+    app.run(debug=True, host="0.0.0.0", port=5001)
 
 
 
