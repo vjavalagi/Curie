@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
-const ProfileIcon = ({ userImage }) => {
+const ProfileIcon = () => {
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
+  const userImage = user?.PhotoURL || null;
 
   const handleClick = () => {
     navigate("/profile");
