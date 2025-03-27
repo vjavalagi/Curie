@@ -226,4 +226,4 @@ def generate_presentation(pdf_path):
             shutil.move(os.path.join(slides_dir, file), os.path.join(slides_dir, file))
 
     print("Presentation PDF generated successfully!")
-generate_presentation("pdfs/Pattern Formation for Asynchronous Robots without Agreement in Chirality.pdf")
+# generate_presentation("pdfs/Pattern Formation for Asynchronous Robots without Agreement in Chirality.pdf")
