@@ -69,10 +69,6 @@ export default function SearchLargeView() {
           <Timeline search={search} />
         </section>
       ) : (
-<<<<<<< HEAD
-        <section className="p-6 bg-white rounded-lg shadow-md">
-          <h1 className="text-2xl font-bold">{activePaper.title}</h1>
-=======
         <section className="bg-white p-6 rounded-lg shadow-md relative">
 
           <button
@@ -97,7 +93,6 @@ export default function SearchLargeView() {
           </button>
 
           <h1 className="text-2xl font-bold pr-12">{activePaper.title}</h1>
->>>>>>> 017f5957deead1cf88fe134fb01d7b352dc1966d
           <p className="text-sm text-gray-500">
             Publication Date: {activePaper.published}
           </p>
@@ -109,11 +104,7 @@ export default function SearchLargeView() {
             href={activePaper.url}
             target="_blank"
             rel="noopener noreferrer"
-<<<<<<< HEAD
-            className="underline text-curieBlue"
-=======
             className="absolute right-4 bottom-1 flex items-center gap-0.5 text-curieBlue hover:text-blue-700"
->>>>>>> 017f5957deead1cf88fe134fb01d7b352dc1966d
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
