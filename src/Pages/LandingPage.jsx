@@ -6,6 +6,7 @@ import ProfileIcon from "../components/ProfileIcon";
 import InfoSection from "../components/InfoSection";
 import FAQSection from "../components/FAQSection";
 import { motion } from "framer-motion";
+import WelcomeMessage from "../components/WelcomeMessage";
 
 export default function LandingPage() {
   const infoRef = useRef(null);
@@ -44,7 +45,6 @@ export default function LandingPage() {
         <div className="absolute top-4 right-4">
           <ProfileIcon />
         </div>
-
         {/* Curie Logo Slide in from Left */}
         <motion.img
           src={curieLogo}
