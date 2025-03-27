@@ -22,7 +22,12 @@ export default function Login() {
     try {
       const response = await axios.post("http://localhost:5001/api/login", form);
       if (response.data && response.data.user) {
-        setUser(response.data.user);
+        setUser({
+          UserID: response.data.user.UserID,
+          Email: response.data.user.Email,
+          PhotoURL: response.data.user.PhotoURL,  // ✅ make sure this is included
+        });
+        
         console.log("User INFO :", response.data.user);
         
         setMessage("✅ Login successful!");
