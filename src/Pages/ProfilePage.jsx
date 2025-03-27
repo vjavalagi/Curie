@@ -1,80 +1,93 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Header from "../components/Header";
 import DirectoryDropdown from "../components/DirectoryDropdown";
-import FolderGrid from "../components/FolderGrid";
 import SaveGroupingButton from "../components/SaveGroupingButton";
 import WelcomeMessage from "../components/WelcomeMessage";
 import BreadcrumbNavigation from "../components/BreadcrumbNavigation";
-import PdfViewer from "../components/PdfViewer"; // Import the new iframe-based PDF viewer
+import Card from "../components/Card";
+import LogoutButton from "../components/LogoutButton";
 
 export default function ProfilePage() {
-  const [pdfs, setPdfs] = useState([]);
-  const [selectedPdf, setSelectedPdf] = useState(null);
+  const [tags, setTags] = useState([]);
 
-  // Fetch PDFs from the backend
-  useEffect(() => {
-    fetch("http://127.0.0.1:5001/api/list-pdfs")
-      .then((res) => res.json())
-      .then((data) => setPdfs(data))
-      .catch((err) => console.error("Error fetching PDFs:", err));
-  }, []);
+  const [pdfTags, setPdfTags] = useState({});
+  const dummyCards = [1, 2, 3, 4, 5];
+
+  const presetColors = [
+    "#EF4444", "#F97316", "#EAB308", "#84CC16", "#22C55E",
+    "#14B8A6", "#06B6D4", "#3B82F6", "#6366F1", "#8B5CF6",
+    "#A855F7", "#D946EF", "#EC4899", "#F43F5E", "#6B7280",
+    "#10B981", "#0EA5E9", "#F59E0B", "#7C3AED", "#DC2626"
+  ];
+
+  const handleAddTag = (name) => {
+    const index = tags.length % presetColors.length;
+    const newTag = {
+      name,
+      color: presetColors[index],
+    };
+    setTags((prev) => [...prev, newTag]);
+  };
+  
+
+  const handleRemoveTagGlobally = (tagName) => {
+    setTags((prev) => prev.filter((t) => t.name !== tagName));
+    setPdfTags((prev) => {
+      const updated = {};
+      for (const key in prev) {
+        updated[key] = prev[key].filter((t) => t.name !== tagName);
+      }
+      return updated;
+    });
+  };
+
+  const handleAssignTag = (cardId, tag) => {
+    setPdfTags((prev) => ({
+      ...prev,
+      [cardId]: prev[cardId]?.some((t) => t.name === tag.name)
+        ? prev[cardId]
+        : [...(prev[cardId] || []), tag],
+    }));
+  };
+
+  const handleRemoveTagFromCard = (cardId, tagName) => {
+    setPdfTags((prev) => ({
+      ...prev,
+      [cardId]: prev[cardId].filter((t) => t.name !== tagName),
+    }));
+  };
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       <Header variant="lightblue" />
       <div className="flex flex-1 overflow-hidden">
-        <DirectoryDropdown 
-          currentDirectory="Home"
-          folders={[]} 
-          onSelect={() => {}}
+        <DirectoryDropdown
+          tags={tags}
+          onAddTag={handleAddTag}
+          onRemoveTag={handleRemoveTagGlobally}
         />
-        <div className="flex flex-col flex-1 items-center pt-3">
+        <div className="flex flex-col flex-1 items-center pt-3 overflow-y-auto">
           <WelcomeMessage />
           <BreadcrumbNavigation path={[]} onNavigate={() => {}} />
-
-          {/* PDF List Section */}
-          <div className="w-full max-w-6xl mx-auto mt-4 p-4 bg-white rounded-lg shadow-md">
+          <div className="w-full max-w-8xl mx-auto mt-4 p-4 bg-white rounded-lg shadow-md">
             <h2 className="text-lg font-semibold mb-3 text-center">Saved PDFs</h2>
             <div className="flex flex-wrap gap-6 justify-center">
-              {pdfs.length > 0 ? (
-                pdfs.map((pdf, index) => (
-                  <div key={index} className="flex flex-col items-center w-40">
-                    <button
-                      onClick={() => setSelectedPdf(`http://127.0.0.1:5001/pdfs/${pdf.filename}`)}
-                      className="flex flex-col items-center text-gray-700 hover:text-blue-600"
-                    >
-                      {/* Paper Icon */}
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth="1.5"
-                        stroke="currentColor"
-                        className="w-16 h-16"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z"
-                        />
-                      </svg>
-
-                      {/* PDF Title with Line Breaks Every 20 Characters */}
-                      <span className="text-sm text-center mt-2 w-full break-words">
-                        {pdf.title.match(/.{1,20}/g).join("\n")}
-                      </span>
-                    </button>
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-500 col-span-full text-center">No PDFs saved yet.</p>
-              )}
+              {dummyCards.map((id) => (
+                <Card
+                  key={id}
+                  pdfId={id}
+                  tags={pdfTags[id] || []}
+                  availableTags={tags}
+                  onAssignTag={(tag) => handleAssignTag(id, tag)}
+                  onRemoveTagFromCard={(tagName) => handleRemoveTagFromCard(id, tagName)}
+                />
+              ))}
             </div>
           </div>
-
         </div>
       </div>
       <SaveGroupingButton />
+      <LogoutButton/>
 
       {/* Render PDF Viewer if a PDF is selected */}
       {selectedPdf && <PdfViewer pdfUrl={selectedPdf} onClose={() => setSelectedPdf(null)} />}

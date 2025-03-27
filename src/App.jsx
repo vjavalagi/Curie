@@ -10,23 +10,27 @@ import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import ProfilePage from "./Pages/ProfilePage";
 import { GlobalProvider } from "./components/GlobalContext";
+import { UserProvider } from "./context/UserContext";
+
 
 function App() {
   return (
     <BrowserRouter>
-      <div>
-        <GlobalProvider>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/create_profile" element={<CreateProfile />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/createaccount" element={<CreateAccount />} />
-            <Route path="*" element={<h1>Not Found</h1>} />
-          </Routes>
-        </GlobalProvider>
-      </div>
+      <UserProvider>
+        <div>
+          <GlobalProvider>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/create_profile" element={<CreateProfile />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/createaccount" element={<CreateAccount />} />
+              <Route path="*" element={<h1>Not Found</h1>} />
+            </Routes>
+          </GlobalProvider>
+        </div>
+      </UserProvider>
     </BrowserRouter>
   );
 }
