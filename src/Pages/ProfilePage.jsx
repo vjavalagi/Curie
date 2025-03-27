@@ -87,10 +87,7 @@ export default function ProfilePage() {
         </div>
       </div>
       <SaveGroupingButton />
-      <LogoutButton/>
-
-      {/* Render PDF Viewer if a PDF is selected */}
-      {selectedPdf && <PdfViewer pdfUrl={selectedPdf} onClose={() => setSelectedPdf(null)} />}
+      <LogoutButton />
     </div>
   );
 }
