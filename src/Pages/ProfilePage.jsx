@@ -5,6 +5,7 @@ import SaveGroupingButton from "../components/SaveGroupingButton";
 import WelcomeMessage from "../components/WelcomeMessage";
 import BreadcrumbNavigation from "../components/BreadcrumbNavigation";
 import Card from "../components/Card";
+import LogoutButton from "../components/LogoutButton";
 
 export default function ProfilePage() {
   const [tags, setTags] = useState([]);
@@ -86,6 +87,10 @@ export default function ProfilePage() {
         </div>
       </div>
       <SaveGroupingButton />
+      <LogoutButton/>
+
+      {/* Render PDF Viewer if a PDF is selected */}
+      {selectedPdf && <PdfViewer pdfUrl={selectedPdf} onClose={() => setSelectedPdf(null)} />}
     </div>
   );
 }

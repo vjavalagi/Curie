@@ -16,9 +16,7 @@ const Header = ({handleSearch}) => {
       </div>
       <SearchBar handleSearch= {handleSearch} variant="lightblue"/>
       <div className="flex justify-center items-center pr-8">
-        <Link to = "/profile">
-          <ProfileIcon userImage={profileImage} />
-        </Link>
+        <ProfileIcon userImage={profileImage} />
       </div>
     </div>
   );
