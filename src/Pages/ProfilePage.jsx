@@ -7,6 +7,7 @@ import WelcomeMessage from "../components/WelcomeMessage";
 import BreadcrumbNavigation from "../components/BreadcrumbNavigation";
 import PdfViewer from "../components/PdfViewer"; // Import the new iframe-based PDF viewer
 import Card from "../components/Card";
+import LogoutButton from "../components/LogoutButton";
 
 export default function ProfilePage() {
   const [pdfs, setPdfs] = useState([]);
@@ -51,6 +52,7 @@ export default function ProfilePage() {
         </div>
       </div>
       <SaveGroupingButton />
+      <LogoutButton/>
 
       {/* Render PDF Viewer if a PDF is selected */}
       {selectedPdf && <PdfViewer pdfUrl={selectedPdf} onClose={() => setSelectedPdf(null)} />}
