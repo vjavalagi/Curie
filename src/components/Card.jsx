@@ -6,6 +6,8 @@ export default function Card({
   availableTags = [],
   onAssignTag,
   onRemoveTagFromCard,
+  onClickTag,
+  activeFilters = [],
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -106,21 +108,30 @@ export default function Card({
               Date
             </span>
 
-            {tags.map((tag, idx) => (
-              <span
-                key={idx}
-                className="py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium rounded-full text-white"
-                style={{ backgroundColor: tag.color }}
-              >
-                {tag.name}
-                <button
-                  onClick={() => onRemoveTagFromCard(tag.name)}
-                  className="ml-1 text-white hover:text-red-200 text-xs"
+            {tags.map((tag, idx) => {
+              const isActive = activeFilters.includes(tag.name);
+              return (
+                <span
+                  key={idx}
+                  onClick={() => onClickTag(tag.name)}
+                  className={`py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium rounded-full text-white cursor-pointer ${
+                    isActive ? "ring-2 ring-offset-1 ring-curieBlue" : ""
+                  }`}
+                  style={{ backgroundColor: tag.color }}
                 >
-                  ×
-                </button>
-              </span>
-            ))}
+                  {tag.name}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemoveTagFromCard(tag.name);
+                    }}
+                    className="ml-1 text-white hover:text-red-200 text-xs"
+                  >
+                    ×
+                  </button>
+                </span>
+              );
+            })}
           </div>
 
           <h3 className="text-xl font-semibold text-gray-800">Paper Title</h3>

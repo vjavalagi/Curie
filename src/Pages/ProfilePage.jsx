@@ -20,6 +20,24 @@ export default function ProfilePage() {
     "#10B981", "#0EA5E9", "#F59E0B", "#7C3AED", "#DC2626"
   ];
 
+  const [activeFilters, setActiveFilters] = useState([]);
+
+  const toggleFilterTag = (tagName) => {
+    setActiveFilters((prev) =>
+      prev.includes(tagName)
+        ? prev.filter((t) => t !== tagName)
+        : [...prev, tagName]
+    );
+  };
+
+  const cardMatchesFilters = (cardTags) => {
+    if (activeFilters.length === 0) return true;
+    return activeFilters.every((filter) =>
+      cardTags.some((t) => t.name === filter)
+    );
+  };
+
+
   const handleAddTag = (name) => {
     const index = tags.length % presetColors.length;
     const newTag = {
@@ -61,32 +79,44 @@ export default function ProfilePage() {
     <div className="h-screen flex flex-col bg-gray-50">
       <Header variant="lightblue" />
       <div className="flex flex-1 overflow-hidden">
-        <DirectoryDropdown
-          tags={tags}
-          onAddTag={handleAddTag}
-          onRemoveTag={handleRemoveTagGlobally}
-        />
+      <DirectoryDropdown
+        tags={tags}
+        onAddTag={handleAddTag}
+        onRemoveTag={handleRemoveTagGlobally}
+        onClickTag={toggleFilterTag}
+        activeFilters={activeFilters}
+      />
         <div className="flex flex-col flex-1 items-center pt-3 overflow-y-auto">
           <WelcomeMessage />
           <BreadcrumbNavigation path={[]} onNavigate={() => {}} />
           <div className="w-full max-w-8xl mx-auto mt-4 p-4 bg-white rounded-lg shadow-md">
             <h2 className="text-lg font-semibold mb-3 text-center">Saved PDFs</h2>
             <div className="flex flex-wrap gap-6 justify-center">
-              {dummyCards.map((id) => (
-                <Card
+            {dummyCards.map((id) => {
+              const cardTags = pdfTags[id] || [];
+              const matches = cardMatchesFilters(cardTags);
+
+              return (
+                <div
                   key={id}
-                  pdfId={id}
-                  tags={pdfTags[id] || []}
-                  availableTags={tags}
-                  onAssignTag={(tag) => handleAssignTag(id, tag)}
-                  onRemoveTagFromCard={(tagName) => handleRemoveTagFromCard(id, tagName)}
-                />
-              ))}
+                  className={matches ? "" : "opacity-40 transition-opacity duration-300"}
+                >
+                  <Card
+                    pdfId={id}
+                    tags={cardTags}
+                    availableTags={tags}
+                    onAssignTag={(tag) => handleAssignTag(id, tag)}
+                    onRemoveTagFromCard={(tagName) => handleRemoveTagFromCard(id, tagName)}
+                    onClickTag={toggleFilterTag}
+                    activeFilters={activeFilters}
+                  />
+                </div>
+              );
+            })}
             </div>
           </div>
         </div>
       </div>
-      <SaveGroupingButton />
       <LogoutButton />
     </div>
   );
