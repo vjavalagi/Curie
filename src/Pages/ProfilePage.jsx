@@ -6,6 +6,8 @@ import WelcomeMessage from "../components/WelcomeMessage";
 import BreadcrumbNavigation from "../components/BreadcrumbNavigation";
 import Card from "../components/Card";
 import LogoutButton from "../components/LogoutButton";
+import { motion, AnimatePresence } from "framer-motion";
+
 
 export default function ProfilePage() {
   const [tags, setTags] = useState([]);
@@ -92,27 +94,52 @@ export default function ProfilePage() {
           <div className="w-full max-w-8xl mx-auto mt-4 p-4 bg-white rounded-lg shadow-md">
             <h2 className="text-lg font-semibold mb-3 text-center">Saved PDFs</h2>
             <div className="flex flex-wrap gap-6 justify-center">
-            {dummyCards.map((id) => {
-              const cardTags = pdfTags[id] || [];
-              const matches = cardMatchesFilters(cardTags);
+            <AnimatePresence mode="popLayout">
+              {[...dummyCards]
+                .sort((a, b) => {
+                  const aTags = pdfTags[a] || [];
+                  const bTags = pdfTags[b] || [];
+                  const aMatches = cardMatchesFilters(aTags);
+                  const bMatches = cardMatchesFilters(bTags);
+                  if (aMatches && !bMatches) return -1;
+                  if (!aMatches && bMatches) return 1;
+                  return 0;
+                })
+                .map((id) => {
+                  const cardTags = pdfTags[id] || [];
+                  const matches = cardMatchesFilters(cardTags);
 
-              return (
-                <div
-                  key={id}
-                  className={matches ? "" : "opacity-40 transition-opacity duration-300"}
-                >
-                  <Card
-                    pdfId={id}
-                    tags={cardTags}
-                    availableTags={tags}
-                    onAssignTag={(tag) => handleAssignTag(id, tag)}
-                    onRemoveTagFromCard={(tagName) => handleRemoveTagFromCard(id, tagName)}
-                    onClickTag={toggleFilterTag}
-                    activeFilters={activeFilters}
-                  />
-                </div>
-              );
-            })}
+                  return (
+                    <motion.div
+                      key={id}
+                      layout
+                      initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                      animate={{
+                        opacity: matches ? 1 : 0.4,
+                        scale: matches ? 1 : 0.95,
+                        y: 0,
+                      }}
+                      transition={{
+                        duration: 0.4,
+                        ease: "easeInOut",
+                      }}
+                      exit={{ opacity: 0, y: 20 }}
+                    >
+                      <Card
+                        pdfId={id}
+                        tags={cardTags}
+                        availableTags={tags}
+                        onAssignTag={(tag) => handleAssignTag(id, tag)}
+                        onRemoveTagFromCard={(tagName) =>
+                          handleRemoveTagFromCard(id, tagName)
+                        }
+                        onClickTag={toggleFilterTag}
+                        activeFilters={activeFilters}
+                      />
+                    </motion.div>
+                  );
+                })}
+            </AnimatePresence>
             </div>
           </div>
         </div>
