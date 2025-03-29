@@ -150,6 +150,7 @@ def api_download_pdf():
 @app.route("/api/s3-url", methods=["GET"])
 def get_presigned_url():
     filename = request.args.get("filename")
+    
     if not filename:
         return make_response(jsonify({"error": "Missing filename"}), 400)
 
@@ -167,7 +168,7 @@ def get_presigned_url():
         return response
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
-    
+
 @app.route("/api/create-user", methods=["POST"])
 def api_create_user():
     data = request.get_json()
@@ -200,6 +201,14 @@ def login():
         return jsonify({"error": "Incorrect password"}), 401
 
     return jsonify({"message": "Login successful", "user": user}), 200
+
+@app.route("/api/create-folder", methods=["POST"])
+def createfolder():
+    data = request.get_json()
+    username = data.get("username")
+    folder = data.get("folder")
+    response = create_folder(username, folder)
+    return jsonify(response)
 
 
 @app.route("/api/test")

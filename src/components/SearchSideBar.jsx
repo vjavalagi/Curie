@@ -12,6 +12,7 @@ export default function SearchSideBar({ selectedFilter, yearRange, researchPaper
       // Indicate that the summary is loading.
       setActiveSummary(undefined);
       await PDFDownload(paper);
+      console.log("Downloading paper", paper);
       const sumresp = await SummarizeSections(paper.title);
       setActiveSummary(sumresp);
     } catch (error) {
