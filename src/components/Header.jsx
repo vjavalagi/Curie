@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import ProfileIcon from "./ProfileIcon";
 import curieLogo from "../assets/curie_no_background.png";
 import SearchBar from "./SearchBar";
-import { UserContext } from "../context/UserContext"; // ✅ import context
+import { useGlobal } from "../context/GlobalContext"; // ✅ import context
 
 const Header = ({ handleSearch }) => {
-  const { user } = useContext(UserContext); // ✅ get user info from context
+  const { user } = useGlobal(); // ✅ get user info from context
   const profileImage = user?.PhotoURL || null; // ✅ fallback if no photo
 
   return (

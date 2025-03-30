@@ -1,4 +1,4 @@
-import { useGlobal } from "./GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 

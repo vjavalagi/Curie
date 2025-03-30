@@ -1,17 +1,22 @@
 import React, { useMemo } from "react";
-import { useGlobal } from "./GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import { PDFDownload } from "../backend/PdfDownload";
 import { SummarizeSections } from "../backend/SummarizeSections";
 
-export default function SearchSideBar({ selectedFilter, yearRange, researchPapers, loading }) {
-  const { setActivePaper, setActiveSummary } = useGlobal();
+export default function SearchSideBar({
+  selectedFilter,
+  yearRange,
+  researchPapers,
+  loading,
+}) {
+  const { setActivePaper, setActiveSummary, user } = useGlobal();
 
   const handlePaperClick = async (paper) => {
     try {
       setActivePaper(paper);
       // Indicate that the summary is loading.
       setActiveSummary(undefined);
-      await PDFDownload(paper);
+      await PDFDownload(user, paper);
       console.log("Downloading paper", paper);
       const sumresp = await SummarizeSections(paper.title);
       setActiveSummary(sumresp);
@@ -24,7 +29,8 @@ export default function SearchSideBar({ selectedFilter, yearRange, researchPaper
     return researchPapers.filter((paper) => {
       const publishedYear = new Date(paper.published).getFullYear();
       return (
-        (selectedFilter === "All" || paper.publicationTypes?.includes(selectedFilter)) &&
+        (selectedFilter === "All" ||
+          paper.publicationTypes?.includes(selectedFilter)) &&
         publishedYear >= yearRange[0] &&
         publishedYear <= yearRange[1]
       );
@@ -49,7 +55,9 @@ export default function SearchSideBar({ selectedFilter, yearRange, researchPaper
               onClick={() => handlePaperClick(paper)}
             >
               <span className="font-semibold">{paper.title}</span>
-              <p className="text-sm text-gray-500">{paper.authors.join(", ")}</p>
+              <p className="text-sm text-gray-500">
+                {paper.authors.join(", ")}
+              </p>
               <p className="text-sm text-gray-500">{paper.published}</p>
             </button>
           ))

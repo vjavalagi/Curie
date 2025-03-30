@@ -105,11 +105,18 @@ def create_user(username, email, photo_url, password):
    
         return {"message": "User profile created successfully."}
     except ClientError as e:
+        print(e)
         if e.response['Error']['Code'] == "ConditionalCheckFailedException":
             return {"error": "Username already exists."}
         else:
             raise
-
+def delete_user(username):
+    ## destroy their folder in file_bucket
+    user_folder = f'Users/{username}/'
+    file_bucket.delete_objects(Delete={'Objects': [{'Key': user_folder}]})
+    ## delete user from users table
+    users.delete_item(Key={'UserID': username})
+    return {"message": "User deleted successfully."}
 
 def get_user_profile(username):
     """
@@ -270,7 +277,7 @@ def upload_paper(user, folder, paper):
     }
     try:
         # Serialize metadata to JSON
-        metadata_key = f"Users/{user}/{folder}/{paper['entry_id']}.json"
+        metadata_key = f"Users/{user}/{folder}/{paper['entry_id']}.json" if folder else f"Users/{user}/{paper['entry_id']}.json"
         paper_obj = json.dumps(paper_item)
         file_bucket.put_object(Key=metadata_key, Body=paper_obj)
         return {"message": "Paper uploaded successfully.", "s3_url": s3_url, "paper": paper_item}
@@ -333,9 +340,97 @@ def get_paper_metadata(username, folder, item_id):
     except ClientError as e:
         return {"error": f"Failed to get paper metadata: {e}"}
     
+def get_paper_pdf(username, folder, item_id):
+    """
+    Retrieve the PDF URL of a paper from its metadata.
+
+    This function fetches the metadata of a paper using the provided 
+    username, folder, and item ID. If the metadata contains an "s3_url" 
+    key, the corresponding value (PDF URL) is returned. Otherwise, an 
+    error message is returned indicating that the PDF URL was not found.
+
+    Args:
+        username (str): The username associated with the paper.
+        folder (str): The folder where the paper is stored.
+        item_id (str): The unique identifier of the paper.
+
+    Returns:
+        str or dict: The PDF URL as a string if found, or a dictionary 
+        with an error message if the URL is not present in the metadata.
+    """
+    metadata = get_paper_metadata(username, folder, item_id)
+    if "s3_url" in metadata:
+        return metadata["s3_url"]
+    return {"error": "PDF URL not found in paper metadata."}
+def get_file_system_recursive(prefix, bucket_name="curie-file-storage"):
+    """
+    Recursively retrieves the file system structure from S3 for a given prefix.
     
-    pass
+    For loose JSON files at the current level, it fetches and parses the file contents
+    so that the actual JSON objects are returned instead of just the filenames.
     
+    Args:
+        prefix (str): The S3 key prefix representing the current folder.
+        bucket_name (str): The S3 bucket name.
+    
+    Returns:
+        dict: A dictionary with two keys:
+              - "folders": a list of dictionaries with "name" and "content" keys,
+              - "jsons": a list of JSON objects (parsed from the JSON files) at the current level.
+    """
+    s3_client = boto3.client("s3")
+    response = s3_client.list_objects_v2(
+        Bucket=bucket_name,
+        Prefix=prefix,
+        Delimiter="/"
+    )
+    
+    file_system = {"folders": [], "jsons": []}
+    
+    # Process loose JSON files at the current level.
+    for obj in response.get("Contents", []):
+        key = obj.get("Key")
+        # Skip placeholder objects representing folders.
+        if key.endswith("/"):
+            continue
+        # Extract the file name relative to the current prefix.
+        file_name = key[len(prefix):]
+        if file_name.endswith(".json"):
+            # Fetch the JSON file from S3.
+            json_obj = s3_client.get_object(Bucket=bucket_name, Key=key)
+            json_data = json_obj['Body'].read().decode('utf-8')
+            parsed_json = json.loads(json_data)
+            file_system["jsons"].append(parsed_json)
+    
+    # Process sub-folders (returned as CommonPrefixes).
+    for cp in response.get("CommonPrefixes", []):
+        folder_prefix = cp.get("Prefix")
+        # Extract the folder name relative to the current prefix.
+        folder_name = folder_prefix[len(prefix):].rstrip("/")
+        # Recursively get the content of this folder.
+        nested_fs = get_file_system_recursive(folder_prefix, bucket_name)
+        file_system["folders"].append({
+            "name": folder_name,
+            "content": nested_fs
+        })
+    
+    return file_system
+
+def get_user_file_system(username):
+    """
+    Retrieves the complete file system structure for a given user.
+    
+    The function uses the base prefix "Users/{username}/" and recursively 
+    builds a dictionary representing all sub-folders and loose JSON files (as JSON objects).
+    
+    Args:
+        username (str): The user identifier.
+    
+    Returns:
+        dict: A nested dictionary representing the user's file system.
+    """
+    base_prefix = f"Users/{username}/"
+    return get_file_system_recursive(base_prefix)
 def update_tags(username, folder, paper_id, new_tags):
     """
     Updates the tags of a specific file or folder in the Files table.
@@ -649,7 +744,7 @@ def preview_image_urls(s3_urls):
 # ------------------------------------------------------------------------------
 # generate_test_files_with_arxiv()
 # print(preview_image_urls(['https://curie-file-storage.s3.amazonaws.com/profile-pictures/preline.png']))
-#print(create_user("Joshua4", "jmayhugh@tamu.edu", "https://curie-file-storage.s3.amazonaws.com/profile-pictures/preline.png", "password123"))
+print(create_user("test1", "jmayhugh@tamu.edu", "https://curie-file-storage.s3.amazonaws.com/profile-pictures/preline.png", "password123"))
 #print(create_paper_folder("Joshua4", "TestFolder"))
 # Hard-coded paper object for testing
 paper = {
@@ -674,5 +769,21 @@ paper = {
     "updated": "2019-07-30T17:56:17+00:00"
 }
 #print(upload_paper("Joshua4", "TestFolder", paper))
-print(move_file("Joshua4", "TestFolder", "TestFolder2", "1907.13114v1"))
-print(get_paper_metadata("Joshua4", "TestFolder2", "1907.13114v1"))
+#print(move_file("Joshua4", "TestFolder", "TestFolder2", "1907.13114v1"))
+#print(get_paper_metadata("Joshua4", "TestFolder2", "1907.13114v1"))
+#print(get_paper_pdf("Joshua4", "TestFolder2", "1907.13114v1"))
+# delete_user("test1")
+# print(create_paper_folder("test1", "TestFolder1"))
+# print(create_paper_folder("test1", "TestFolder2"))
+# print(create_paper_folder("test1", "TestFolder3"))
+# print(create_paper_folder("test1", "TestFolder4"))
+# # create a bunch of files in this table
+# print(upload_paper("test1", "TestFolder1", paper))
+# print(upload_paper("test1", "TestFolder1", paper))
+# print(upload_paper("test1", "TestFolder1", paper))
+# print(upload_paper("test1", "TestFolder1", paper))
+# print(upload_paper("test1", "TestFolder2", paper))
+# print(upload_paper("test1", "TestFolder3", paper))
+# print(upload_paper("test1", "TestFolder4", paper))
+print(upload_paper("test1", "", paper))
+print(get_user_file_system("test1"))

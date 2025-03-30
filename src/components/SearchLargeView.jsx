@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import Timeline from "./Timeline";
-import { useGlobal } from "./GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import { PDFDownload } from "../backend/PdfDownload"; // Ensure correct path
 
 export default function SearchLargeView() {
-  const { search, activePaper, setActivePaper, activeSummary } = useGlobal();
+  const { search, activePaper, setActivePaper, activeSummary, user } = useGlobal();
   const [isSummaryLoading, setIsSummaryLoading] = useState(true);
 
   useEffect(() => {
@@ -63,16 +63,16 @@ export default function SearchLargeView() {
           <h1 className="text-2xl font-bold">{search}</h1>
           <h2 className="text-lg font-semibold mt-2">Summary</h2>
           <p className="text-gray-700">
-            Shows an AI-generated summary of the field itself along with a timeline.
+            Shows an AI-generated summary of the field itself along with a
+            timeline.
           </p>
           <Timeline search={search} />
         </section>
       ) : (
         <section className="bg-white p-6 rounded-lg shadow-md relative">
-
           <button
             className="absolute right-4 top-4 flex items-center gap-0.5 text-curieBlue hover:text-blue-700"
-            onClick={() => PDFDownload(activePaper)}
+            onClick={() => PDFDownload(user, activePaper)}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -98,7 +98,9 @@ export default function SearchLargeView() {
           <p className="text-sm text-gray-500">
             Authors: {activePaper.authors?.join(", ")}
           </p>
-          <p className="text-sm text-gray-500">Summary: {activePaper.summary}</p>
+          <p className="text-sm text-gray-500">
+            Summary: {activePaper.summary}
+          </p>
           <a
             href={activePaper.url}
             target="_blank"
@@ -122,63 +124,62 @@ export default function SearchLargeView() {
             <span className="text-sm underline">View Paper</span>
           </a>
         </section>
-
       )}
 
       {/* Render active summary section if an active paper is selected */}
       {activePaper && (
-  <section className="bg-white p-6 mt-4 rounded-lg shadow-md">
-    <h3 className="text-xl font-semibold">Active Summary</h3>
-    {activeSummary === undefined ? (
-      // Loading indicator
-      <div className="flex justify-center items-center mt-4">
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-curieBlue h-2 rounded-full animate-pulse"
-            style={{ width: "50%" }}
-          ></div>
-        </div>
-      </div>
-    ) : activeSummary && Object.keys(activeSummary).length > 0 ? (
-      // Render summary sections if activeSummary has content
-      <>
-        {activeSummary.introduction && (
-          <div className="mt-2">
-            <h4 className="font-bold">Introduction</h4>
-            <p>{activeSummary.introduction}</p>
-          </div>
-        )}
-        {activeSummary.methods && (
-          <div className="mt-2">
-            <h4 className="font-bold">Methods</h4>
-            <p>{activeSummary.methods}</p>
-          </div>
-        )}
-        {activeSummary.results && (
-          <div className="mt-2">
-            <h4 className="font-bold">Results</h4>
-            <p>{activeSummary.results}</p>
-          </div>
-        )}
-        {activeSummary.discussion && (
-          <div className="mt-2">
-            <h4 className="font-bold">Discussion</h4>
-            <p>{activeSummary.discussion}</p>
-          </div>
-        )}
-        {activeSummary.conclusion && (
-          <div className="mt-2">
-            <h4 className="font-bold">Conclusion</h4>
-            <p>{activeSummary.conclusion}</p>
-          </div>
-        )}
-      </>
-    ) : (
-      // If activeSummary is null or an empty object
-      <p>No AI Gen summary is available for this paper.</p>
-    )}
-  </section>
-)}
+        <section className="bg-white p-6 mt-4 rounded-lg shadow-md">
+          <h3 className="text-xl font-semibold">Active Summary</h3>
+          {activeSummary === undefined ? (
+            // Loading indicator
+            <div className="flex justify-center items-center mt-4">
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-curieBlue h-2 rounded-full animate-pulse"
+                  style={{ width: "50%" }}
+                ></div>
+              </div>
+            </div>
+          ) : activeSummary && Object.keys(activeSummary).length > 0 ? (
+            // Render summary sections if activeSummary has content
+            <>
+              {activeSummary.introduction && (
+                <div className="mt-2">
+                  <h4 className="font-bold">Introduction</h4>
+                  <p>{activeSummary.introduction}</p>
+                </div>
+              )}
+              {activeSummary.methods && (
+                <div className="mt-2">
+                  <h4 className="font-bold">Methods</h4>
+                  <p>{activeSummary.methods}</p>
+                </div>
+              )}
+              {activeSummary.results && (
+                <div className="mt-2">
+                  <h4 className="font-bold">Results</h4>
+                  <p>{activeSummary.results}</p>
+                </div>
+              )}
+              {activeSummary.discussion && (
+                <div className="mt-2">
+                  <h4 className="font-bold">Discussion</h4>
+                  <p>{activeSummary.discussion}</p>
+                </div>
+              )}
+              {activeSummary.conclusion && (
+                <div className="mt-2">
+                  <h4 className="font-bold">Conclusion</h4>
+                  <p>{activeSummary.conclusion}</p>
+                </div>
+              )}
+            </>
+          ) : (
+            // If activeSummary is null or an empty object
+            <p>No AI Gen summary is available for this paper.</p>
+          )}
+        </section>
+      )}
     </main>
   );
 }

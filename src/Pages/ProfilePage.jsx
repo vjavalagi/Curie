@@ -4,14 +4,16 @@ import DirectoryDropdown from "../components/DirectoryDropdown";
 import SaveGroupingButton from "../components/SaveGroupingButton";
 import WelcomeMessage from "../components/WelcomeMessage";
 import BreadcrumbNavigation from "../components/BreadcrumbNavigation";
-import Card from "../components/Card";
 import LogoutButton from "../components/LogoutButton";
+import PdfViewer from "../components/PdfViewer"; // Ensure this component exists
+import Folder from "../components/Folder";
+import Card from "../components/Card";
+import { useGlobal } from "../context/GlobalContext";
 
 export default function ProfilePage() {
   const [tags, setTags] = useState([]);
-
+  const { selectedPdf, fileSystem, setSelectedPdf } = useGlobal();
   const [pdfTags, setPdfTags] = useState({});
-  const dummyCards = [1, 2, 3, 4, 5];
 
   const presetColors = [
     "#EF4444", "#F97316", "#EAB308", "#84CC16", "#22C55E",
@@ -22,13 +24,9 @@ export default function ProfilePage() {
 
   const handleAddTag = (name) => {
     const index = tags.length % presetColors.length;
-    const newTag = {
-      name,
-      color: presetColors[index],
-    };
+    const newTag = { name, color: presetColors[index] };
     setTags((prev) => [...prev, newTag]);
   };
-  
 
   const handleRemoveTagGlobally = (tagName) => {
     setTags((prev) => prev.filter((t) => t.name !== tagName));
@@ -57,6 +55,43 @@ export default function ProfilePage() {
     }));
   };
 
+  // Recursive function to render the file system structure
+  const renderFileSystem = (fs) => {
+    if (!fs) return <div>No file system data available.</div>;
+
+    return (
+      <div>
+        {/* Render folders */}
+        {fs.folders.map((folder, idx) => (
+          <div key={`folder-${idx}`} className="ml-4 my-2">
+            <Folder name={folder.name} />
+            {/* Recursively render the folder's content */}
+            <div className="ml-6">
+              {renderFileSystem(folder.content)}
+            </div>
+          </div>
+        ))}
+        {/* Render loose JSON files (papers) as Cards */}
+        {fs.jsons.map((paper, idx) => (
+          <div key={`paper-${paper.entry_id}-${idx}`} className="ml-4 my-2">
+            <Card
+              name={paper.title}
+              authors={paper.authors}
+              date={paper.published}
+              abstract={paper.summary}
+              tags={pdfTags[paper.entry_id] || []}
+              availableTags={tags}
+              onAssignTag={(tag) => handleAssignTag(paper.entry_id, tag)}
+              onRemoveTagFromCard={(tagName) =>
+                handleRemoveTagFromCard(paper.entry_id, tagName)
+              }
+            />
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       <Header variant="lightblue" />
@@ -70,27 +105,26 @@ export default function ProfilePage() {
           <WelcomeMessage />
           <BreadcrumbNavigation path={[]} onNavigate={() => {}} />
           <div className="w-full max-w-8xl mx-auto mt-4 p-4 bg-white rounded-lg shadow-md">
-            <h2 className="text-lg font-semibold mb-3 text-center">Saved PDFs</h2>
-            <div className="flex flex-wrap gap-6 justify-center">
-              {dummyCards.map((id) => (
-                <Card
-                  key={id}
-                  pdfId={id}
-                  tags={pdfTags[id] || []}
-                  availableTags={tags}
-                  onAssignTag={(tag) => handleAssignTag(id, tag)}
-                  onRemoveTagFromCard={(tagName) => handleRemoveTagFromCard(id, tagName)}
-                />
-              ))}
-            </div>
+            <h2 className="text-lg font-semibold mb-3 text-center">
+              Saved PDFs
+            </h2>
+            {fileSystem ? (
+              renderFileSystem(fileSystem)
+            ) : (
+              <div>No file system data available.</div>
+            )}
           </div>
         </div>
       </div>
       <SaveGroupingButton />
-      <LogoutButton/>
-
+      <LogoutButton />
       {/* Render PDF Viewer if a PDF is selected */}
-      {selectedPdf && <PdfViewer pdfUrl={selectedPdf} onClose={() => setSelectedPdf(null)} />}
+      {selectedPdf && (
+        <PdfViewer
+          pdfUrl={selectedPdf}
+          onClose={() => setSelectedPdf(null)}
+        />
+      )}
     </div>
   );
 }

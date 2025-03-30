@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
-import { UserContext } from "../context/UserContext";
+import { useGlobal } from "../context/GlobalContext";
 
 export default function WelcomeMessage() {
-  const { user } = useContext(UserContext);
+  const { user } = useGlobal();
 
   const name = user?.UserID || "Guest";
 
