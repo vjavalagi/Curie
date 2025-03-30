@@ -13,7 +13,7 @@ from arxiv import Client, Search, SortCriterion
 import boto3
 from dotenv import load_dotenv, find_dotenv
 from botocore.exceptions import ClientError
-from aws import upload_paper, create_user, create_paper_folder, get_user_file_system, dynamodb, users, files_table
+from aws import upload_paper, delete_paper_folder, delete_paper, create_user, update_tags, create_paper_folder, get_user_file_system, dynamodb, users, files_table
 
 
 arxiv = ArxivAPI()
@@ -215,7 +215,31 @@ def createfolder():
     folder = data.get("folder")
     response = create_paper_folder(username, folder)
     return jsonify(response)
+@app.route("/api/delete-folder", methods=["POST"])
+def deletefolder():
+    data = request.get_json()   
+    username = data.get("username")
+    folder = data.get("folder")
+    response = delete_paper_folder(username, folder)
+    return jsonify(response)
+@app.route("/api/upload-paper-to-folder", methods=["POST"])
+def upload_paper_to_folder():
+    data = request.get_json()
+    username = data.get("username")
+    folder = data.get("folder")
+    paper = data.get("paper")
+    response = upload_paper(username, folder, paper)
+    return jsonify(response)
 
+@app.route("/api/delete-paper", methods=["POST"])
+def delete_paper_route():
+    data = request.get_json()
+    username = data.get("username")
+    folder = data.get("folder")
+    paper_id = data.get("paper_id")
+    print("Deleting paper", username, folder, paper_id)
+    response = delete_paper(username, folder, paper_id)
+    return jsonify(response)
 
 @app.route("/api/test")
 def test_cors():
@@ -226,7 +250,19 @@ def get_file_system():
     username = request.args.get("username")
     response = get_user_file_system(username)
     return jsonify(response)
+@app.route("/api/update-tags", methods=["POST"])
+def update_tags_route():
+    data = request.get_json()
+    username = data.get("username")
+    folder = data.get("folder", "")  
+    paper_id = data.get("paper_id")
+    new_tags = data.get("new_tags")
+    
+    if not username or not paper_id or new_tags is None:
+        return jsonify({"error": "Missing required parameters."}), 400
 
+    result = update_tags(username, folder, paper_id, new_tags)
+    return jsonify(result)
 
 
 if __name__ == '__main__':

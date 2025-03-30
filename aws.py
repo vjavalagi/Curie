@@ -214,8 +214,45 @@ def create_paper_folder(username, folder_name, tags=None):
             return {"error": "Folder already exists."}
         else:
             raise
+def delete_paper_folder(username, folder_name):
+    """
+    Deletes a folder and all its contents (files and sub-folders) from the S3 bucket.
     
-
+    Args:
+        username (str): The user's unique identifier.
+        folder_name (str): The name of the folder to delete.
+        
+    Returns:
+        dict: A response message indicating the success or failure of the operation.
+    """
+    folder_prefix = f'Users/{username}/{folder_name}/'
+    print("Deleting folder with prefix:", folder_prefix)
+    
+    s3_client = boto3.client(
+        "s3",
+        region_name=AWS_DEFAULT_REGION,
+        aws_access_key_id=AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=AWS_SECRET_ACCESS_KEY
+    )
+    
+    try:
+        # List all objects with the specified prefix.
+        response = s3_client.list_objects_v2(Bucket="curie-file-storage", Prefix=folder_prefix)
+        if "Contents" not in response:
+            return {"message": "Folder is empty or does not exist."}
+        
+        objects_to_delete = [{"Key": obj["Key"]} for obj in response["Contents"]]
+        print("Objects to delete:", objects_to_delete)
+        
+        delete_response = s3_client.delete_objects(
+            Bucket="curie-file-storage",
+            Delete={"Objects": objects_to_delete}
+        )
+        print("Delete response:", delete_response)
+        return {"message": "Folder deleted successfully."}
+    except ClientError as e:
+        print("Failed to delete folder:", e)
+        return {"error": f"Failed to delete folder: {e}"}
 def upload_paper(user, folder, paper):
     """
     Downloads an arXiv paper's PDF from its URL, uploads it to S3, and stores metadata as JSON.
@@ -286,7 +323,27 @@ def upload_paper(user, folder, paper):
         return {"error": "Failed to upload paper metadata."}
 
   
+def delete_paper(user, folder, paper_id):
+    """
+    Deletes a paper from the user's folder in the file_bucket
 
+    Args:
+        user (str): The identifier for the user.
+        folder (str): The S3 folder for the metadata JSON.
+        paper (dict): A dictionary containing paper metadata including "entry_id" and "links".
+    
+    Returns:
+        dict: A success message with the S3 URL, or an error message.
+    """
+    try:
+        # Construct the S3 key for the PDF file
+        metadata_key = f"Users/{user}/{folder}/{paper_id}.json" if folder else f"Users/{user}/{paper_id}.json"
+        # Delete the paper from the file_bucket
+        file_bucket.delete_objects(Delete={'Objects': [{'Key': metadata_key}]})
+        return {"message": "Paper deleted successfully."}
+    except ClientError as e:
+        print("Failed to delete paper:", e)
+        return {"error": "Failed to delete paper."}
 
 # def upload_file(username, file_name, s3_url, file_type, size, parent_folder_id=None, tags=None, arxiv_metadata=None):
 #     """
@@ -416,7 +473,7 @@ def get_file_system_recursive(prefix, bucket_name="curie-file-storage"):
     
     return file_system
 
-def get_user_file_system(username):
+def get_user_file_system(username, current_folder=None):
     """
     Retrieves the complete file system structure for a given user.
     
@@ -429,7 +486,7 @@ def get_user_file_system(username):
     Returns:
         dict: A nested dictionary representing the user's file system.
     """
-    base_prefix = f"Users/{username}/"
+    base_prefix = f"Users/{username}/" if not current_folder else f"Users/{username}/{current_folder}/"
     return get_file_system_recursive(base_prefix)
 def update_tags(username, folder, paper_id, new_tags):
     """
@@ -443,7 +500,31 @@ def update_tags(username, folder, paper_id, new_tags):
     Returns:
         dict: The response from the update operation containing the updated attributes.
     """
-    pass
+    # Update the tags attribute of the file/folder
+    key = f"Users/{username}/{folder}/{paper_id}.json" if folder else f"Users/{username}/{paper_id}.json"
+    print("the new tags to add", new_tags)
+    print("the key", key)
+    try:
+        # Retrieve the current metadata JSON from S3
+        obj = file_bucket.Object(key)
+        body = obj.get()['Body'].read().decode('utf-8')
+        metadata = json.loads(body)
+        print("Current metadata:", metadata)
+        # Update the tags field
+        metadata["tags"] = new_tags
+        print("Updated metadata:", metadata['tags'])
+        
+        # Serialize the updated metadata
+        updated_metadata = json.dumps(metadata)
+        
+        # Write the updated metadata back to S3
+        file_bucket.put_object(Key=key, Body=updated_metadata)
+        
+        return {"message": "Tags updated successfully.", "updated_metadata": metadata}
+    except ClientError as e:
+        print("Failed to update tags:", e)
+        return {"error": f"Failed to update tags: {e}"}
+        
     
 
 
@@ -541,24 +622,6 @@ def move_file(username, old_folder, new_folder, file_id):
         return {"error": f"Failed to move file: {e}"}
     
 
-
-def delete_file(username, file_id, s3_url):
-    """
-    Deletes a file record from the Files table and removes the corresponding object from S3.
-
-    Args:
-        username (str): The user's unique identifier.
-        file_id (str): The ID of the file to be deleted.
-        s3_url (str): The S3 URL of the file.
-
-    Returns:
-        dict: A message confirming that the file was deleted.
-    """
-    files_table.delete_item(Key={"UserID": username, "ItemID": file_id})
-    s3 = boto3.client("s3")
-    file_key = s3_url.split("/")[-1]
-    s3.delete_object(Bucket="curie-file-storage", Key=file_key)
-    return {"message": "File deleted"}
 
 # ==============================================================================
 #                          TEST DATA & UTILITY FUNCTIONS
@@ -785,5 +848,23 @@ paper = {
 # print(upload_paper("test1", "TestFolder2", paper))
 # print(upload_paper("test1", "TestFolder3", paper))
 # print(upload_paper("test1", "TestFolder4", paper))
-print(upload_paper("test1", "", paper))
-print(get_user_file_system("test1"))
+# paper2 = {
+#     "authors": ["Elad Hazan"],
+#     "entry_id": "1909.03550v1",
+#     "journal_ref": None,
+#     "links": [
+#         "http://arxiv.org/abs/1909.03550v1",
+#         "http://arxiv.org/pdf/1909.03550v1"
+#     ],
+#     "published": "2019-09-08T21:49:42+00:00",
+#     "summary": (
+#         "Lecture notes on optimization for machine learning, derived from a course at\n"
+#         "Princeton University and tutorials given in MLSS, Buenos Aires, as well as\n"
+#         "Simons Foundation, Berkeley."
+#     ),
+#     "title": "Lecture Notes: Optimization for Machine Learning",
+#     "updated": "2019-09-08T21:49:42+00:00"
+# }
+# print(upload_paper("test1", "", paper))
+# print(upload_paper("test1", "", paper2))
+# print(get_user_file_system("test1"))
