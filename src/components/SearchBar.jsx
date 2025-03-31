@@ -4,22 +4,27 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 export default function SearchBar({ variant = "lightgray" }) {
-  const { setSearch } = useGlobal();
-  const [tempSearch, setTempSearch] = useState("");
+  const { search, setSearch } = useGlobal();
+  const [tempSearch, setTempSearch] = useState(localStorage.getItem("lastSearch") || search);
+
   const [suggestions, setSuggestions] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
 
+
+  
   const bgColor = variant === "lightblue" ? "bg-curieLightBlue" : "bg-curieLightGray";
   const textColor = variant === "lightblue" ? "text-curieBlue" : "text-curieBlue";
 
   const handleSearch = (searchQuery) => {
     console.log("Search landing clicked");
     setSearch(searchQuery);
+
     if (location.pathname !== "/search") {
       navigate(`/search`);
     }
-    setTempSearch("");
+    // Optionally, save the search term in localStorage
+    localStorage.setItem("lastSearch", searchQuery);
     setSuggestions([]); // Clear suggestions after search
   };
 
@@ -43,6 +48,10 @@ export default function SearchBar({ variant = "lightgray" }) {
     }
   }, [tempSearch]);
 
+  useEffect(() => {
+    setTempSearch(search); // Sync tempSearch when global search changes
+  }, [search]);
+
   return (
     <div className="relative w-full max-w-xl">
       <div
@@ -62,7 +71,7 @@ export default function SearchBar({ variant = "lightgray" }) {
         />
         <button
           onClick={() => handleSearch(tempSearch)}
-          className="bg-curieBlue hover:bg-blue-600 text-curieLightGray font-semibold py-1 px-6 rounded-full"
+          className="px-6 py-1 font-semibold rounded-full bg-curieBlue hover:bg-blue-600 text-curieLightGray"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

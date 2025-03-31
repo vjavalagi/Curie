@@ -356,9 +356,6 @@ export default function ProfilePage() {
       </div>
       <SaveGroupingButton />
       <LogoutButton />
-      {selectedPdf && (
-        <PdfViewer pdfUrl={selectedPdf} onClose={() => setSelectedPdf(null)} />
-      )}
     </div>
   );
 }

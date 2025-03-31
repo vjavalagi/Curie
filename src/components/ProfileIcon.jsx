@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { useGlobal } from "../context/GlobalContext";
 
-const ProfileIcon = ({ userImage }) => {
+const ProfileIcon = () => {
   const navigate = useNavigate();
+  const { user } = useGlobal();
+  const userImage = user?.PhotoURL || null;
 
   const handleClick = () => {
     navigate("/profile");

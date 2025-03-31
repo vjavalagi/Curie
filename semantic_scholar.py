@@ -58,9 +58,7 @@ def get_pdf(obj, name = None):
     """Download a PDF from the given URL and save it locally."""
     print("pdf object", obj)
     print(type(obj))
-    user  = obj["user"]
-    username = user["UserID"]
-    paper = obj["paper"]
+    paper = obj["user"]
     name = name if name else paper["title"]
     if not name.endswith(".pdf"):
         name += ".pdf"

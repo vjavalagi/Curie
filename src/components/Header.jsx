@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import ProfileIcon from "./ProfileIcon";
 import curieLogo from "../assets/curie_no_background.png";
@@ -20,7 +20,7 @@ const Header = ({ handleSearch }) => {
       <SearchBar handleSearch={handleSearch} variant="lightblue" />
 
       <div className="flex justify-center items-center pr-8">
-        <ProfileIcon userImage={profileImage} />
+        <ProfileIcon />
       </div>
     </div>
   );
