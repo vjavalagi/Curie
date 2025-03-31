@@ -5,7 +5,7 @@ import SearchBar from "../components/SearchBar";
 import ProfileIcon from "../components/ProfileIcon";
 import InfoSection from "../components/InfoSection";
 import FAQSection from "../components/FAQSection";
-import { useGlobal } from "../components/GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import { motion } from "framer-motion";
 
 export default function LandingPage() {

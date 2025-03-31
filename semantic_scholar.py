@@ -2,6 +2,7 @@ import os
 import json
 import requests
 import urllib3
+import hashlib
 from flask import Flask, request, jsonify, send_from_directory, make_response
 from dotenv import load_dotenv, find_dotenv
 from flask_cors import CORS
@@ -12,7 +13,7 @@ from arxiv import Client, Search, SortCriterion
 import boto3
 from dotenv import load_dotenv, find_dotenv
 from botocore.exceptions import ClientError
-from aws import *
+from aws import upload_paper, delete_paper_folder, delete_paper, create_user, update_tags, create_paper_folder, get_user_file_system, dynamodb, users, files_table
 
 
 arxiv = ArxivAPI()
@@ -55,12 +56,15 @@ def get_section_summaries(name):
 
 def get_pdf(obj, name = None):
     """Download a PDF from the given URL and save it locally."""
-    print(obj)
+    print("pdf object", obj)
     print(type(obj))
-    name = name if name else obj["title"]
+    paper = obj["user"]
+    name = name if name else paper["title"]
     if not name.endswith(".pdf"):
         name += ".pdf"
-    arxiv.save_pdf(obj, name)
+    arxiv.save_pdf(paper, name)
+    
+    
     return name
     
 def sortCriteria(a,b):
@@ -150,6 +154,7 @@ def api_download_pdf():
 @app.route("/api/s3-url", methods=["GET"])
 def get_presigned_url():
     filename = request.args.get("filename")
+    
     if not filename:
         return make_response(jsonify({"error": "Missing filename"}), 400)
 
@@ -167,7 +172,7 @@ def get_presigned_url():
         return response
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
-    
+
 @app.route("/api/create-user", methods=["POST"])
 def api_create_user():
     data = request.get_json()
@@ -201,11 +206,61 @@ def login():
 
     return jsonify({"message": "Login successful", "user": user}), 200
 
+@app.route("/api/create-folder", methods=["POST"])
+def createfolder():
+    data = request.get_json()
+    username = data.get("username")
+    folder = data.get("folder")
+    response = create_paper_folder(username, folder)
+    return jsonify(response)
+@app.route("/api/delete-folder", methods=["POST"])
+def deletefolder():
+    data = request.get_json()   
+    username = data.get("username")
+    folder = data.get("folder")
+    response = delete_paper_folder(username, folder)
+    return jsonify(response)
+@app.route("/api/upload-paper-to-folder", methods=["POST"])
+def upload_paper_to_folder():
+    data = request.get_json()
+    username = data.get("username")
+    folder = data.get("folder")
+    paper = data.get("paper")
+    response = upload_paper(username, folder, paper)
+    return jsonify(response)
+
+@app.route("/api/delete-paper", methods=["POST"])
+def delete_paper_route():
+    data = request.get_json()
+    username = data.get("username")
+    folder = data.get("folder")
+    paper_id = data.get("paper_id")
+    print("Deleting paper", username, folder, paper_id)
+    response = delete_paper(username, folder, paper_id)
+    return jsonify(response)
 
 @app.route("/api/test")
 def test_cors():
     return jsonify({"message": "CORS is working!"})
 
+@app.route("/api/get-file-system", methods=["GET"])
+def get_file_system():
+    username = request.args.get("username")
+    response = get_user_file_system(username)
+    return jsonify(response)
+@app.route("/api/update-tags", methods=["POST"])
+def update_tags_route():
+    data = request.get_json()
+    username = data.get("username")
+    folder = data.get("folder", "")  
+    paper_id = data.get("paper_id")
+    new_tags = data.get("new_tags")
+    
+    if not username or not paper_id or new_tags is None:
+        return jsonify({"error": "Missing required parameters."}), 400
+
+    result = update_tags(username, folder, paper_id, new_tags)
+    return jsonify(result)
 
 
 if __name__ == '__main__':
