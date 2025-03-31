@@ -8,6 +8,9 @@ export default function Card({
   onRemoveTagFromCard,
   onClickTag,
   activeFilters = [],
+  year = "2025",
+  selectedYearFilter,
+  onClickYear,
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -98,15 +101,24 @@ export default function Card({
 
         <div className="p-4 md:p-6">
           <div className="inline-flex flex-wrap gap-2 mb-1.5">
-            <span className="py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium bg-curieBlue text-curieLightBlue rounded-full">
+            {/* Add clickability and activefiltering to tags with the same Year like in ActiveFilters */}
+            <span
+              onClick={() => onClickYear(year)}
+              className={`py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium rounded-full cursor-pointer transform transition-transform duration-200 hover:scale-105 ${
+                selectedYearFilter === year
+                  ? "bg-curieBlue text-white ring-2 ring-offset-1 ring-curieBlue"
+                  : "bg-curieBlue text-curieLightBlue"
+              }`}
+            >
               <svg className="size-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
                 <line x1="16" x2="16" y1="2" y2="6" />
                 <line x1="8" x2="8" y1="2" y2="6" />
                 <line x1="3" x2="21" y1="10" y2="10" />
               </svg>
-              Date
+              {year}
             </span>
+
 
             {tags.map((tag, idx) => {
               const isActive = activeFilters.includes(tag.name);
@@ -114,7 +126,7 @@ export default function Card({
                 <span
                   key={idx}
                   onClick={() => onClickTag(tag.name)}
-                  className={`py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium rounded-full text-white cursor-pointer ${
+                  className={`py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium rounded-full text-white cursor-pointer transform transition-transform duration-200 hover:scale-105 ${
                     isActive ? "ring-2 ring-offset-1 ring-curieBlue" : ""
                   }`}
                   style={{ backgroundColor: tag.color }}
@@ -146,7 +158,7 @@ export default function Card({
                     </svg>
                     Author
                 </span>
-                {/* Dynamic for number of Paper Authors */}
+
                 <span className="py-1 px-2 inline-flex items-center gap-x-1 text-xs font-medium bg-curieLightGray text-Black rounded-full cursor-pointer transform transition-transform duration-200 hover:scale-105">
                     <svg className="size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>

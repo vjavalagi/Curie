@@ -13,7 +13,15 @@ export default function ProfilePage() {
   const [tags, setTags] = useState([]);
 
   const [pdfTags, setPdfTags] = useState({});
-  const dummyCards = [1, 2, 3, 4, 5];
+  const dummyCards = [
+    { id: 1, year: "2023" },
+    { id: 2, year: "2025" },
+    { id: 3, year: "2024" },
+    { id: 4, year: "2025" },
+    { id: 5, year: "2022" },
+  ];  
+
+  const [selectedYearFilter, setSelectedYearFilter] = useState(null);
 
   const presetColors = [
     "#EF4444", "#F97316", "#EAB308", "#84CC16", "#22C55E",
@@ -24,18 +32,30 @@ export default function ProfilePage() {
 
   const [activeFilters, setActiveFilters] = useState([]);
 
+
+  const handleClickYear = (year) => {
+    setSelectedYearFilter((prev) => (prev === year ? null : year));
+  };
+  
+  const cardMatchesFilters = (cardTags, cardYear) => {
+    const tagMatch =
+      activeFilters.length === 0 ||
+      activeFilters.every((filter) =>
+        cardTags.some((t) => t.name === filter)
+      );
+  
+    const yearMatch =
+      !selectedYearFilter || selectedYearFilter === cardYear;
+  
+    return tagMatch && yearMatch;
+  };
+
+
   const toggleFilterTag = (tagName) => {
     setActiveFilters((prev) =>
       prev.includes(tagName)
         ? prev.filter((t) => t !== tagName)
         : [...prev, tagName]
-    );
-  };
-
-  const cardMatchesFilters = (cardTags) => {
-    if (activeFilters.length === 0) return true;
-    return activeFilters.every((filter) =>
-      cardTags.some((t) => t.name === filter)
     );
   };
 
@@ -95,50 +115,51 @@ export default function ProfilePage() {
             <h2 className="text-lg font-semibold mb-3 text-center">Saved PDFs</h2>
             <div className="flex flex-wrap gap-6 justify-center">
             <AnimatePresence mode="popLayout">
-              {[...dummyCards]
-                .sort((a, b) => {
-                  const aTags = pdfTags[a] || [];
-                  const bTags = pdfTags[b] || [];
-                  const aMatches = cardMatchesFilters(aTags);
-                  const bMatches = cardMatchesFilters(bTags);
-                  if (aMatches && !bMatches) return -1;
-                  if (!aMatches && bMatches) return 1;
-                  return 0;
-                })
-                .map((id) => {
-                  const cardTags = pdfTags[id] || [];
-                  const matches = cardMatchesFilters(cardTags);
+            {[...dummyCards]
+            .sort((a, b) => {
+              const aTags = pdfTags[a.id] || [];
+              const bTags = pdfTags[b.id] || [];
+              const aMatches = cardMatchesFilters(aTags, a.year);
+              const bMatches = cardMatchesFilters(bTags, b.year);
+              if (aMatches && !bMatches) return -1;
+              if (!aMatches && bMatches) return 1;
+              return 0;
+            })
+            .map(({ id, year }) => {
+              const cardTags = pdfTags[id] || [];
+              const matches = cardMatchesFilters(cardTags, year);
 
-                  return (
-                    <motion.div
-                      key={id}
-                      layout
-                      initial={{ opacity: 0, y: 20, scale: 0.98 }}
-                      animate={{
-                        opacity: matches ? 1 : 0.4,
-                        scale: matches ? 1 : 0.95,
-                        y: 0,
-                      }}
-                      transition={{
-                        duration: 0.4,
-                        ease: "easeInOut",
-                      }}
-                      exit={{ opacity: 0, y: 20 }}
-                    >
-                      <Card
-                        pdfId={id}
-                        tags={cardTags}
-                        availableTags={tags}
-                        onAssignTag={(tag) => handleAssignTag(id, tag)}
-                        onRemoveTagFromCard={(tagName) =>
-                          handleRemoveTagFromCard(id, tagName)
-                        }
-                        onClickTag={toggleFilterTag}
-                        activeFilters={activeFilters}
-                      />
-                    </motion.div>
-                  );
-                })}
+              return (
+                <motion.div
+                  key={id}
+                  layout
+                  initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                  animate={{
+                    opacity: matches ? 1 : 0.4,
+                    scale: matches ? 1 : 0.95,
+                    y: 0,
+                  }}
+                  transition={{
+                    duration: 0.4,
+                    ease: "easeInOut",
+                  }}
+                  exit={{ opacity: 0, y: 20 }}
+                >
+                  <Card
+                    pdfId={id}
+                    year={year}
+                    tags={cardTags}
+                    availableTags={tags}
+                    onAssignTag={(tag) => handleAssignTag(id, tag)}
+                    onRemoveTagFromCard={(tagName) => handleRemoveTagFromCard(id, tagName)}
+                    onClickTag={toggleFilterTag}
+                    activeFilters={activeFilters}
+                    selectedYearFilter={selectedYearFilter}
+                    onClickYear={handleClickYear}
+                  />
+                </motion.div>
+              );
+            })}
             </AnimatePresence>
             </div>
           </div>
