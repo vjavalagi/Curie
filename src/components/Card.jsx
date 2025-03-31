@@ -109,42 +109,36 @@ export default function Card({
         </div>
 
         {/* Content section */}
-        <div className="p-4 md:p-6">
-          <div className="inline-flex flex-wrap gap-2 mb-1.5">
-            <span className="py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium bg-curieBlue text-curieLightBlue rounded-full">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-                <line x1="16" x2="16" y1="2" y2="6" />
-                <line x1="8" x2="8" y1="2" y2="6" />
-                <line x1="3" x2="21" y1="10" y2="10" />
-              </svg>
-              {date}
-            </span>
-            {tags.map((tag, idx) => (
-              <span
-                key={idx}
-                className="py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium rounded-full text-white"
-                style={{ backgroundColor: tag.color }}
-              >
-                {tag.name}
-                <button
-                  onClick={() => onRemoveTagFromCard(tag.name)}
-                  className="ml-1 text-white hover:text-red-200 text-xs"
-                >
-                  {tag.name}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onRemoveTagFromCard(tag.name);
-                    }}
-                    className="ml-1 text-white hover:text-red-200 text-xs"
-                  >
-                    ×
-                  </button>
-                </span>
-              );
-            })}
-          </div>
+        <div className="inline-flex flex-wrap gap-2 mb-1.5">
+        <span className="py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium bg-curieBlue text-curieLightBlue rounded-full">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+            <line x1="16" x2="16" y1="2" y2="6" />
+            <line x1="8" x2="8" y1="2" y2="6" />
+            <line x1="3" x2="21" y1="10" y2="10" />
+          </svg>
+          {date}
+        </span>
+        {tags.map((tag, idx) => (
+          <span
+            key={idx}
+            className="py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium rounded-full text-white"
+            style={{ backgroundColor: tag.color }}
+          >
+            {tag.name}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemoveTagFromCard(tag.name);
+              }}
+              className="ml-1 text-white hover:text-red-200 text-xs"
+            >
+              ×
+            </button>
+          </span>
+        ))}
+      </div>
+
           <h3 className="text-xl font-semibold text-gray-800">{name}</h3>
           <div className="inline-flex flex-wrap gap-2 mb-1.5 mt-1.5">
             {authors &&
@@ -163,6 +157,5 @@ export default function Card({
         </div>
         <div className="px-6 pb-1 text-xs text-gray-500">Last updated by you at 12:00 PM</div>
       </div>
-    </div>
   );
 }
