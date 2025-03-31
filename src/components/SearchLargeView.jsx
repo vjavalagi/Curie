@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Timeline from "./Timeline";
+import { SummarizeSectionsSent } from "../backend/SummarizeSectionsSent";
 import { useGlobal } from "./GlobalContext";
 import { PDFDownload } from "../backend/PdfDownload"; // Ensure correct path
 import ActiveSummary from "./ActiveSummary";
 
 export default function SearchLargeView() {
-  const { search, activePaper, setActivePaper, activeSummary } = useGlobal();
+  const { search, activePaper, setActivePaper, setActiveSummary, activeSummary } = useGlobal();
   const [isSummaryLoading, setIsSummaryLoading] = useState(true);
 
   useEffect(() => {
@@ -15,6 +16,14 @@ export default function SearchLargeView() {
       setIsSummaryLoading(false);
     }
   }, [activeSummary]);
+
+  const handleSummaryClick = async (summaryLength) => {
+    // Trigger the SummarizeSectionsSent function with the appropriate summary length
+    const summary = await SummarizeSectionsSent(activePaper.title, summaryLength);
+    
+    // Update the active summary in state
+    setActiveSummary(summary);
+  };
 
   const handleDeepDiveClick = () => {
     console.log("!!Current search value before download:", search);
@@ -30,25 +39,28 @@ export default function SearchLargeView() {
           <div className="inline-flex rounded-lg shadow-2xs">
             <button
               type="button"
+              onClick={() => handleSummaryClick(3)}  // Medium summary
               className="inline-flex items-center px-4 py-3 text-sm font-medium text-gray-800 bg-white border border-gray-200 gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
             >
-              Beginner
+              Short
             </button>
             <button
               type="button"
+              onClick={() => SummarizeSectionsSent(activePaper.title, 3)} 
               className="inline-flex items-center px-4 py-3 text-sm font-medium text-gray-800 bg-white border border-gray-200 gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
             >
-              Intermediate
+              Medium
             </button>
             <button
               type="button"
+              onClick={() => SummarizeSectionsSent(activePaper.title, 6)} 
               className="inline-flex items-center px-4 py-3 text-sm font-medium text-gray-800 bg-white border border-gray-200 gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
             >
-              Expert
+              Long
             </button>
           </div>
         </div>
-
+        
         {/* Deep Dive Button on Right */}
         <button
           className="px-4 py-2 text-white rounded-lg shadow-md bg-curieBlue hover:bg-blue-600"
@@ -69,7 +81,7 @@ export default function SearchLargeView() {
           <Timeline search={search} />
         </section>
       ) : (
-        <section className="bg-white p-6 rounded-lg shadow-md relative">
+        <section className="relative p-6 bg-white rounded-lg shadow-md">
 
           <button
             className="absolute right-4 top-4 flex items-center gap-0.5 text-curieBlue hover:text-blue-700"
@@ -92,7 +104,7 @@ export default function SearchLargeView() {
             <span className="text-sm underline">Save to Profile</span>
           </button>
 
-          <h1 className="text-2xl font-bold pr-12">{activePaper.title}</h1>
+          <h1 className="pr-12 text-2xl font-bold">{activePaper.title}</h1>
           <p className="text-sm text-gray-500">
             Publication Date: {activePaper.published}
           </p>
@@ -140,7 +152,7 @@ export default function SearchLargeView() {
           </div>
         </div>
       ) : (
-        <ActiveSummary activeSummary={activeSummary} />
+        <ActiveSummary activeSummary={activeSummary} activePaper={activePaper} />
       )}
   </section>
 )}

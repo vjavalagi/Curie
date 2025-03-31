@@ -44,14 +44,14 @@ s3_client = boto3.client(
 def get_whole_summary(name):
     return summarize_document(name)
 
-def get_section_summaries(name):
+def get_section_summaries(name, sentence_count):
     print("Getting Section Summaries", name)
     print("extracting text")
     #text = extract_text(name)
     text = extract_text_pymu(name)
-    print(text)
-    print("summarizing sections")
-    return summarize_sections(text)
+    #print(text)
+    print("summarizing sections with sentence count", sentence_count)
+    return summarize_sections(text, sentence_count)
 
 def get_pdf(obj, name = None):
     """Download a PDF from the given URL and save it locally."""
@@ -103,7 +103,25 @@ def api_summarize_sections():
     file_path = "./pdfs/" + request.args.get('file_path', 'ExamRubric') + ".pdf"
     print(file_path)
     print("FILE PATH for section summaries", file_path)
-    summary = get_section_summaries(file_path)
+    summary = get_section_summaries(file_path, 1)
+    print("SUMMARY", summary)
+    return jsonify({"summary": summary})
+
+
+@app.route('/api/summarize-sections-sent', methods=['GET'])
+def api_summarize_sections_sent():
+    """
+    Example: GET /api/summarize-section-sent?file_path=/path/to/file.pdf?sentence_count=5
+    """
+    print("File path", request.args.get('file_path'))
+    file_path = "./pdfs/" + request.args.get('file_path', 'ExamRubric') + ".pdf"
+    print(file_path)
+    print("FILE PATH for section summaries", file_path)
+
+    sentence_count = request.args.get('sentence_count')
+    print(f"Sentence count: {sentence_count}")
+
+    summary = get_section_summaries(file_path, sentence_count)
     print("SUMMARY", summary)
     return jsonify({"summary": summary})
 
