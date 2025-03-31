@@ -18,11 +18,21 @@ export default function SearchLargeView() {
   }, [activeSummary]);
 
   const handleSummaryClick = async (summaryLength) => {
-    // Trigger the SummarizeSectionsSent function with the appropriate summary length
-    const summary = await SummarizeSectionsSent(activePaper.title, summaryLength);
-    
-    // Update the active summary in state
-    setActiveSummary(summary);
+    // Clear the active summary before fetching a new one
+    setActiveSummary(undefined);
+  
+    const storageKey = `summary_${activePaper.title}_${summaryLength}`;
+    const storedSummary = localStorage.getItem(storageKey);
+  
+    if (storedSummary) {
+      setActiveSummary(JSON.parse(storedSummary)); // Load from local storage
+    } else {
+      const summary = await SummarizeSectionsSent(activePaper.title, summaryLength);
+      
+      // Store the new summary
+      localStorage.setItem(storageKey, JSON.stringify(summary));
+      setActiveSummary(summary);
+    }
   };
 
   const handleDeepDiveClick = () => {
@@ -35,29 +45,32 @@ export default function SearchLargeView() {
     <main className="flex-1 p-4 pt-4 overflow-auto">
       <div className="flex items-center justify-between mb-4">
         {/* Beginner Buttons on Left */}
+        <div className="grid grid-cols-2 gap-2">
+          <p>Change Summary Length Here</p>
         <div className="flex gap-2">
           <div className="inline-flex rounded-lg shadow-2xs">
             <button
               type="button"
-              onClick={() => handleSummaryClick(3)}  // Medium summary
+              onClick={() => handleSummaryClick(1)}
               className="inline-flex items-center px-4 py-3 text-sm font-medium text-gray-800 bg-white border border-gray-200 gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
             >
-              Short
+              Snapshot
             </button>
             <button
               type="button"
-              onClick={() => SummarizeSectionsSent(activePaper.title, 3)} 
+              onClick={() => handleSummaryClick(3)} 
               className="inline-flex items-center px-4 py-3 text-sm font-medium text-gray-800 bg-white border border-gray-200 gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
             >
-              Medium
+              Insight
             </button>
             <button
               type="button"
-              onClick={() => SummarizeSectionsSent(activePaper.title, 6)} 
+              onClick={() => handleSummaryClick(6)} 
               className="inline-flex items-center px-4 py-3 text-sm font-medium text-gray-800 bg-white border border-gray-200 gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
             >
-              Long
+              DeepDive
             </button>
+          </div>
           </div>
         </div>
         
