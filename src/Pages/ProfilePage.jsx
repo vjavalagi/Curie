@@ -34,15 +34,16 @@ export default function ProfilePage() {
 
   const [activeFilters, setActiveFilters] = useState([]);
   const [selectedYearFilter, setSelectedYearFilter] = useState(null);
-  
+  const [activeAuthorFilters, setActiveAuthorFilters] = useState([]);
 
 
   const handleClickYear = (year) => {
     setSelectedYearFilter((prev) => (prev === year ? null : year));
   };
   
-  const cardMatchesFilters = (cardTags, cardDate) => {
-    const cardYear = cardDate?.slice(0, 4); // Extract year
+  const cardMatchesFilters = (cardTags, cardDate, cardAuthors = []) => {
+    const cardYear = cardDate?.slice(0, 4);
+  
     const tagMatch =
       activeFilters.length === 0 ||
       activeFilters.every((filter) =>
@@ -52,8 +53,18 @@ export default function ProfilePage() {
     const yearMatch =
       !selectedYearFilter || selectedYearFilter === cardYear;
   
-    return tagMatch && yearMatch;
+      const authorMatch =
+      activeAuthorFilters.length === 0 ||
+      activeAuthorFilters.every((filterAuthor) =>
+        cardAuthors.some((author) =>
+          author.toLowerCase().includes(filterAuthor.toLowerCase())
+        )
+      );
+    
+  
+    return tagMatch && yearMatch && authorMatch;
   };
+  
   
 
 
@@ -64,6 +75,15 @@ export default function ProfilePage() {
         : [...prev, tagName]
     );
   };
+
+  const toggleFilterAuthor = (authorName) => {
+    setActiveAuthorFilters((prev) =>
+      prev.includes(authorName)
+        ? prev.filter((a) => a !== authorName)
+        : [...prev, authorName]
+    );
+  };
+  
 
 
   const handleAddTag = (name) => {
@@ -226,6 +246,8 @@ export default function ProfilePage() {
                 onDeletePaper={() => handleDeletePaper(paper, currentFolderName)}
                 activeFilters={activeFilters}
                 onClickTag={toggleFilterTag}
+                activeAuthorFilters={activeAuthorFilters}
+                onClickAuthor={toggleFilterAuthor}
               />
             </div>
           );
@@ -265,15 +287,15 @@ export default function ProfilePage() {
               .sort((a, b) => {
                 const aTags = pdfTags[a.entry_id] || [];
                 const bTags = pdfTags[b.entry_id] || [];
-                const aMatch = cardMatchesFilters(aTags, a.published);
-                const bMatch = cardMatchesFilters(bTags, b.published);
+                const aMatch = cardMatchesFilters(aTags, a.published, a.authors);
+                const bMatch = cardMatchesFilters(bTags, b.published, b.authors);
                 if (aMatch && !bMatch) return -1;
                 if (!aMatch && bMatch) return 1;
                 return 0;
               })
               .map((paper) => {
                 const currentTags = pdfTags[paper.entry_id] || [];
-                const matches = cardMatchesFilters(currentTags, paper.published);
+                const matches = cardMatchesFilters(currentTags, paper.published, paper.authors);
   
                 return (
                   <motion.div
@@ -306,6 +328,8 @@ export default function ProfilePage() {
                       activeFilters={activeFilters}
                       selectedYearFilter={selectedYearFilter}
                       onClickYear={handleClickYear}
+                      activeAuthorFilters={activeAuthorFilters}
+                      onClickAuthor={toggleFilterAuthor}
                     />
                   </motion.div>
                 );
@@ -341,15 +365,15 @@ export default function ProfilePage() {
               .sort((a, b) => {
                 const aTags = pdfTags[a.entry_id] || [];
                 const bTags = pdfTags[b.entry_id] || [];
-                const aMatch = cardMatchesFilters(aTags, a.published);
-                const bMatch = cardMatchesFilters(bTags, b.published);
+                const aMatch = cardMatchesFilters(aTags, a.published, a.authors);
+                const bMatch = cardMatchesFilters(bTags, b.published, b.authors);
                 if (aMatch && !bMatch) return -1;
                 if (!aMatch && bMatch) return 1;
                 return 0;
               })
               .map((paper, idx) => {
                 const currentTags = pdfTags[paper.entry_id] || [];
-                const matches = cardMatchesFilters(currentTags, paper.published);
+                const matches = cardMatchesFilters(currentTags, paper.published, paper.authors);
   
                 return (
                   <motion.div
@@ -382,6 +406,8 @@ export default function ProfilePage() {
                       activeFilters={activeFilters}
                       selectedYearFilter={selectedYearFilter}
                       onClickYear={handleClickYear}
+                      activeAuthorFilters={activeAuthorFilters}
+                      onClickAuthor={toggleFilterAuthor}
                     />
                   </motion.div>
                 );
