@@ -11,6 +11,10 @@ export default function Card({
   onAssignTag,       // Function to call when a tag is assigned
   onRemoveTagFromCard, // Function to call when a tag is removed
   onDeletePaper, // New: function to call to delete the paper
+  onClickTag,   // Function to call when a tag is clicked
+  activeFilters, // Array of currently active filters
+  selectedYearFilter,
+  onClickYear,
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -110,33 +114,47 @@ export default function Card({
 
         {/* Content section */}
         <div className="inline-flex flex-wrap gap-2 mb-1.5">
-        <span className="py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium bg-curieBlue text-curieLightBlue rounded-full">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-            <line x1="16" x2="16" y1="2" y2="6" />
-            <line x1="8" x2="8" y1="2" y2="6" />
-            <line x1="3" x2="21" y1="10" y2="10" />
-          </svg>
-          {date}
-        </span>
-        {tags.map((tag, idx) => (
-          <span
-            key={idx}
-            className="py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium rounded-full text-white"
-            style={{ backgroundColor: tag.color }}
-          >
-            {tag.name}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onRemoveTagFromCard(tag.name);
-              }}
-              className="ml-1 text-white hover:text-red-200 text-xs"
+        <span
+  onClick={() => onClickYear(date?.slice(0, 4))}
+  className={`py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium rounded-full cursor-pointer transform transition-transform duration-200 hover:scale-105 ${
+    selectedYearFilter === date?.slice(0, 4)
+      ? "bg-curieBlue text-white ring-2 ring-offset-1 ring-curieBlue"
+      : "bg-curieBlue text-curieLightBlue"
+  }`}
+>
+  <svg className="size-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
+    <line x1="16" x2="16" y1="2" y2="6" />
+    <line x1="8" x2="8" y1="2" y2="6" />
+    <line x1="3" x2="21" y1="10" y2="10" />
+  </svg>
+  {date?.slice(0, 4)}
+</span>
+
+        {tags.map((tag, idx) => {
+          const isActive = activeFilters?.includes(tag.name); // Safely check filters
+          return (
+            <span
+              key={idx}
+              onClick={() => onClickTag && onClickTag(tag.name)}
+              className={`py-1 px-1.5 inline-flex items-center gap-x-1 text-xs font-medium rounded-full text-white cursor-pointer transform transition-transform duration-200 hover:scale-105 ${
+                isActive ? "ring-2 ring-offset-1 ring-curieBlue" : ""
+              }`}
+              style={{ backgroundColor: tag.color }}
             >
-              ×
-            </button>
-          </span>
-        ))}
+              {tag.name}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemoveTagFromCard(tag.name);
+                }}
+                className="ml-1 text-white hover:text-red-200 text-xs"
+              >
+                ×
+              </button>
+            </span>
+          );
+        })}
       </div>
 
           <h3 className="text-xl font-semibold text-gray-800">{name}</h3>

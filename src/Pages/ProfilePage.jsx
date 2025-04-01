@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Header from "../components/Header";
 import DirectoryDropdown from "../components/DirectoryDropdown";
-import SaveGroupingButton from "../components/SaveGroupingButton";
 import WelcomeMessage from "../components/WelcomeMessage";
 import BreadcrumbNavigation from "../components/BreadcrumbNavigation";
 import LogoutButton from "../components/LogoutButton";
@@ -34,13 +33,16 @@ export default function ProfilePage() {
   ];
 
   const [activeFilters, setActiveFilters] = useState([]);
+  const [selectedYearFilter, setSelectedYearFilter] = useState(null);
+  
 
 
   const handleClickYear = (year) => {
     setSelectedYearFilter((prev) => (prev === year ? null : year));
   };
   
-  const cardMatchesFilters = (cardTags, cardYear) => {
+  const cardMatchesFilters = (cardTags, cardDate) => {
+    const cardYear = cardDate?.slice(0, 4); // Extract year
     const tagMatch =
       activeFilters.length === 0 ||
       activeFilters.every((filter) =>
@@ -52,6 +54,7 @@ export default function ProfilePage() {
   
     return tagMatch && yearMatch;
   };
+  
 
 
   const toggleFilterTag = (tagName) => {
@@ -221,6 +224,8 @@ export default function ProfilePage() {
                   handleRemoveTagFromCard(paper.entry_id, tagName, currentFolderName, paper)
                 }
                 onDeletePaper={() => handleDeletePaper(paper, currentFolderName)}
+                activeFilters={activeFilters}
+                onClickTag={toggleFilterTag}
               />
             </div>
           );
@@ -229,10 +234,9 @@ export default function ProfilePage() {
     );
   }
 
-  // Base view: render top-level folders and loose papers.
   const renderBaseView = () => {
     return (
-      <div>
+      <>
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-lg font-semibold">Folders</h3>
           <button
@@ -246,60 +250,84 @@ export default function ProfilePage() {
           {fileSystem.folders.map((folder, idx) => (
             <div
               key={`folder-${idx}`}
-              onClick={() => {
-                console.log("Setting currentFolder to", folder.name);
-                setCurrentFolder(folder.name);
-              }}
+              onClick={() => setCurrentFolder(folder.name)}
               className="cursor-pointer"
             >
               <Folder name={folder.name} />
             </div>
           ))}
         </div>
+  
         <h3 className="text-lg font-semibold mt-4">Loose Papers</h3>
         <div>
-          {fileSystem.jsons.map((paper, idx) => {
-            const currentPaperTags = pdfTags[paper.entry_id] || [];
-            console.log(`Rendering paper ${paper.entry_id} with tags:`, currentPaperTags);
-            return (
-              <div key={`paper-${paper.entry_id}-${idx}`} className="ml-4 my-2">
-                <Card
-                  name={paper.title}
-                  authors={paper.authors}
-                  date={paper.published}
-                  abstract={paper.summary}
-                  tags={currentPaperTags}
-                  availableTags={tags}
-                  onAssignTag={(tag) =>
-                    handleAssignTag(paper.entry_id, tag, "", paper)
-                  }
-                  onRemoveTagFromCard={(tagName) =>
-                    handleRemoveTagFromCard(paper.entry_id, tagName, "", paper)
-                  }
-                  onDeletePaper={() => handleDeletePaper(paper, "")}
-                />
-              </div>
-            );
-          })}
+          <AnimatePresence mode="popLayout">
+            {[...fileSystem.jsons]
+              .sort((a, b) => {
+                const aTags = pdfTags[a.entry_id] || [];
+                const bTags = pdfTags[b.entry_id] || [];
+                const aMatch = cardMatchesFilters(aTags, a.published);
+                const bMatch = cardMatchesFilters(bTags, b.published);
+                if (aMatch && !bMatch) return -1;
+                if (!aMatch && bMatch) return 1;
+                return 0;
+              })
+              .map((paper) => {
+                const currentTags = pdfTags[paper.entry_id] || [];
+                const matches = cardMatchesFilters(currentTags, paper.published);
+  
+                return (
+                  <motion.div
+                    key={`paper-${paper.entry_id}`}
+                    layout
+                    initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                    animate={{
+                      opacity: matches ? 1 : 0.4,
+                      scale: matches ? 1 : 0.95,
+                      y: 0,
+                    }}
+                    transition={{ duration: 0.4, ease: "easeInOut" }}
+                    exit={{ opacity: 0, y: 20 }}
+                  >
+                    <Card
+                      name={paper.title}
+                      authors={paper.authors}
+                      date={paper.published}
+                      abstract={paper.summary}
+                      tags={currentTags}
+                      availableTags={tags}
+                      onAssignTag={(tag) =>
+                        handleAssignTag(paper.entry_id, tag, "", paper)
+                      }
+                      onRemoveTagFromCard={(tagName) =>
+                        handleRemoveTagFromCard(paper.entry_id, tagName, "", paper)
+                      }
+                      onDeletePaper={() => handleDeletePaper(paper, "")}
+                      onClickTag={toggleFilterTag}
+                      activeFilters={activeFilters}
+                      selectedYearFilter={selectedYearFilter}
+                      onClickYear={handleClickYear}
+                    />
+                  </motion.div>
+                );
+              })}
+          </AnimatePresence>
         </div>
-      </div>
+      </>
     );
   };
-
-  // Folder view: render the contents of the selected folder along with a Back button.
+  
+  
   const renderFolderView = () => {
     const selected = fileSystem.folders.find(
       (folder) => folder.name === currentFolder
     );
     if (!selected) return <div>Folder not found.</div>;
+  
     return (
-      <div>
+      <>
         <button
           className="mb-4 px-4 py-2 bg-gray-300 rounded"
-          onClick={() => {
-            console.log("Back button clicked; resetting currentFolder");
-            setCurrentFolder("");
-          }}
+          onClick={() => setCurrentFolder("")}
         >
           Back
         </button>
@@ -307,10 +335,63 @@ export default function ProfilePage() {
           Contents of {currentFolder}
         </h3>
         {renderFileSystem(selected.content, currentFolder)}
-      </div>
+        <div className="flex flex-wrap gap-6 justify-center">
+          <AnimatePresence mode="popLayout">
+            {[...selected.content.jsons]
+              .sort((a, b) => {
+                const aTags = pdfTags[a.entry_id] || [];
+                const bTags = pdfTags[b.entry_id] || [];
+                const aMatch = cardMatchesFilters(aTags, a.published);
+                const bMatch = cardMatchesFilters(bTags, b.published);
+                if (aMatch && !bMatch) return -1;
+                if (!aMatch && bMatch) return 1;
+                return 0;
+              })
+              .map((paper, idx) => {
+                const currentTags = pdfTags[paper.entry_id] || [];
+                const matches = cardMatchesFilters(currentTags, paper.published);
+  
+                return (
+                  <motion.div
+                    key={`folder-paper-${paper.entry_id}-${idx}`}
+                    layout
+                    initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                    animate={{
+                      opacity: matches ? 1 : 0.4,
+                      scale: matches ? 1 : 0.95,
+                      y: 0,
+                    }}
+                    transition={{ duration: 0.4, ease: "easeInOut" }}
+                    exit={{ opacity: 0, y: 20 }}
+                  >
+                    <Card
+                      name={paper.title}
+                      authors={paper.authors}
+                      date={paper.published}
+                      abstract={paper.summary}
+                      tags={currentTags}
+                      availableTags={tags}
+                      onAssignTag={(tag) =>
+                        handleAssignTag(paper.entry_id, tag, selected.name, paper)
+                      }
+                      onRemoveTagFromCard={(tagName) =>
+                        handleRemoveTagFromCard(paper.entry_id, tagName, selected.name, paper)
+                      }
+                      onDeletePaper={() => handleDeletePaper(paper, selected.name)}
+                      onClickTag={toggleFilterTag}
+                      activeFilters={activeFilters}
+                      selectedYearFilter={selectedYearFilter}
+                      onClickYear={handleClickYear}
+                    />
+                  </motion.div>
+                );
+              })}
+          </AnimatePresence>
+        </div>
+      </>
     );
   };
-
+  
   // useEffect to merge all paper tags from fileSystem into global state.
   useEffect(() => {
     if (fileSystem) {
@@ -372,13 +453,13 @@ export default function ProfilePage() {
     <div className="h-screen flex flex-col bg-gray-50">
       <Header variant="lightblue" />
       <div className="flex flex-1 overflow-hidden">
-      <DirectoryDropdown
-        tags={tags}
-        onAddTag={handleAddTag}
-        onRemoveTag={handleRemoveTagGlobally}
-        onClickTag={toggleFilterTag}
-        activeFilters={activeFilters}
-      />
+        <DirectoryDropdown
+          tags={tags}
+          onAddTag={handleAddTag}
+          onRemoveTag={handleRemoveTagGlobally}
+          onClickTag={toggleFilterTag}
+          activeFilters={activeFilters}
+        />
         <div className="flex flex-col flex-1 items-center pt-3 overflow-y-auto">
           <WelcomeMessage />
           <BreadcrumbNavigation path={[]} onNavigate={() => {}} />
