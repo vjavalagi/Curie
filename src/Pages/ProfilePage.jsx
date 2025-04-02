@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Header from "../components/Header";
 import DirectoryDropdown from "../components/DirectoryDropdown";
-import SaveGroupingButton from "../components/SaveGroupingButton";
 import WelcomeMessage from "../components/WelcomeMessage";
 import BreadcrumbNavigation from "../components/BreadcrumbNavigation";
 import LogoutButton from "../components/LogoutButton";
-import PdfViewer from "../components/PdfViewer";
+import { motion, AnimatePresence } from "framer-motion";
+
+import PdfViewer from "../components/PdfViewer"; // Ensure PdfViewer exists
 import Folder from "../components/Folder";
 import Card from "../components/Card";
 import { useGlobal } from "../context/GlobalContext";
@@ -30,6 +31,60 @@ export default function ProfilePage() {
     "#A855F7", "#D946EF", "#EC4899", "#F43F5E", "#6B7280",
     "#10B981", "#0EA5E9", "#F59E0B", "#7C3AED", "#DC2626"
   ];
+
+  const [activeFilters, setActiveFilters] = useState([]);
+  const [selectedYearFilter, setSelectedYearFilter] = useState(null);
+  const [activeAuthorFilters, setActiveAuthorFilters] = useState([]);
+
+
+  const handleClickYear = (year) => {
+    setSelectedYearFilter((prev) => (prev === year ? null : year));
+  };
+  
+  const cardMatchesFilters = (cardTags, cardDate, cardAuthors = []) => {
+    const cardYear = cardDate?.slice(0, 4);
+  
+    const tagMatch =
+      activeFilters.length === 0 ||
+      activeFilters.every((filter) =>
+        cardTags.some((t) => t.name === filter)
+      );
+  
+    const yearMatch =
+      !selectedYearFilter || selectedYearFilter === cardYear;
+  
+      const authorMatch =
+      activeAuthorFilters.length === 0 ||
+      activeAuthorFilters.every((filterAuthor) =>
+        cardAuthors.some((author) =>
+          author.toLowerCase().includes(filterAuthor.toLowerCase())
+        )
+      );
+    
+  
+    return tagMatch && yearMatch && authorMatch;
+  };
+  
+  
+
+
+  const toggleFilterTag = (tagName) => {
+    setActiveFilters((prev) =>
+      prev.includes(tagName)
+        ? prev.filter((t) => t !== tagName)
+        : [...prev, tagName]
+    );
+  };
+
+  const toggleFilterAuthor = (authorName) => {
+    setActiveAuthorFilters((prev) =>
+      prev.includes(authorName)
+        ? prev.filter((a) => a !== authorName)
+        : [...prev, authorName]
+    );
+  };
+  
+
 
   const handleAddTag = (name) => {
     const index = tags.length % presetColors.length;
@@ -147,7 +202,8 @@ export default function ProfilePage() {
   };
 
   function renderFileSystem(fs, currentFolderName = "") {
-    if (!fs) return null;
+    if (!fs) return <div>No file system data available.</div>;
+  
     return (
       <div>
         {fs.folders.map((folder, idx) => (
@@ -158,28 +214,61 @@ export default function ProfilePage() {
             </div>
           </div>
         ))}
-        {fs.jsons.map((paper, idx) => {
-          const currentPaperTags = pdfTags[paper.entry_id] || [];
-          return (
-            <div key={`paper-${paper.entry_id}-${idx}`} className="ml-4 my-2">
-              <Card
-                name={paper.title}
-                authors={paper.authors}
-                date={paper.published}
-                abstract={paper.summary}
-                tags={currentPaperTags}
-                availableTags={tags}
-                onAssignTag={(tag) =>
-                  handleAssignTag(paper.entry_id, tag, currentFolderName, paper)
-                }
-                onRemoveTagFromCard={(tagName) =>
-                  handleRemoveTagFromCard(paper.entry_id, tagName, currentFolderName, paper)
-                }
-                onDeletePaper={() => handleDeletePaper(paper, currentFolderName)}
-              />
-            </div>
-          );
-        })}
+  
+        <div className="flex flex-wrap gap-6 justify-center">
+          <AnimatePresence mode="popLayout">
+            {[...fs.jsons]
+              .sort((a, b) => {
+                const aTags = pdfTags[a.entry_id] || [];
+                const bTags = pdfTags[b.entry_id] || [];
+                const aMatch = cardMatchesFilters(aTags, a.published, a.authors);
+                const bMatch = cardMatchesFilters(bTags, b.published, b.authors);
+                if (aMatch && !bMatch) return -1;
+                if (!aMatch && bMatch) return 1;
+                return 0;
+              })
+              .map((paper, idx) => {
+                const currentTags = pdfTags[paper.entry_id] || [];
+                const matches = cardMatchesFilters(currentTags, paper.published, paper.authors);
+  
+                return (
+                  <motion.div
+                    key={`paper-${paper.entry_id}-${idx}`}
+                    layout
+                    initial={{ x: -50, opacity: 0 }}
+                    animate={{
+                      x: 0,
+                      opacity: matches ? 1 : 0.4,
+                    }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    exit={{ x: 50, opacity: 0 }}
+                  >
+                    <Card
+                      name={paper.title}
+                      authors={paper.authors}
+                      date={paper.published}
+                      abstract={paper.summary}
+                      tags={currentTags}
+                      availableTags={tags}
+                      onAssignTag={(tag) =>
+                        handleAssignTag(paper.entry_id, tag, currentFolderName, paper)
+                      }
+                      onRemoveTagFromCard={(tagName) =>
+                        handleRemoveTagFromCard(paper.entry_id, tagName, currentFolderName, paper)
+                      }
+                      onDeletePaper={() => handleDeletePaper(paper, currentFolderName)}
+                      onClickTag={toggleFilterTag}
+                      activeFilters={activeFilters}
+                      selectedYearFilter={selectedYearFilter}
+                      onClickYear={handleClickYear}
+                      activeAuthorFilters={activeAuthorFilters}
+                      onClickAuthor={toggleFilterAuthor}
+                    />
+                  </motion.div>
+                );
+              })}
+          </AnimatePresence>
+        </div>
       </div>
     );
   }
@@ -187,7 +276,7 @@ export default function ProfilePage() {
   const renderBaseView = () => {
     if (!fileSystem) return null;
     return (
-      <div>
+      <>
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-lg font-semibold">Folders</h3>
           <button
@@ -208,41 +297,74 @@ export default function ProfilePage() {
             </div>
           ))}
         </div>
+  
         <h3 className="text-lg font-semibold mt-4">Loose Papers</h3>
-        <div>
-          {fileSystem.jsons.map((paper, idx) => {
-            const currentPaperTags = pdfTags[paper.entry_id] || [];
-            return (
-              <div key={`paper-${paper.entry_id}-${idx}`} className="ml-4 my-2">
-                <Card
-                  name={paper.title}
-                  authors={paper.authors}
-                  date={paper.published}
-                  abstract={paper.summary}
-                  tags={currentPaperTags}
-                  availableTags={tags}
-                  onAssignTag={(tag) =>
-                    handleAssignTag(paper.entry_id, tag, "", paper)
-                  }
-                  onRemoveTagFromCard={(tagName) =>
-                    handleRemoveTagFromCard(paper.entry_id, tagName, "", paper)
-                  }
-                  onDeletePaper={() => handleDeletePaper(paper, "")}
-                />
-              </div>
-            );
-          })}
+        <div className="flex flex-wrap gap-6 justify-center">
+          <AnimatePresence mode="popLayout">
+            {[...fileSystem.jsons]
+              .sort((a, b) => {
+                const aTags = pdfTags[a.entry_id] || [];
+                const bTags = pdfTags[b.entry_id] || [];
+                const aMatch = cardMatchesFilters(aTags, a.published, a.authors);
+                const bMatch = cardMatchesFilters(bTags, b.published, b.authors);
+                if (aMatch && !bMatch) return -1;
+                if (!aMatch && bMatch) return 1;
+                return 0;
+              })
+              .map((paper) => {
+                const currentTags = pdfTags[paper.entry_id] || [];
+                const matches = cardMatchesFilters(currentTags, paper.published, paper.authors);
+  
+                return (
+                  <motion.div
+                    key={`paper-${paper.entry_id}`}
+                    layout
+                    initial={{ x: -50, opacity: 0 }}
+                    animate={{
+                      x: 0,
+                      opacity: matches ? 1 : 0.4,
+                    }}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    exit={{ x: 50, opacity: 0 }}
+                  >
+                    <Card
+                      name={paper.title}
+                      authors={paper.authors}
+                      date={paper.published}
+                      abstract={paper.summary}
+                      tags={currentTags}
+                      availableTags={tags}
+                      onAssignTag={(tag) =>
+                        handleAssignTag(paper.entry_id, tag, "", paper)
+                      }
+                      onRemoveTagFromCard={(tagName) =>
+                        handleRemoveTagFromCard(paper.entry_id, tagName, "", paper)
+                      }
+                      onDeletePaper={() => handleDeletePaper(paper, "")}
+                      onClickTag={toggleFilterTag}
+                      activeFilters={activeFilters}
+                      selectedYearFilter={selectedYearFilter}
+                      onClickYear={handleClickYear}
+                      activeAuthorFilters={activeAuthorFilters}
+                      onClickAuthor={toggleFilterAuthor}
+                    />
+                  </motion.div>
+                );
+              })}
+          </AnimatePresence>
         </div>
-      </div>
+      </>
     );
   };
-
+  
+  
   const renderFolderView = () => {
     if (!fileSystem) return null;
     const selected = fileSystem.folders.find(
       (folder) => folder.name === currentFolder
     );
     if (!selected) return <div>Folder not found.</div>;
+  
     return (
       <div>
         <button
@@ -258,7 +380,9 @@ export default function ProfilePage() {
       </div>
     );
   };
-
+  
+  
+  // useEffect to merge all paper tags from fileSystem into global state.
   useEffect(() => {
     if (fileSystem) {
       const collectedTags = new Map();
@@ -315,6 +439,8 @@ export default function ProfilePage() {
           tags={tags}
           onAddTag={handleAddTag}
           onRemoveTag={handleRemoveTagGlobally}
+          onClickTag={toggleFilterTag}
+          activeFilters={activeFilters}
         />
         <div className="flex flex-col flex-1 items-center pt-3 overflow-y-auto">
           <WelcomeMessage />
@@ -331,7 +457,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-      <SaveGroupingButton />
       <LogoutButton />
     </div>
   );
