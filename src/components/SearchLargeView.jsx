@@ -5,6 +5,9 @@ import { useGlobal } from "../context/GlobalContext";
 import axios from "axios";
 import { PDFDownload } from "../backend/PdfDownload"; // Ensure correct path
 import ActiveSummary from "./ActiveSummary";
+import SaveToProfileModal from "./SaveToProfileModal"; // Adjust path if needed
+
+
 export default function SearchLargeView() {
   const { search, activePaper, setActivePaper, setActiveSummary, activeSummary, user, fileSystem, setFileSystem } = useGlobal();
   const [isSummaryLoading, setIsSummaryLoading] = useState(true);
@@ -170,39 +173,13 @@ export default function SearchLargeView() {
 
       {/* Save-to-Profile Modal */}
       {showSaveModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
-          <div className="p-6 bg-white rounded-lg w-80">
-            <h3 className="mb-4 text-lg font-semibold">Select a Folder</h3>
-            <div className="flex flex-col gap-2">
-              {fileSystem && fileSystem.folders.length > 0 ? (
-                fileSystem.folders.map((folder, idx) => (
-                  <button
-                    key={idx}
-                    className="px-4 py-2 border rounded hover:bg-gray-100"
-                    onClick={() => handleFolderSelection(folder.name)}
-                  >
-                    {folder.name}
-                  </button>
-                ))
-              ) : (
-                <p>No folders available.</p>
-              )}
-              <button
-                className="px-4 py-2 border rounded hover:bg-gray-100"
-                onClick={() => handleFolderSelection("")}
-              >
-                Save as Loose
-              </button>
-            </div>
-            <button
-              className="px-4 py-2 mt-4 bg-gray-300 rounded"
-              onClick={() => setShowSaveModal(false)}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
+        <SaveToProfileModal
+          fileSystem={fileSystem}
+          onFolderSelect={handleFolderSelection}
+          onClose={() => setShowSaveModal(false)}
+        />
       )}
+
 
       {/* Render active summary section if an active paper is selected */}
     {activePaper && (
