@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Timeline from "./Timeline";
+import { SummarizeSectionsSent } from "../backend/SummarizeSectionsSent";
 import { useGlobal } from "../context/GlobalContext";
 import axios from "axios";
 import { PDFDownload } from "../backend/PdfDownload"; // Ensure correct path
 import ActiveSummary from "./ActiveSummary";
 export default function SearchLargeView() {
-  const { search, activePaper, setActivePaper, activeSummary, user, fileSystem, setFileSystem } = useGlobal();
+  const { search, activePaper, setActivePaper, setActiveSummary, activeSummary, user, fileSystem, setFileSystem } = useGlobal();
   const [isSummaryLoading, setIsSummaryLoading] = useState(true);
   // State to show/hide the Save-to-Profile modal
   const [showSaveModal, setShowSaveModal] = useState(false);
@@ -17,6 +18,24 @@ export default function SearchLargeView() {
       setIsSummaryLoading(false);
     }
   }, [activeSummary]);
+
+  const handleSummaryClick = async (summaryLength) => {
+    // Clear the active summary before fetching a new one
+    setActiveSummary(undefined);
+  
+    const storageKey = `summary_${activePaper.title}_${summaryLength}`;
+    const storedSummary = localStorage.getItem(storageKey);
+  
+    if (storedSummary) {
+      setActiveSummary(JSON.parse(storedSummary)); // Load from local storage
+    } else {
+      const summary = await SummarizeSectionsSent(activePaper.title, summaryLength);
+      
+      // Store the new summary
+      localStorage.setItem(storageKey, JSON.stringify(summary));
+      setActiveSummary(summary);
+    }
+  };
 
   const handleDeepDiveClick = () => {
     console.log("!!Current search value before download:", search);
@@ -50,29 +69,35 @@ export default function SearchLargeView() {
     <main className="flex-1 p-4 pt-4 overflow-auto">
       <div className="flex items-center justify-between mb-4">
         {/* Beginner Buttons on Left */}
+        <div className="grid grid-cols-2 gap-2">
+          <p>Change Summary Length Here</p>
         <div className="flex gap-2">
           <div className="inline-flex rounded-lg shadow-2xs">
             <button
               type="button"
+              onClick={() => handleSummaryClick(1)}
               className="inline-flex items-center px-4 py-3 text-sm font-medium text-gray-800 bg-white border border-gray-200 gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
             >
-              Beginner
+              Snapshot
             </button>
             <button
               type="button"
+              onClick={() => handleSummaryClick(3)} 
               className="inline-flex items-center px-4 py-3 text-sm font-medium text-gray-800 bg-white border border-gray-200 gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
             >
-              Intermediate
+              Insight
             </button>
             <button
               type="button"
+              onClick={() => handleSummaryClick(6)} 
               className="inline-flex items-center px-4 py-3 text-sm font-medium text-gray-800 bg-white border border-gray-200 gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
             >
-              Expert
+              DeepDive
             </button>
           </div>
+          </div>
         </div>
-
+        
         {/* Deep Dive Button on Right */}
         <button
           className="px-4 py-2 text-white rounded-lg shadow-md bg-curieBlue hover:bg-blue-600"
@@ -93,7 +118,7 @@ export default function SearchLargeView() {
           <Timeline search={search} />
         </section>
       ) : (
-        <section className="bg-white p-6 rounded-lg shadow-md relative">
+        <section className="relative p-6 bg-white rounded-lg shadow-md">
           {/* Save to Profile Button */}
           <button
             className="absolute right-4 top-4 flex items-center gap-0.5 text-curieBlue hover:text-blue-700"
@@ -112,7 +137,7 @@ export default function SearchLargeView() {
             <span className="text-sm underline">Save to Profile</span>
           </button>
 
-          <h1 className="text-2xl font-bold pr-12">{activePaper.title}</h1>
+          <h1 className="pr-12 text-2xl font-bold">{activePaper.title}</h1>
           <p className="text-sm text-gray-500">
             Publication Date: {activePaper.published}
           </p>
@@ -145,15 +170,15 @@ export default function SearchLargeView() {
 
       {/* Save-to-Profile Modal */}
       {showSaveModal && (
-        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg p-6 w-80">
-            <h3 className="text-lg font-semibold mb-4">Select a Folder</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
+          <div className="p-6 bg-white rounded-lg w-80">
+            <h3 className="mb-4 text-lg font-semibold">Select a Folder</h3>
             <div className="flex flex-col gap-2">
               {fileSystem && fileSystem.folders.length > 0 ? (
                 fileSystem.folders.map((folder, idx) => (
                   <button
                     key={idx}
-                    className="py-2 px-4 border rounded hover:bg-gray-100"
+                    className="px-4 py-2 border rounded hover:bg-gray-100"
                     onClick={() => handleFolderSelection(folder.name)}
                   >
                     {folder.name}
@@ -163,14 +188,14 @@ export default function SearchLargeView() {
                 <p>No folders available.</p>
               )}
               <button
-                className="py-2 px-4 border rounded hover:bg-gray-100"
+                className="px-4 py-2 border rounded hover:bg-gray-100"
                 onClick={() => handleFolderSelection("")}
               >
                 Save as Loose
               </button>
             </div>
             <button
-              className="mt-4 px-4 py-2 bg-gray-300 rounded"
+              className="px-4 py-2 mt-4 bg-gray-300 rounded"
               onClick={() => setShowSaveModal(false)}
             >
               Cancel
@@ -193,7 +218,7 @@ export default function SearchLargeView() {
           </div>
         </div>
       ) : (
-        <ActiveSummary activeSummary={activeSummary} />
+        <ActiveSummary activeSummary={activeSummary} activePaper={activePaper} />
       )}
   </section>
 )}

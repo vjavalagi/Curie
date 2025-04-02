@@ -8,49 +8,42 @@ export default function SearchSideBar({ selectedFilter, yearRange, researchPaper
   const [loadingSummary, setLoadingSummary] = useState(false); // Track if the summary is being loaded
   const currentPaperRef = useRef(null); // Ref to store the currently selected paper
 
-  // Reload page and clear local storage
-  useEffect(() => {
-    localStorage.clear();
-  }, []);
-
   const handlePaperClick = async (paper) => {
     try {
       setActivePaper(paper);
-      // If there's a summary loading and a new paper is clicked, clear the previous summary
-      if (loadingSummary) {
-        setActiveSummary(undefined);
-      }
-      setLoadingSummary(true); // Indicate that the summary is loading
-
-      // Store the current paper in the ref
+      setActiveSummary(undefined); // Clear previous summary immediately
+      setLoadingSummary(true); // Indicate that the summary is being checked/loaded
+  
+      // Store the current paper reference to prevent outdated updates
       currentPaperRef.current = paper;
-
-      // Check if summary already exists in local storage
+  
+      // Check if the summary already exists
       const storedSummary = localStorage.getItem(`summary_${paper.title}`);
       if (storedSummary) {
-        // Only set the summary if this paper is still the one clicked
         if (currentPaperRef.current === paper) {
-          setActiveSummary(JSON.parse(storedSummary)); // Display from local storage
+          setActiveSummary(JSON.parse(storedSummary)); // Load from cache
         }
-        setLoadingSummary(false); // Done loading
-      } else {
-        await PDFDownload(paper);
-        const sumresp = await SummarizeSections(paper.title);
-
-        // Only set the summary if this paper is still the one clicked
-        if (currentPaperRef.current === paper) {
-          setActiveSummary(sumresp);
-        }
-
-        // Store the summary in local storage
-        localStorage.setItem(`summary_${paper.title}`, JSON.stringify(sumresp));
-        setLoadingSummary(false); // Done loading
+        setLoadingSummary(false);
+        return;
       }
+  
+      // If not found, proceed to fetch summary
+      await PDFDownload(paper);
+      const sumresp = await SummarizeSections(paper.title);
+  
+      // Ensure it's still the active paper before setting the summary
+      if (currentPaperRef.current === paper) {
+        setActiveSummary(sumresp);
+        localStorage.setItem(`summary_${paper.title}`, JSON.stringify(sumresp));
+      }
+  
+      setLoadingSummary(false);
     } catch (error) {
       setActiveSummary(null);
-      setLoadingSummary(false); // Done loading even if error occurs
+      setLoadingSummary(false);
     }
   };
+  
 
   const filteredPapers = useMemo(() => {
     return researchPapers.filter((paper) => {

@@ -89,13 +89,10 @@ export default function ProfilePage() {
   const handleAddTag = (name) => {
     const index = tags.length % presetColors.length;
     const newTag = { name, color: presetColors[index] };
-    console.log("Adding tag:", newTag);
     setTags((prev) => [...prev, newTag]);
   };
 
-  // When a global tag is removed, update global state and update each paper that has that tag.
   const handleRemoveTagGlobally = async (tagName) => {
-    console.log("Removing tag globally:", tagName);
     setTags((prev) => prev.filter((t) => t.name !== tagName));
     setPdfTags((prev) => {
       const updated = {};
@@ -105,7 +102,6 @@ export default function ProfilePage() {
       return updated;
     });
 
-    // (Optionally) Loop through fileSystem and update papers.
     const updatePaperTagRemoval = async (fs, folderName = "") => {
       if (fs.jsons) {
         for (const paper of fs.jsons) {
@@ -129,17 +125,15 @@ export default function ProfilePage() {
   };
 
   const updatePaperTags = async (paper, folderName, newTags) => {
-    console.log(`Updating tags for paper ${paper.entry_id} in folder "${folderName}":`, newTags);
     try {
       const response = await axios.post("http://localhost:5001/api/update-tags", {
-        username: user["UserID"],
+        username: user?.UserID,
         folder: folderName,
         paper_id: paper.entry_id,
         new_tags: newTags,
       });
       if (response.data.updated_metadata) {
         const updatedPaperTags = response.data.updated_metadata.tags;
-        console.log("API returned updated tags:", updatedPaperTags);
         setPdfTags((prev) => ({
           ...prev,
           [paper.entry_id]: updatedPaperTags,
@@ -149,7 +143,6 @@ export default function ProfilePage() {
           const merged = [...prevTags];
           updatedPaperTags.forEach((tag) => {
             if (!existingNames.has(tag.name)) {
-              console.log("Merging new tag into global sidebar:", tag);
               merged.push(tag);
             }
           });
@@ -181,38 +174,33 @@ export default function ProfilePage() {
     });
   };
 
-  // Delete paper function.
   const handleDeletePaper = async (paper, folderName) => {
     try {
       const response = await axios.post("http://localhost:5001/api/delete-paper", {
-        username: user["UserID"],
+        username: user?.UserID,
         folder: folderName,
         paper_id: paper.entry_id,
       });
-      console.log("Delete paper response:", response.data);
       refreshFileSystem();
     } catch (error) {
       console.error("Error deleting paper:", error);
     }
   };
 
-  // Create folder function.
   const handleCreateFolder = async () => {
     const folderName = prompt("Enter new folder name:");
     if (!folderName) return;
     try {
       const response = await axios.post("http://localhost:5001/api/create-folder", {
-        username: user["UserID"],
+        username: user?.UserID,
         folder: folderName,
       });
-      console.log("Create folder response:", response.data);
       refreshFileSystem();
     } catch (error) {
       console.error("Error creating folder:", error);
     }
   };
 
-  // Define renderFileSystem as a function declaration.
   function renderFileSystem(fs, currentFolderName = "") {
     if (!fs) return <div>No file system data available.</div>;
   
@@ -286,6 +274,7 @@ export default function ProfilePage() {
   }
 
   const renderBaseView = () => {
+    if (!fileSystem) return null;
     return (
       <>
         <div className="flex justify-between items-center mb-3">
@@ -301,6 +290,7 @@ export default function ProfilePage() {
           {fileSystem.folders.map((folder, idx) => (
             <div
               key={`folder-${idx}`}
+              onClick={() => setCurrentFolder(folder.name)}
               onClick={() => setCurrentFolder(folder.name)}
               className="cursor-pointer"
             >
@@ -370,6 +360,7 @@ export default function ProfilePage() {
   
   
   const renderFolderView = () => {
+    if (!fileSystem) return null;
     const selected = fileSystem.folders.find(
       (folder) => folder.name === currentFolder
     );
@@ -409,23 +400,18 @@ export default function ProfilePage() {
         });
       };
       traverse(fileSystem);
-      console.log("Collected tags from file system:", Array.from(collectedTags.values()));
       setTags((prevTags) => {
         const tagMap = new Map(prevTags.map((t) => [t.name, t]));
         for (const [name, tag] of collectedTags.entries()) {
           if (!tagMap.has(name)) {
-            console.log("Adding unseen tag to global sidebar:", tag);
             tagMap.set(name, tag);
           }
         }
-        const mergedTags = Array.from(tagMap.values());
-        console.log("Global tags after merging file system tags:", mergedTags);
-        return mergedTags;
+        return Array.from(tagMap.values());
       });
     }
   }, [fileSystem]);
 
-  // useEffect to initialize pdfTags state from fileSystem metadata.
   useEffect(() => {
     if (fileSystem) {
       const newPdfTags = {};
@@ -438,14 +424,11 @@ export default function ProfilePage() {
         fs.folders.forEach((folder) => traverse(folder.content));
       };
       traverse(fileSystem);
-      console.log("Initializing pdfTags from file system:", newPdfTags);
       setPdfTags(newPdfTags);
     }
   }, [fileSystem]);
 
-  // Refresh file system when ProfilePage mounts or when currentFolder changes.
   useEffect(() => {
-    console.log("Refreshing file system due to mount or currentFolder change");
     refreshFileSystem();
   }, [currentFolder, refreshFileSystem]);
 
@@ -465,7 +448,13 @@ export default function ProfilePage() {
           <BreadcrumbNavigation path={[]} onNavigate={() => {}} />
           <div className="w-full max-w-8xl mx-auto mt-4 p-4 bg-white rounded-lg shadow-md">
             <h2 className="text-lg font-semibold mb-3 text-center">Saved PDFs</h2>
-            {!currentFolder ? renderBaseView() : renderFolderView()}
+            {!fileSystem ? (
+              <p className="text-center text-gray-500">Loading file system...</p>
+            ) : !currentFolder ? (
+              renderBaseView()
+            ) : (
+              renderFolderView()
+            )}
           </div>
         </div>
       </div>
