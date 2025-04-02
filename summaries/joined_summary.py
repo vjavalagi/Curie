@@ -87,18 +87,18 @@ def extract_text(file_path):
     return result.document.text  # Return extracted text
 
 # Function to summarize extracted text by section
-def summarize_sections(document_text):
-    """Generates a one-sentence summary per section."""
+def summarize_sections(document_text, sentence_count=1):
+    """Generates a summary per section."""
     
     prompt = f"""
-    Generate a one-sentence summary for each section of the following document. 
+    Generate a summary for each section of the following document. I want each section to have a summary length of {sentence_count} sentences.
     The sections are: Introduction, Methods, Results, Discussion, Conclusion.
 
     {document_text}
     """
     
         
-    print("SUMMARIZE SECTIONS")
+    print("summarized sections in joined_summary with __ sentences", sentence_count)
     
     response = client.beta.chat.completions.parse(
         model="gpt-4o-mini",
