@@ -5,7 +5,7 @@ import SearchSideBar from "../components/SearchSideBar";
 import SearchLargeView from "../components/SearchLargeView";
 import SearchFilterSidebar from "../components/SearchFilterSidebar";
 import { searchAPI } from "../backend/Search";
-import { useGlobal } from "../components/GlobalContext"; // adjust the path as needed
+import { useGlobal } from "../context/GlobalContext"; // adjust the path as needed
 
 export default function SearchPage() {
   const navigate = useNavigate();

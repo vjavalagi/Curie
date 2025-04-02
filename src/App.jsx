@@ -8,17 +8,17 @@ import SearchPage from "./Pages/SearchPage";
 import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import ProfilePage from "./Pages/ProfilePage";
-import { GlobalProvider } from "./components/GlobalContext";
-import { UserProvider } from "./context/UserContext";
+import { GlobalProvider } from "./context/GlobalContext";
 
 
 function App() {
   return (
     <BrowserRouter>
-      <UserProvider>
+      
         <div>
           <GlobalProvider>
             <Routes>
+              
               <Route path="/" element={<LandingPage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/profile" element={<ProfilePage />} />
@@ -28,7 +28,7 @@ function App() {
             </Routes>
           </GlobalProvider>
         </div>
-      </UserProvider>
+    
     </BrowserRouter>
   );
 }

@@ -71,18 +71,18 @@ def summarize_doc_with_ai(document):
 
 
 
-if __name__ == "__main__":
-    document = quickstart(project_id, location, file_path, processor_id)
+# if __name__ == "__main__":
+#     document = quickstart(project_id, location, file_path, processor_id)
 
-    #print(document.pages[1].blocks[0].paragraphs[0])
-    print("Document text:")
-    print(document.text[:1000])  
-    #document = document.text[:1000]  # Limit to first 1000 characters for display
+#     #print(document.pages[1].blocks[0].paragraphs[0])
+#     print("Document text:")
+#     print(document.text[:1000])  
+#     #document = document.text[:1000]  # Limit to first 1000 characters for display
 
-    # Call the function to summarize the document
-    summary = summarize_doc_with_ai(document)
-    print("Summary of the document:")
-    print(summary)
+#     # Call the function to summarize the document
+#     summary = summarize_doc_with_ai(document)
+#     print("Summary of the document:")
+#     print(summary)
 
 
 

@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, useRef } from "react";
-import { useGlobal } from "./GlobalContext";
+import { useGlobal } from "../context/GlobalContext";
 import { PDFDownload } from "../backend/PdfDownload";
 import { SummarizeSections } from "../backend/SummarizeSections";
 
@@ -49,7 +49,8 @@ export default function SearchSideBar({ selectedFilter, yearRange, researchPaper
     return researchPapers.filter((paper) => {
       const publishedYear = new Date(paper.published).getFullYear();
       return (
-        (selectedFilter === "All" || paper.publicationTypes?.includes(selectedFilter)) &&
+        (selectedFilter === "All" ||
+          paper.publicationTypes?.includes(selectedFilter)) &&
         publishedYear >= yearRange[0] &&
         publishedYear <= yearRange[1]
       );
@@ -74,7 +75,9 @@ export default function SearchSideBar({ selectedFilter, yearRange, researchPaper
               onClick={() => handlePaperClick(paper)}
             >
               <span className="font-semibold">{paper.title}</span>
-              <p className="text-sm text-gray-500">{paper.authors.join(", ")}</p>
+              <p className="text-sm text-gray-500">
+                {paper.authors.join(", ")}
+              </p>
               <p className="text-sm text-gray-500">{paper.published}</p>
             </button>
           ))

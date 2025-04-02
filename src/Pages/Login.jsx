@@ -2,11 +2,11 @@ import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import CurieLogo from "../assets/curie_no_background.png";
-import { UserContext } from "../context/UserContext";
+import { useGlobal } from "../context/GlobalContext";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { setUser } = useContext(UserContext);
+  const { setUser } = useGlobal();
 
   const [form, setForm] = useState({ username: "", password: "" });
   const [message, setMessage] = useState("");
