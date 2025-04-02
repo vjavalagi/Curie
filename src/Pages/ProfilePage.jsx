@@ -291,7 +291,6 @@ export default function ProfilePage() {
             <div
               key={`folder-${idx}`}
               onClick={() => setCurrentFolder(folder.name)}
-              onClick={() => setCurrentFolder(folder.name)}
               className="cursor-pointer"
             >
               <Folder name={folder.name} />
