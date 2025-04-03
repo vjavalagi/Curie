@@ -14,6 +14,7 @@ import boto3
 from dotenv import load_dotenv, find_dotenv
 from botocore.exceptions import ClientError
 from aws import upload_paper, delete_paper_folder, delete_paper, create_user, update_tags, create_paper_folder, get_user_file_system, dynamodb, users, files_table
+from arxiv import Search, SortCriterion
 
 
 arxiv = ArxivAPI()
@@ -231,6 +232,7 @@ def createfolder():
     folder = data.get("folder")
     response = create_paper_folder(username, folder)
     return jsonify(response)
+
 @app.route("/api/delete-folder", methods=["POST"])
 def deletefolder():
     data = request.get_json()   
@@ -238,6 +240,7 @@ def deletefolder():
     folder = data.get("folder")
     response = delete_paper_folder(username, folder)
     return jsonify(response)
+
 @app.route("/api/upload-paper-to-folder", methods=["POST"])
 def upload_paper_to_folder():
     data = request.get_json()
@@ -266,6 +269,7 @@ def get_file_system():
     username = request.args.get("username")
     response = get_user_file_system(username)
     return jsonify(response)
+
 @app.route("/api/update-tags", methods=["POST"])
 def update_tags_route():
     data = request.get_json()
@@ -279,6 +283,32 @@ def update_tags_route():
 
     result = update_tags(username, folder, paper_id, new_tags)
     return jsonify(result)
+
+@app.route('/api/arxiv-bibtex', methods=['GET'])
+def get_arxiv_bibtex():
+    arxiv_id = request.args.get("arxiv_id")
+    if not arxiv_id:
+        return jsonify({"error": "Missing arxiv_id parameter"}), 400
+
+    try:
+        search = Search(query=arxiv_id, max_results=1, sort_by=SortCriterion.Relevance)
+        for result in search.results():
+            authors = " and ".join(author.name for author in result.authors)
+            arxiv_id_str = result.entry_id.split("/")[-1]
+            bibtex_entry = (
+                f"@article{{{arxiv_id_str},\n"
+                f"  title={{ {result.title} }},\n"
+                f"  author={{ {authors} }},\n"
+                f"  journal={{arXiv preprint arXiv:{arxiv_id_str}}},\n"
+                f"  year={{ {result.published.year} }}\n"
+                f"}}"
+            )
+            return jsonify({"bibtex": bibtex_entry})
+
+        return jsonify({"error": "No result found for the provided arxiv_id."}), 404
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':
