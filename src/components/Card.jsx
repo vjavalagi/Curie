@@ -182,7 +182,7 @@ export default function Card({
             <p>{abstract}</p>
           </div>
         </div>
-        <div className="px-6 pb-1 text-xs text-gray-500">Last updated by you at 12:00 PM</div>
+
       </div>
   );
 }
