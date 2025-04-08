@@ -125,13 +125,11 @@ export default function ProfilePage() {
 
         <div className="flex flex-wrap gap-4">
           {fileSystem.folders.map((folder, idx) => (
-            <div
+            <Folder
               key={`folder-${idx}`}
-              onClick={() => setCurrentFolder(folder.name)}
-              className="cursor-pointer"
-            >
-              <Folder name={folder.name} />
-            </div>
+              name={folder.name}
+              onOpenFolder={() => setCurrentFolder(folder.name)}
+            />
           ))}
         </div>
 
