@@ -2,6 +2,8 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Card from "./Card";
 import { useGlobal } from "../context/GlobalContext";
+import axios from "axios";
+
 
 export default function FolderView() {
   const {
@@ -9,6 +11,10 @@ export default function FolderView() {
     currentFolder,
     setCurrentFolder,
     refreshFileSystem,
+    setFileSystem,
+    currentTags,
+    tags, 
+    user,
   } = useGlobal();
 
   const selected = fileSystem?.folders.find(
@@ -18,6 +24,54 @@ export default function FolderView() {
   if (!selected) return <div>Folder not found.</div>;
 
   const papers = selected.content.jsons;
+
+  const handleDeletePaper = async (paperId) => {
+    const folder = currentFolder;
+    console.log("Deleting paper with ID:", paperId);
+    console.log("Current folder:", folder);
+    console.log("File system before deletion:", fileSystem);
+
+  
+    try {
+      const updatedFileSystem = { ...fileSystem };
+  
+      if (folder === "Loose Papers") {
+        // Remove from top-level loose papers
+        updatedFileSystem.jsons = (updatedFileSystem.jsons || []).filter(
+          (paper) => paper.entry_id !== paperId
+        );
+      } else {
+        // Find the folder by name
+        const folderIndex = updatedFileSystem.folders.findIndex(
+          (f) => f.name === folder
+        );
+  
+        if (folderIndex !== -1) {
+          const folderContent = updatedFileSystem.folders[folderIndex].content;
+          folderContent.jsons = (folderContent.jsons || []).filter(
+            (paper) => paper.entry_id !== paperId
+          );
+        } else {
+          console.warn(`Folder "${folder}" not found.`);
+        }
+      }
+  
+      // Update local state
+      setFileSystem(updatedFileSystem);
+  
+      // Update backend
+      const payload = {
+        username: user.UserID,
+        folder: folder,
+        paper_id: paperId,
+      };
+      
+      await axios.post("http://localhost:5001/api/delete-paper", payload);
+      
+    } catch (err) {
+      console.error("Error deleting paper:", err);
+    }
+  };
 
   return (
     <div>

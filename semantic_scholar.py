@@ -154,7 +154,7 @@ def api_search():
     """
     topic = request.args.get('topic', 'Computer Science')
     limit = int(request.args.get('limit', 7))
-    results = arxiv.search(topic, limit, SortCriterion.Relevance)
+    results = arxiv_python.search(topic, limit, SortCriterion.Relevance)
     return jsonify(results)
 
 @app.route('/api/download-pdf', methods=['POST'])
