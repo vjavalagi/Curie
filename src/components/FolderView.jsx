@@ -55,15 +55,18 @@ export default function FolderView() {
                 exit={{ x: 50, opacity: 0 }}
               >
                 <Card
+                  paperId={paper.entry_id}
                   name={paper.title}
                   authors={paper.authors}
                   date={paper.published}
                   abstract={paper.summary}
-                  tags={paper.tags || []}
-                  availableTags={[]}
+                  journal_ref={paper.journal_ref}
+                  tags={currentTags}
+                  availableTags={tags}
+                  links={paper.pdf_url} 
                   onAssignTag={() => {}}
                   onRemoveTagFromCard={() => {}}
-                  onDeletePaper={() => {}}
+                  onDeletePaper={handleDeletePaper} 
                   onClickTag={() => {}}
                   activeFilters={[]}
                   selectedYearFilter={null}

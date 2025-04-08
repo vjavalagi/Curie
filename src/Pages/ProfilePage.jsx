@@ -27,6 +27,7 @@ export default function ProfilePage() {
     currentFolder,
     setCurrentFolder,
     refreshFileSystem,
+    setFileSystem,
   } = useGlobal();
 
   const handleCreateFolder = async () => {
@@ -43,6 +44,54 @@ export default function ProfilePage() {
       console.error("Error creating folder:", error);
     }
   };
+
+  const handleDeletePaper = async (paperId) => {
+    const folder = currentFolder || "Loose Papers";
+  
+    try {
+      const updatedFileSystem = { ...fileSystem };
+  
+      if (folder === "Loose Papers") {
+        // Remove from top-level loose papers
+        updatedFileSystem.jsons = (updatedFileSystem.jsons || []).filter(
+          (paper) => paper.entry_id !== paperId
+        );
+      } else {
+        // Find the folder by name
+        const folderIndex = updatedFileSystem.folders.findIndex(
+          (f) => f.name === folder
+        );
+  
+        if (folderIndex !== -1) {
+          const folderContent = updatedFileSystem.folders[folderIndex].content;
+          folderContent.jsons = (folderContent.jsons || []).filter(
+            (paper) => paper.entry_id !== paperId
+          );
+        } else {
+          console.warn(`Folder "${folder}" not found.`);
+        }
+      }
+  
+      // Update local state
+      setFileSystem(updatedFileSystem);
+  
+      // Update backend
+      const payload = {
+        username: user.UserID,
+        paper_id: paperId,
+      };
+      
+      if (folder !== "Loose Papers") {
+        payload.folder = folder;
+      }
+      
+      await axios.post("http://localhost:5001/api/delete-paper", payload);
+      
+    } catch (err) {
+      console.error("Error deleting paper:", err);
+    }
+  };
+  
 
   const renderBaseView = () => {
     if (!fileSystem) return null;
@@ -93,6 +142,7 @@ export default function ProfilePage() {
             {[...fileSystem.jsons].map((paper, idx) => {
               const currentTags = pdfTags[paper.entry_id] || [];
               return (
+                
                 <motion.div
                   key={`paper-${paper.entry_id}-${idx}`}
                   layout
@@ -102,15 +152,18 @@ export default function ProfilePage() {
                   exit={{ x: 50, opacity: 0 }}
                 >
                   <Card
+                    paperId={paper.entry_id}
                     name={paper.title}
                     authors={paper.authors}
                     date={paper.published}
                     abstract={paper.summary}
+                    journal_ref={paper.journal_ref}
                     tags={currentTags}
                     availableTags={tags}
+                    links={paper.pdf_url} 
                     onAssignTag={() => {}}
                     onRemoveTagFromCard={() => {}}
-                    onDeletePaper={() => {}}
+                    onDeletePaper={handleDeletePaper} 
                     onClickTag={() => {}}
                     activeFilters={[]}
                     selectedYearFilter={null}
@@ -118,6 +171,7 @@ export default function ProfilePage() {
                     activeAuthorFilters={[]}
                     onClickAuthor={() => {}}
                   />
+
                 </motion.div>
               );
             })}

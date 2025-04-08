@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Tag from "./Tag";
 
 export default function Card({
+  paperId, 
   name,
   authors,
   date,
@@ -38,27 +39,50 @@ export default function Card({
   }, [dropdownRef]);
 
   const handleCopyBibtex = async () => {
+    console.log("COPY BIBTEX");
+    console.log("LINKS:", links);
     setIsCopying(true);
+
     try {
-      const arxivLink = links.find((link) => link.includes("arxiv.org"));
-      const arxivIdMatch = arxivLink?.match(/\d{4}\.\d{5}(v\d+)?/);
-      const arxivId = arxivIdMatch ? arxivIdMatch[0] : null;
+      const arxivUrl = links;
+
+      if (!arxivUrl || (!arxivUrl.includes("arxiv.org/abs") && !arxivUrl.includes("arxiv.org/pdf"))) {
+        console.error("No valid arXiv URL found.");
+        setIsCopying(false);
+        return;
+      }
+
+      if (!arxivUrl) {
+        console.error("No arXiv URL found in the links array.");
+        setIsCopying(false);
+        return;
+      }
+
+      const arxivIdMatch = arxivUrl.match(/arxiv\.org\/(?:abs|pdf)\/(\d{4}\.\d{5})(v\d+)?/);
+      const arxivId = arxivIdMatch ? arxivIdMatch[1] + (arxivIdMatch[2] || "") : null;
+
+      console.log("arxivUrl:", arxivUrl);
+      console.log("arxivId:", arxivId);
 
       let bibtexContent = "";
 
       if (arxivId) {
-        const response = await fetch(`https://arxiv.org/bibtex/${arxivId}`);
-        bibtexContent = await response.text();
+        const response = await fetch(`http://localhost:5001/api/arxiv-bibtex?arxiv_id=${arxivId}`);
+        const data = await response.json();
 
-        if (bibtexContent.startsWith("@article")) {
-          bibtexContent = bibtexContent.replace("@article", "@misc");
+        if (data.bibtex) {
+          bibtexContent = data.bibtex;
+        } else {
+          throw new Error("No bibtex returned from backend.");
         }
       } else {
-        bibtexContent = `@misc{${name.replace(/[^a-zA-Z0-9]/g, "_")},\n` +
+        console.warn("Could not extract arXiv ID — falling back to basic bibtex.");
+        bibtexContent =
+          `@misc{${name?.replace(/[^a-zA-Z0-9]/g, "_")},\n` +
           `  title={${name}},\n` +
           `  author={${authors?.join(" and ")}},\n` +
           (journal_ref ? `  journal={${journal_ref}},\n` : "") +
-          `  year={${new Date(date).getFullYear()}},\n}`;
+          `  year={${new Date(date || Date.now()).getFullYear()}},\n}`;
       }
 
       await navigator.clipboard.writeText(bibtexContent);
@@ -154,10 +178,10 @@ export default function Card({
 
                 {onDeletePaper && (
                   <button
-                    className="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-red-600 hover:bg-red-50 focus:outline-none"
+                    className="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-red-600 hover:bg-red-50 focus:outline-none shadow"
                     onClick={() => {
                       setIsDropdownOpen(false);
-                      onDeletePaper();
+                      onDeletePaper(paperId); 
                     }}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
