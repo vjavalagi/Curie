@@ -6,7 +6,7 @@ import axios from "axios";
 import { PDFDownload } from "../backend/PdfDownload"; // Ensure correct path
 import ActiveSummary from "./ActiveSummary";
 import SaveToProfileModal from "./SaveToProfileModal"; // Adjust path if needed
-
+import AskCurie from "./AskCurie";
 
 export default function SearchLargeView() {
   const { search, activePaper, setActivePaper, setActiveSummary, activeSummary, user, fileSystem, setFileSystem } = useGlobal();
@@ -43,11 +43,11 @@ export default function SearchLargeView() {
   };
   
 
-  const handleDeepDiveClick = () => {
-    console.log("!!Current search value before download:", search);
-    setActivePaper("");
-    console.log("Emptying paper", activePaper);
-  };
+  // const handleDeepDiveClick = () => {
+  //   console.log("!!Current search value before download:", search);
+  //   setActivePaper("");
+  //   console.log("Emptying paper", activePaper);
+  // };
 
   // This function is called when the user clicks the "Save to Profile" button
   const handleSaveToProfileClick = () => {
@@ -226,6 +226,13 @@ export default function SearchLargeView() {
       <ActiveSummary activeSummary={activeSummary} activePaper={activePaper} />
     )}
   </section>
+      )}
+
+      {/* Ask Curie Component */}
+      {activePaper && (
+        <section className="p-6 mt-4 bg-white rounded-lg shadow-md">
+          <AskCurie />
+        </section>
   
 )}
 

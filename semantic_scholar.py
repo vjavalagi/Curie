@@ -9,7 +9,7 @@ from flask import Flask, request, jsonify, send_from_directory, make_response
 from dotenv import load_dotenv, find_dotenv
 from flask_cors import CORS
 from gpt import get_foundational_papers
-from summaries.joined_summary import summarize_document, extract_text_pymu,  summarize_sections
+from summaries.joined_summary import summarize_document, extract_text_pymu,  summarize_sections, ask_curie
 from arxiv_api import ArxivAPI
 from slide_gen import generate_presentation
 from arxiv import Client, Search, SortCriterion
@@ -142,6 +142,25 @@ def api_summarize():
     print("FILE PATH", file_path)
     summary = get_whole_summary(file_path)
     return jsonify({"summary": summary})
+
+@app.route('/api/ask-curie', methods=['GET'])
+def api_summarize_raw():
+    """
+    Example: GET /api/summarize-raw?file_path=/path/to/file.pdf
+    """
+    name = request.args.get('name', '/ExamRubric.pdf')
+    
+    name = name if name.endswith(".pdf") else name + ".pdf"
+    name = "./pdfs/" + name
+   
+    print("FILE PATH", name)
+    question = request.args.get('question', 'What is the main topic of this paper?')
+    extracted_text = extract_text_pymu(name)
+    print("EXTRACTED TEXT", extracted_text)
+    response = ask_curie(extracted_text, question)        
+    print("FILE PATH", name)
+    return jsonify(response)
+
 
 @app.route('/api/timeline', methods=['GET'])
 def api_timeline():
