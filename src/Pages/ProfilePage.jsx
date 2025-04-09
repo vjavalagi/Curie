@@ -11,11 +11,11 @@ import Card from "../components/Card";
 import CreateFolderModal from "../components/CreateFolderModal";
 import FolderView from "../components/FolderView";
 import { useGlobal } from "../context/GlobalContext";
+import LogoutButton from "../components/LogoutButton";
 
 export default function ProfilePage() {
   const [tags, setTags] = useState([]);
-  const [pdfTags, setPdfTags] = useState({});
-  const [showCreateModal, setShowCreateModal] = useState(false);
+   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
 
   const {
@@ -28,6 +28,7 @@ export default function ProfilePage() {
     refreshFileSystem,
     setFileSystem,
   } = useGlobal();
+  const [pdfTags, setPdfTags] = useState({});
 
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) return;
@@ -90,7 +91,26 @@ export default function ProfilePage() {
       console.error("Error deleting paper:", err);
     }
   };
+
+  const handleMovePaper = async (paperId, fromFolder, toFolder) => {
+    try {
+      await axios.post("http://localhost:5001/api/move-paper", {
+        username: user.UserID,
+        paper_id: paperId,
+        from_folder: fromFolder,
+        to_folder: toFolder,
+      },{
+        withCredentials: true, 
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
   
+      refreshFileSystem(); 
+    } catch (err) {
+      console.error("Error moving paper:", err);
+    }
+  };  
 
   const renderBaseView = () => {
     if (!fileSystem) return null;
@@ -167,6 +187,8 @@ export default function ProfilePage() {
                     onClickYear={() => {}}
                     activeAuthorFilters={[]}
                     onClickAuthor={() => {}}
+                    onMovePaper={handleMovePaper}
+                    folders={fileSystem.folders}
                   />
 
                 </motion.div>

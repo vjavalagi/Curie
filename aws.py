@@ -45,7 +45,7 @@ session = boto3.Session(
 
 dynamodb = session.resource("dynamodb")
 users = dynamodb.Table("Users")
-files_table = dynamodb.Table("Files")
+# files_table = dynamodb.Table("Files")
 
 ## new s3 directory bucket'
 s3 = boto3.resource('s3', region_name=AWS_DEFAULT_REGION)
@@ -528,74 +528,74 @@ def update_tags(username, folder, paper_id, new_tags):
     
 
 
-def search_by_tag(username, tag):
-    """
-    Searches for files or folders belonging to a user that contain a specific tag.
+# def search_by_tag(username, tag):
+#     """
+#     Searches for files or folders belonging to a user that contain a specific tag.
 
-    Args:
-        username (str): The user's unique identifier.
-        tag (str): The tag to search for.
+#     Args:
+#         username (str): The user's unique identifier.
+#         tag (str): The tag to search for.
 
-    Returns:
-        list: A list of items (files/folders) that match the tag.
-    """
-    response = files_table.scan(
-        FilterExpression="UserID = :u AND contains(Tags, :t)",
-        ExpressionAttributeValues={":u": username, ":t": tag}
-    )
-    return response.get("Items", [])
-
-
-def get_user_folders(username):
-    """
-    Retrieves all folders associated with a specific user.
-
-    Args:
-        username (str): The user's unique identifier.
-
-    Returns:
-        list: A list of folder items.
-    """
-    response = files_table.scan(
-        FilterExpression="UserID = :u AND Type = :t",
-        ExpressionAttributeValues={":u": username, ":t": "folder"}
-    )
-    return response.get("Items", [])
+#     Returns:
+#         list: A list of items (files/folders) that match the tag.
+#     """
+#     response = files_table.scan(
+#         FilterExpression="UserID = :u AND contains(Tags, :t)",
+#         ExpressionAttributeValues={":u": username, ":t": tag}
+#     )
+#     return response.get("Items", [])
 
 
-def get_loose_files(username):
-    """
-    Retrieves files for a user that are not stored inside any folder.
+# def get_user_folders(username):
+#     """
+#     Retrieves all folders associated with a specific user.
 
-    Args:
-        username (str): The user's unique identifier.
+#     Args:
+#         username (str): The user's unique identifier.
 
-    Returns:
-        list: A list of file items.
-    """
-    response = files_table.scan(
-        FilterExpression="UserID = :u AND Type = :t AND attribute_not_exists(ParentFolderID)",
-        ExpressionAttributeValues={":u": username, ":t": "file"}
-    )
-    return response.get("Items", [])
+#     Returns:
+#         list: A list of folder items.
+#     """
+#     response = files_table.scan(
+#         FilterExpression="UserID = :u AND Type = :t",
+#         ExpressionAttributeValues={":u": username, ":t": "folder"}
+#     )
+#     return response.get("Items", [])
 
 
-def get_folder_files(username, folder_id):
-    """
-    Retrieves files within a specific folder for a given user.
+# def get_loose_files(username):
+#     """
+#     Retrieves files for a user that are not stored inside any folder.
 
-    Args:
-        username (str): The user's unique identifier.
-        folder_id (str): The ID of the folder.
+#     Args:
+#         username (str): The user's unique identifier.
 
-    Returns:
-        list: A list of file items contained in the folder.
-    """
-    response = files_table.scan(
-        FilterExpression="UserID = :u AND Type = :t AND ParentFolderID = :fid",
-        ExpressionAttributeValues={":u": username, ":t": "file", ":fid": folder_id}
-    )
-    return response.get("Items", [])
+#     Returns:
+#         list: A list of file items.
+#     """
+#     response = files_table.scan(
+#         FilterExpression="UserID = :u AND Type = :t AND attribute_not_exists(ParentFolderID)",
+#         ExpressionAttributeValues={":u": username, ":t": "file"}
+#     )
+#     return response.get("Items", [])
+
+
+# def get_folder_files(username, folder_id):
+#     """
+#     Retrieves files within a specific folder for a given user.
+
+#     Args:
+#         username (str): The user's unique identifier.
+#         folder_id (str): The ID of the folder.
+
+#     Returns:
+#         list: A list of file items contained in the folder.
+#     """
+#     response = files_table.scan(
+#         FilterExpression="UserID = :u AND Type = :t AND ParentFolderID = :fid",
+#         ExpressionAttributeValues={":u": username, ":t": "file", ":fid": folder_id}
+#     )
+#     return response.get("Items", [])
 
 
 def move_file(username, old_folder, new_folder, file_id):
@@ -706,28 +706,28 @@ def check_table_exists(table_name):
         return False
 
 
-def create_files_table():
-    """
-    Creates the Files table in DynamoDB if it does not already exist.
+# def create_files_table():
+#     """
+#     Creates the Files table in DynamoDB if it does not already exist.
     
-    The table uses a composite primary key consisting of 'UserID' (HASH) and 'ItemID' (RANGE).
-    """
-    if check_table_exists("Files"):
-        return
+#     The table uses a composite primary key consisting of 'UserID' (HASH) and 'ItemID' (RANGE).
+#     """
+#     if check_table_exists("Files"):
+#         return
 
-    session.client("dynamodb").create_table(
-        TableName="Files",
-        KeySchema=[
-            {'AttributeName': 'UserID', 'KeyType': 'HASH'},
-            {'AttributeName': 'ItemID', 'KeyType': 'RANGE'}
-        ],
-        AttributeDefinitions=[
-            {'AttributeName': 'UserID', 'AttributeType': 'S'},
-            {'AttributeName': 'ItemID', 'AttributeType': 'S'}
-        ],
-        ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
-    )
-    print("Table 'Files' created successfully.")
+#     session.client("dynamodb").create_table(
+#         TableName="Files",
+#         KeySchema=[
+#             {'AttributeName': 'UserID', 'KeyType': 'HASH'},
+#             {'AttributeName': 'ItemID', 'KeyType': 'RANGE'}
+#         ],
+#         AttributeDefinitions=[
+#             {'AttributeName': 'UserID', 'AttributeType': 'S'},
+#             {'AttributeName': 'ItemID', 'AttributeType': 'S'}
+#         ],
+#         ProvisionedThroughput={'ReadCapacityUnits': 5, 'WriteCapacityUnits': 5}
+#     )
+#     print("Table 'Files' created successfully.")
 
 
 # def upload_pdf_to_s3(file_path, s3_key):
