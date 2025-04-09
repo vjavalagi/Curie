@@ -332,6 +332,7 @@ export default function ProfilePage() {
             <div className="ml-6">{renderFileSystem(f.content, f.name)}</div>
           </div>
         ))}
+       <div className="flex flex-wrap gap-6 justify-center">
         <AnimatePresence mode="popLayout">
           {[...fs.jsons]
             .sort((a, b) => {
@@ -382,6 +383,7 @@ export default function ProfilePage() {
               );
             })}
         </AnimatePresence>
+        </div>
       </div>
     );
 
