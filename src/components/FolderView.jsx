@@ -73,14 +73,17 @@ export default function FolderView() {
 
   const handleMovePaper = async (paperId, fromFolder, toFolder) => {
     try {
+      console.log("HELOOOOOOOOOOO Moving paper", paperId, "from", fromFolder, "to", toFolder);
+
       await axios.post("http://localhost:5001/api/move-paper", {
         username: user.UserID,
         paper_id: paperId,
         from_folder: fromFolder,
         to_folder: toFolder,
       });
-  
-      refreshFileSystem(); // 🔁 reload with fresh data
+
+      refreshFileSystem(); 
+
     } catch (err) {
       console.error("Error moving paper:", err);
     }
@@ -139,9 +142,10 @@ export default function FolderView() {
                   activeFilters={[]}
                   selectedYearFilter={null}
                   onClickYear={() => {}}
+                  currentFolder={currentFolder}
                   activeAuthorFilters={[]}
                   onClickAuthor={() => {}}
-                  onMovePaper={handleMovePaper}
+                  onMovePaper={(paperId, toFolder) => handleMovePaper(paperId, currentFolder, toFolder)} 
                   folders={fileSystem.folders}
                 />
               </motion.div>

@@ -181,6 +181,7 @@ export default function ProfilePage() {
 
   const handleMovePaper = async (paperId, fromFolder, toFolder) => {
     try {
+      console.log("INSIDE PROFILE PAGE Moving paper", paperId, "from", fromFolder, "to", toFolder);
       await axios.post("http://localhost:5001/api/move-paper", {
         username: user.UserID,
         paper_id: paperId,
@@ -296,54 +297,31 @@ export default function ProfilePage() {
                   exit={{ x: 50, opacity: 0 }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
-                  {/* <Card
-                    paperId={paper.entry_id}
-                    name={paper.title}
-                    authors={paper.authors}
-                    date={paper.published}
-                    abstract={paper.summary}
-                    journal_ref={paper.journal_ref}
-                    tags={current}
-                    availableTags={tags}
-
-                    links={paper.pdf_url} 
-                    onAssignTag={(tag) => {}}
-                    onRemoveTagFromCard={() => {}}
-                    onDeletePaper={handleDeletePaper} 
-                    onClickTag={() => {}}
-                    activeFilters={[]}
-                    selectedYearFilter={null}
-                    onClickYear={() => {}}
-                    activeAuthorFilters={[]}
-                    onClickAuthor={() => {}}
-                    onMovePaper={handleMovePaper}
-                    folders={fileSystem.folders}
-
-                  /> */}
-                  <Card
-                    paperId={paper.entry_id}
-                    name={paper.title}
-                    authors={paper.authors}
-                    date={paper.published}
-                    abstract={paper.summary}
-                    journal_ref={paper.journal_ref}
-                    tags={current}
-                    availableTags={tags}
-                    onAssignTag={(tag) =>
-                      handleAssignTag(paper.entry_id, tag, "", paper)
-                    }
-                    onRemoveTagFromCard={(tagName) =>
-                      handleRemoveTagFromCard(paper.entry_id, tagName, "", paper)
-                    }
-                    onDeletePaper={() => handleDeletePaper(paper, "")}
-                    onClickTag={toggleFilterTag}
-                    activeFilters={activeFilters}
-                    selectedYearFilter={selectedYearFilter}
-                    onClickYear={handleClickYear}
-                    activeAuthorFilters={activeAuthorFilters}
-                    onClickAuthor={toggleFilterAuthor}
-                    onMovePaper={handleMovePaper}
-                    folders={fileSystem.folders}
+                <Card
+                  paperId={paper.entry_id}
+                  name={paper.title}
+                  authors={paper.authors}
+                  date={paper.published}
+                  abstract={paper.summary}
+                  journal_ref={paper.journal_ref}
+                  tags={current}
+                  availableTags={tags}
+                  onAssignTag={(tag) =>
+                    handleAssignTag(paper.entry_id, tag, "", paper)
+                  }
+                  onRemoveTagFromCard={(tagName) =>
+                    handleRemoveTagFromCard(paper.entry_id, tagName, "", paper)
+                  }
+                  onDeletePaper={() => handleDeletePaper(paper, "")}
+                  onClickTag={toggleFilterTag}
+                  activeFilters={activeFilters}
+                  selectedYearFilter={selectedYearFilter}
+                  onClickYear={handleClickYear}
+                  activeAuthorFilters={activeAuthorFilters}
+                  currentFolder={currentFolder}
+                  onClickAuthor={toggleFilterAuthor}
+                  onMovePaper={handleMovePaper}
+                  folders={fileSystem.folders}
                   />
                 </motion.div>
               );
@@ -421,6 +399,7 @@ export default function ProfilePage() {
                     selectedYearFilter={selectedYearFilter}
                     onClickYear={handleClickYear}
                     activeAuthorFilters={activeAuthorFilters}
+                    currentFolder={currentFolder}
                     onClickAuthor={toggleFilterAuthor}
                     onMovePaper={handleMovePaper}
                     folders={fileSystem.folders}
