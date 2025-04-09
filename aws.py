@@ -599,27 +599,27 @@ def update_tags(username, folder, paper_id, new_tags):
 
 
 def move_file(username, old_folder, new_folder, file_id):
-    print("Moving file ", file_id, " from ", old_folder, " to ", new_folder)
-    """
-    moves the paper metadata to new_folder_id from old_folder_id
-    Args:
-        username (str): The user's unique identifier.
-        file_id (str): The ID of the file to be moved.
-        new_folder_id (str): The new folder's ID.
+    print("Moving file ", file_id, " from ", old_folder or "[Loose Papers]", " to ", new_folder or "[Loose Papers]")
 
-    Returns:
-        dict: The response from the update operation.
-    """
-    # move the paper from the old file_bucket path to the new
-    old_path = f'Users/{username}/{old_folder}/{file_id}.json'
-    new_path = f'Users/{username}/{new_folder}/{file_id}.json'
+    if old_folder:
+        old_path = f'Users/{username}/{old_folder}/{file_id}.json'
+    else:
+        old_path = f'Users/{username}/{file_id}.json'
+
+    if new_folder:
+        new_path = f'Users/{username}/{new_folder}/{file_id}.json'
+    else:
+        new_path = f'Users/{username}/{file_id}.json'
+
     print("Moving from ", old_path, " to ", new_path)
+
     try:
         file_bucket.copy({'Bucket': 'curie-file-storage', 'Key': old_path}, new_path)
         file_bucket.delete_objects(Delete={'Objects': [{'Key': old_path}]})
         return {"message": "File moved successfully."}
     except ClientError as e:
         return {"error": f"Failed to move file: {e}"}
+
     
 
 
