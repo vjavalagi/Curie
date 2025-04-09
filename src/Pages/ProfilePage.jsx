@@ -12,14 +12,13 @@ import Folder from "../components/Folder";
 import Card from "../components/Card";
 import CreateFolderModal from "../components/CreateFolderModal";
 import { useGlobal } from "../context/GlobalContext";
-import LogoutButton from "../components/LogoutButton";
 
 export default function ProfilePage() {
   // Global tag & paper tag state
   const [tags, setTags] = useState([]);
-   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
-
+  const [pdfTags, setPdfTags] = useState({});
   // Filtering state
   const [activeFilters, setActiveFilters] = useState([]);
   const [selectedYearFilter, setSelectedYearFilter] = useState(null);
@@ -297,7 +296,7 @@ export default function ProfilePage() {
                   exit={{ x: 50, opacity: 0 }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
-                  <Card
+                  {/* <Card
                     paperId={paper.entry_id}
                     name={paper.title}
                     authors={paper.authors}
@@ -308,7 +307,7 @@ export default function ProfilePage() {
                     availableTags={tags}
 
                     links={paper.pdf_url} 
-                    onAssignTag={() => {}}
+                    onAssignTag={(tag) => {}}
                     onRemoveTagFromCard={() => {}}
                     onDeletePaper={handleDeletePaper} 
                     onClickTag={() => {}}
@@ -320,6 +319,31 @@ export default function ProfilePage() {
                     onMovePaper={handleMovePaper}
                     folders={fileSystem.folders}
 
+                  /> */}
+                  <Card
+                    paperId={paper.entry_id}
+                    name={paper.title}
+                    authors={paper.authors}
+                    date={paper.published}
+                    abstract={paper.summary}
+                    journal_ref={paper.journal_ref}
+                    tags={current}
+                    availableTags={tags}
+                    onAssignTag={(tag) =>
+                      handleAssignTag(paper.entry_id, tag, "", paper)
+                    }
+                    onRemoveTagFromCard={(tagName) =>
+                      handleRemoveTagFromCard(paper.entry_id, tagName, "", paper)
+                    }
+                    onDeletePaper={() => handleDeletePaper(paper, "")}
+                    onClickTag={toggleFilterTag}
+                    activeFilters={activeFilters}
+                    selectedYearFilter={selectedYearFilter}
+                    onClickYear={handleClickYear}
+                    activeAuthorFilters={activeAuthorFilters}
+                    onClickAuthor={toggleFilterAuthor}
+                    onMovePaper={handleMovePaper}
+                    folders={fileSystem.folders}
                   />
                 </motion.div>
               );
@@ -386,18 +410,20 @@ export default function ProfilePage() {
                     tags={current}
                     availableTags={tags}
                     onAssignTag={(tag) =>
-                      handleAssignTag(paper.entry_id, tag, folder.name, paper)
+                      handleAssignTag(paper.entry_id, tag, "", paper)
                     }
                     onRemoveTagFromCard={(tagName) =>
-                      handleRemoveTagFromCard(paper.entry_id, tagName, folder.name, paper)
+                      handleRemoveTagFromCard(paper.entry_id, tagName, "", paper)
                     }
-                    onDeletePaper={() => handleDeletePaper(paper, folder.name)}
+                    onDeletePaper={() => handleDeletePaper(paper, "")}
                     onClickTag={toggleFilterTag}
                     activeFilters={activeFilters}
                     selectedYearFilter={selectedYearFilter}
                     onClickYear={handleClickYear}
                     activeAuthorFilters={activeAuthorFilters}
                     onClickAuthor={toggleFilterAuthor}
+                    onMovePaper={handleMovePaper}
+                    folders={fileSystem.folders}
                   />
                 </motion.div>
               );
