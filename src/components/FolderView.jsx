@@ -29,8 +29,6 @@ export default function FolderView() {
     const folder = currentFolder;
     console.log("Deleting paper with ID:", paperId);
     console.log("Current folder:", folder);
-    console.log("File system before deletion:", fileSystem);
-
   
     try {
       const updatedFileSystem = { ...fileSystem };
@@ -72,6 +70,22 @@ export default function FolderView() {
       console.error("Error deleting paper:", err);
     }
   };
+
+  const handleMovePaper = async (paperId, fromFolder, toFolder) => {
+    try {
+      await axios.post("http://localhost:5001/api/move-paper", {
+        username: user.UserID,
+        paper_id: paperId,
+        from_folder: fromFolder,
+        to_folder: toFolder,
+      });
+  
+      refreshFileSystem(); // 🔁 reload with fresh data
+    } catch (err) {
+      console.error("Error moving paper:", err);
+    }
+  };
+  
 
   return (
     <div>
@@ -127,6 +141,8 @@ export default function FolderView() {
                   onClickYear={() => {}}
                   activeAuthorFilters={[]}
                   onClickAuthor={() => {}}
+                  onMovePaper={handleMovePaper}
+                  folders={fileSystem.folders}
                 />
               </motion.div>
             ))}

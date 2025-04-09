@@ -8,6 +8,7 @@ export default function Card({
   date,
   abstract,
   journal_ref,
+  folders = [],
   tags = [],
   onAssignTag,
   onRemoveTagFromCard,
@@ -20,6 +21,8 @@ export default function Card({
   activeAuthorFilters = [],
   onClickAuthor,
   links = [],
+  currentFolder,
+  onMovePaper
 }) {
   const [isCopying, setIsCopying] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -157,6 +160,7 @@ export default function Card({
                     })}
                   </div>
                 </details>
+                
 
                 <button
                   onClick={handleCopyBibtex}
@@ -175,7 +179,7 @@ export default function Card({
                     "Copy BibTeX"
                   )}
                 </button>
-
+                
                 {onDeletePaper && (
                   <button
                     className="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-red-600 hover:bg-red-50 focus:outline-none shadow"
@@ -190,6 +194,74 @@ export default function Card({
                     Delete Paper
                   </button>
                 )}
+                {onMovePaper && folders.length > 0 && (
+                  <>
+                    <hr className="my-1 border-gray-200" />
+                    <div className="px-2 py-1 text-sm text-gray-600">Move to folder:</div>
+
+                    {folders.map((folder) => (
+                       <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsDropdownOpen(false);
+                          onMovePaper(paperId, currentFolder || "", folder.name);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-left hover:bg-gray-100 text-sm"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-gray-500 shrink-0"
+                        >
+                          <path d="M2 9V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1" />
+                          <path d="M2 13h10" />
+                          <path d="m9 16 3-3-3-3" />
+                        </svg>
+                        {folder.name}
+                     </button>
+                     
+                    
+                    ))}
+
+                    {currentFolder && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsDropdownOpen(false);
+                          onMovePaper(paperId, currentFolder, "");
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-gray-100 text-sm"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          className="text-gray-500 min-w-[14px] min-h-[14px]"
+
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          // className="text-gray-500"
+                        >
+                          <path d="M2 9V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1" />
+                          <path d="M2 13h10" />
+                          <path d="m9 16 3-3-3-3" />
+                        </svg>
+                        Loose Papers
+                      </button>
+                    )}
+                  </>
+                )}
+
               </div>
             </div>
           )}

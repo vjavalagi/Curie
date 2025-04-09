@@ -11,10 +11,12 @@ from flask_cors import CORS
 from gpt import get_foundational_papers
 from summaries.joined_summary import summarize_document, extract_text_pymu,  summarize_sections
 from arxiv_api import ArxivAPI
+from slide_gen import generate_presentation
+from arxiv import Client, Search, SortCriterion
 import boto3
 from dotenv import load_dotenv, find_dotenv
 from botocore.exceptions import ClientError
-from aws import upload_paper, delete_paper_folder, delete_paper, create_user, update_tags, create_paper_folder, get_user_file_system, dynamodb, users, files_table
+from aws import upload_paper, delete_paper_folder, delete_paper, create_user, update_tags, create_paper_folder, get_user_file_system, dynamodb, users
 
 
 arxiv_python = ArxivAPI()
@@ -23,7 +25,7 @@ load_dotenv(find_dotenv())
 
 # Create your Flask app once
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173"])  # Enable CORS for all routes
+CORS(app, origins=["http://localhost:5173"], supports_credentials=True)  # Enable CORS for all routes
 
 # Set up the path for storing PDFs
 pdf_output_path = "pdfs/"
@@ -156,7 +158,11 @@ def api_search():
     limit = int(request.args.get('limit', 7))
     results = arxiv_python.search(topic, limit, SortCriterion.Relevance)
     return jsonify(results)
-
+@app.route('/api/gen-slides', methods=['POST'])
+def api_generate_slides():
+    path = request.args.get("path")
+    generate_presentation(path)
+    return 
 @app.route('/api/download-pdf', methods=['POST'])
 def api_download_pdf():
     """
@@ -312,18 +318,155 @@ def get_arxiv_bibtex():
         bibkey = make_bibkey(result.authors, year, title)
 
         bibtex_entry = f"""@misc{{{bibkey},
-  title={{ {title} }},
-  author={{ {authors} }},
-  year={{ {year} }},
-  eprint={{ {arxiv_id_clean} }},
-  archivePrefix={{arXiv}},
-  primaryClass={{ {primary_class} }},
-  url={{https://arxiv.org/abs/{arxiv_id_clean} }},
-}}"""
+        title={{ {title} }},
+        author={{ {authors} }},
+        year={{ {year} }},
+        eprint={{ {arxiv_id_clean} }},
+        archivePrefix={{arXiv}},
+        primaryClass={{ {primary_class} }},
+        url={{https://arxiv.org/abs/{arxiv_id_clean} }},
+        }}"""
 
         return jsonify({"bibtex": bibtex_entry})
 
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/rename-folder", methods=["POST"])
+def rename_folder():
+    data = request.get_json()
+    username = data.get("username")
+    old_folder = data.get("oldFolderName")
+    new_folder = data.get("newFolderName")
+
+    if not username or not old_folder or not new_folder:
+        return jsonify({"error": "Missing required fields."}), 400
+
+    try:
+        # 1. List all objects in the old folder path
+        old_prefix = f"Users/{username}/{old_folder}/"
+        new_prefix = f"Users/{username}/{new_folder}/" 
+
+
+        response = s3_client.list_objects_v2(Bucket=S3_BUCKET_NAME, Prefix=old_prefix)
+
+        if "Contents" in response:
+            for obj in response["Contents"]:
+                old_key = obj["Key"]
+                new_key = old_key.replace(old_prefix, new_prefix, 1)
+
+                # 2. Copy object to new key
+                s3_client.copy_object(
+                    Bucket=S3_BUCKET_NAME,
+                    CopySource={"Bucket": S3_BUCKET_NAME, "Key": old_key},
+                    Key=new_key
+                )
+
+                # 3. Delete old object
+                s3_client.delete_object(Bucket=S3_BUCKET_NAME, Key=old_key)
+
+        # 4. Update DynamoDB (remove old folder, add new one with same content)
+        user_data = users.get_item(Key={"UserID": username}).get("Item")
+
+        if not user_data:
+            return jsonify({"error": "User not found."}), 404
+
+        folders = user_data.get("folders", [])
+        updated_folders = []
+        for folder in folders:
+            if folder["name"] == old_folder:
+                folder["name"] = new_folder
+            updated_folders.append(folder)
+
+        users.update_item(
+            Key={"UserID": username},
+            UpdateExpression="SET folders = :folders",
+            ExpressionAttributeValues={":folders": updated_folders},
+        )
+
+        return jsonify({"message": "Folder renamed successfully."})
+
+    except Exception as e:
+        print("Rename error:", e)
+        return jsonify({"error": str(e)}), 500
+    
+@app.route("/api/move-paper", methods=["POST"])
+def move_paper():
+    data = request.get_json()
+    print("Move paper data:", data)
+    username = data.get("username")
+    paper_id = data.get("paper_id")
+    from_folder = data.get("from_folder") or ""
+    to_folder = data.get("to_folder") or ""
+
+    if not username or not paper_id:
+        return jsonify({"error": "Missing required fields."}), 400
+
+    try:
+        # Step 1: Load user structure from DynamoDB
+        user_resp = users.get_item(Key={"UserID": username})
+        user_data = user_resp.get("Item")
+        if not user_data:
+            return jsonify({"error": "User not found."}), 404
+
+        folders = user_data.get("folders", [])
+        loose_papers = user_data.get("jsons", [])
+
+        # Step 2: Locate and remove paper from from_folder or loose
+        paper = None
+        if from_folder:
+            for folder in folders:
+                if folder["name"] == from_folder:
+                    folder_jsons = folder.get("content", {}).get("jsons", [])
+                    paper = next((p for p in folder_jsons if p["entry_id"] == paper_id), None)
+                    folder["content"]["jsons"] = [p for p in folder_jsons if p["entry_id"] != paper_id]
+                    break
+        else:
+            paper = next((p for p in loose_papers if p["entry_id"] == paper_id), None)
+            loose_papers = [p for p in loose_papers if p["entry_id"] != paper_id]
+
+        if not paper:
+            return jsonify({"error": "Paper not found."}), 404
+
+        # Step 3: Move the object in S3
+        filename = f"{paper_id}.json"
+        old_key = f"Users/{username}/" + (f"{from_folder}/{filename}" if from_folder else filename)
+        new_key = f"Users/{username}/" + (f"{to_folder}/{filename}" if to_folder else filename)
+
+        print("S3 Move:", old_key, "→", new_key)
+
+        s3_client.copy_object(
+            Bucket=S3_BUCKET_NAME,
+            CopySource={"Bucket": S3_BUCKET_NAME, "Key": old_key},
+            Key=new_key
+        )
+        s3_client.delete_object(Bucket=S3_BUCKET_NAME, Key=old_key)
+
+        # Step 4: Update DynamoDB — Add to `to_folder` *only if it exists*
+        folder_names = [f["name"] for f in folders]
+        if to_folder in folder_names:
+            for folder in folders:
+                if folder["name"] == to_folder:
+                    folder_content = folder.setdefault("content", {})
+                    folder_content.setdefault("jsons", []).append(paper)
+                    break
+        else:
+            print(f"Note: Folder '{to_folder}' exists in S3 but not in DynamoDB — skipping metadata update for folder.")
+
+        # Step 5: Update DynamoDB
+        users.update_item(
+            Key={"UserID": username},
+            UpdateExpression="SET folders = :folders, jsons = :jsons",
+            ExpressionAttributeValues={
+                ":folders": folders,
+                ":jsons": loose_papers
+            },
+        )
+
+        return jsonify({"message": "Paper moved successfully."})
+
+    except Exception as e:
+        print("Move paper error:", e)
         return jsonify({"error": str(e)}), 500
 
 
