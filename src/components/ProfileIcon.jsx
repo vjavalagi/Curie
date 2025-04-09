@@ -1,7 +1,16 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { useGlobal } from "../context/GlobalContext";
 
-const ProfileIcon = ({ userImage }) => {
-  // Default SVG profile icon
+const ProfileIcon = () => {
+  const navigate = useNavigate();
+  const { user } = useGlobal();
+  const userImage = user?.PhotoURL || null;
+
+  const handleClick = () => {
+    navigate("/profile");
+  };
+
   const defaultIcon = (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -20,7 +29,11 @@ const ProfileIcon = ({ userImage }) => {
   );
 
   return (
-    <div className="w-12 h-12 rounded-full border-2 border-curieBlue overflow-hidden flex items-center justify-center bg-curieLightBlue">
+    <button
+      onClick={handleClick}
+      className="w-12 h-12 rounded-full border-2 border-curieBlue overflow-hidden flex items-center justify-center bg-curieLightBlue cursor-pointer"
+      title="Go to profile"
+    >
       {userImage ? (
         <img
           src={userImage}
@@ -30,7 +43,7 @@ const ProfileIcon = ({ userImage }) => {
       ) : (
         defaultIcon
       )}
-    </div>
+    </button>
   );
 };
 

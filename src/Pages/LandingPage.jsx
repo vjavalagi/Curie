@@ -1,18 +1,23 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, use } from "react";
 import { Link } from "react-router-dom";
 import curieLogo from "../assets/curie_no_background.png";
 import SearchBar from "../components/SearchBar";
 import ProfileIcon from "../components/ProfileIcon";
 import InfoSection from "../components/InfoSection";
 import FAQSection from "../components/FAQSection";
+import { useGlobal } from "../context/GlobalContext";
 import { motion } from "framer-motion";
 
 export default function LandingPage() {
   const infoRef = useRef(null);
   const faqRef = useRef(null);
   const [backgroundColor, setBackgroundColor] = useState("#f4f4f4");
+  const { setSearch } = useGlobal();
 
   useEffect(() => {
+    //clear search bar
+    setSearch("");
+    
     const handleIntersection = (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -30,7 +35,7 @@ export default function LandingPage() {
     observer.observe(faqRef.current);
 
     return () => observer.disconnect();
-  }, []);
+  }, [setSearch]);
 
   return (
     <div
@@ -40,11 +45,10 @@ export default function LandingPage() {
         backgroundColor: backgroundColor,
       }}
     >
-      <section className="h-screen flex flex-col items-center justify-center snap-start bg-curieLightGray">
+      <section className="flex flex-col items-center justify-center h-screen snap-start bg-curieLightGray">
         <div className="absolute top-4 right-4">
           <ProfileIcon />
         </div>
-
         {/* Curie Logo Slide in from Left */}
         <motion.img
           src={curieLogo}
@@ -76,9 +80,9 @@ export default function LandingPage() {
       <InfoSection infoRef={infoRef} />
       <FAQSection faqRef={faqRef} />
 
-      <footer className="absolute bottom-4 text-gray-300 text-sm w-full text-center">
-        <a href="#" className="hover:underline px-2">Privacy</a> |
-        <a href="#" className="hover:underline px-2">Terms</a>
+      <footer className="absolute w-full text-sm text-center text-gray-300 bottom-4">
+        <a href="#" className="px-2 hover:underline">Privacy</a> |
+        <a href="#" className="px-2 hover:underline">Terms</a>
       </footer>
     </div>
   );
