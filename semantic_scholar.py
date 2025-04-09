@@ -2,12 +2,14 @@ import os
 import json
 import requests
 import urllib3
+import re
 import hashlib
+from arxiv import Client, Search, SortCriterion
 from flask import Flask, request, jsonify, send_from_directory, make_response
 from dotenv import load_dotenv, find_dotenv
 from flask_cors import CORS
 from gpt import get_foundational_papers
-from summaries.joined_summary import summarize_document, extract_text, extract_text_pymu,  summarize_sections
+from summaries.joined_summary import summarize_document, extract_text_pymu,  summarize_sections
 from arxiv_api import ArxivAPI
 from slide_gen import generate_presentation
 from arxiv import Client, Search, SortCriterion
@@ -17,7 +19,7 @@ from botocore.exceptions import ClientError
 from aws import upload_paper, delete_paper_folder, delete_paper, create_user, update_tags, create_paper_folder, get_user_file_system, dynamodb, users, files_table
 
 
-arxiv = ArxivAPI()
+arxiv_python = ArxivAPI()
 # Load environment variables from .env file
 load_dotenv(find_dotenv())
 
@@ -46,14 +48,14 @@ s3_client = boto3.client(
 def get_whole_summary(name):
     return summarize_document(name)
 
-def get_section_summaries(name):
+def get_section_summaries(name, sentence_count):
     print("Getting Section Summaries", name)
     print("extracting text")
     #text = extract_text(name)
     text = extract_text_pymu(name)
-    print(text)
-    print("summarizing sections")
-    return summarize_sections(text)
+    #print(text)
+    print("summarizing sections with sentence count", sentence_count)
+    return summarize_sections(text, sentence_count)
 
 def get_pdf(obj, name = None):
     """Download a PDF from the given URL and save it locally."""
@@ -63,7 +65,7 @@ def get_pdf(obj, name = None):
     name = name if name else paper["title"]
     if not name.endswith(".pdf"):
         name += ".pdf"
-    arxiv.save_pdf(paper, name)
+    arxiv_python.save_pdf(paper, name)
     
     
     return name
@@ -108,7 +110,25 @@ def api_summarize_sections():
     file_path = "./pdfs/" + request.args.get('file_path', 'ExamRubric') + ".pdf"
     print(file_path)
     print("FILE PATH for section summaries", file_path)
-    summary = get_section_summaries(file_path)
+    summary = get_section_summaries(file_path, 1)
+    print("SUMMARY", summary)
+    return jsonify({"summary": summary})
+
+
+@app.route('/api/summarize-sections-sent', methods=['GET'])
+def api_summarize_sections_sent():
+    """
+    Example: GET /api/summarize-section-sent?file_path=/path/to/file.pdf?sentence_count=5
+    """
+    print("File path", request.args.get('file_path'))
+    file_path = "./pdfs/" + request.args.get('file_path', 'ExamRubric') + ".pdf"
+    print(file_path)
+    print("FILE PATH for section summaries", file_path)
+
+    sentence_count = request.args.get('sentence_count')
+    print(f"Sentence count: {sentence_count}")
+
+    summary = get_section_summaries(file_path, sentence_count)
     print("SUMMARY", summary)
     return jsonify({"summary": summary})
 
@@ -136,7 +156,7 @@ def api_search():
     """
     topic = request.args.get('topic', 'Computer Science')
     limit = int(request.args.get('limit', 7))
-    results = arxiv.search(topic, limit, SortCriterion.Relevance)
+    results = arxiv_python.search(topic, limit, SortCriterion.Relevance)
     return jsonify(results)
 @app.route('/api/gen-slides', methods=['POST'])
 def api_generate_slides():
@@ -218,6 +238,7 @@ def createfolder():
     folder = data.get("folder")
     response = create_paper_folder(username, folder)
     return jsonify(response)
+
 @app.route("/api/delete-folder", methods=["POST"])
 def deletefolder():
     data = request.get_json()   
@@ -225,6 +246,7 @@ def deletefolder():
     folder = data.get("folder")
     response = delete_paper_folder(username, folder)
     return jsonify(response)
+
 @app.route("/api/upload-paper-to-folder", methods=["POST"])
 def upload_paper_to_folder():
     data = request.get_json()
@@ -253,6 +275,7 @@ def get_file_system():
     username = request.args.get("username")
     response = get_user_file_system(username)
     return jsonify(response)
+
 @app.route("/api/update-tags", methods=["POST"])
 def update_tags_route():
     data = request.get_json()
@@ -266,6 +289,48 @@ def update_tags_route():
 
     result = update_tags(username, folder, paper_id, new_tags)
     return jsonify(result)
+
+def make_bibkey(authors, year, title):
+    first_author_lastname = authors[0].name.split()[-1].lower()
+    short_title_words = title.lower().split()[0:5]
+    short_title = re.sub(r'\W+', '', ''.join(short_title_words))
+    return f"{first_author_lastname}{year}{short_title}"
+
+@app.route('/api/arxiv-bibtex', methods=['GET'])
+def get_arxiv_bibtex():
+    arxiv_id = request.args.get("arxiv_id")
+    if not arxiv_id:
+        return jsonify({"error": "Missing arxiv_id parameter"}), 400
+
+    try:
+        client = Client()
+        search = Search(id_list=[arxiv_id])
+        result = next(client.results(search), None)
+
+        if not result:
+            return jsonify({"error": "No result found for the provided arxiv_id."}), 404
+
+        authors = ' and '.join([author.name for author in result.authors])
+        year = result.published.year
+        title = result.title.strip()
+        arxiv_id_clean = result.entry_id.split('/')[-1].split('v')[0]
+        primary_class = result.primary_category
+        bibkey = make_bibkey(result.authors, year, title)
+
+        bibtex_entry = f"""@misc{{{bibkey},
+  title={{ {title} }},
+  author={{ {authors} }},
+  year={{ {year} }},
+  eprint={{ {arxiv_id_clean} }},
+  archivePrefix={{arXiv}},
+  primaryClass={{ {primary_class} }},
+  url={{https://arxiv.org/abs/{arxiv_id_clean} }},
+}}"""
+
+        return jsonify({"bibtex": bibtex_entry})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':

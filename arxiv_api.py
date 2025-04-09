@@ -1,4 +1,4 @@
-from arxiv import Client, Search, SortCriterion
+from arxiv import Client, Search
 import json
 class ArxivAPI():
     def __init__(self):

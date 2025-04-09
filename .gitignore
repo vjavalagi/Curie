@@ -27,5 +27,9 @@ dist-ssr
 .env
 curie-451919-04e2663bbd44.json
 pdfs/
+<<<<<<< HEAD
 
 slides/
+=======
+__pycache__/
+>>>>>>> 7706f24469dacb72f489cff47b4b65291e6f439f

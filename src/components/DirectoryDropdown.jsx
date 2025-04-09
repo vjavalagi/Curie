@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function DirectoryDropdown({ tags = [], onAddTag, onRemoveTag }) {
+export default function DirectoryDropdown({ tags = [], onAddTag, onRemoveTag, onClickTag, activeFilters = [] }) {
   const [showInput, setShowInput] = useState(false);
   const [tagName, setTagName] = useState("");
 
@@ -62,7 +62,10 @@ export default function DirectoryDropdown({ tags = [], onAddTag, onRemoveTag }) 
       {tags.map((tag, idx) => (
         <div
           key={idx}
-          className="relative py-3 px-4 pr-8 inline-flex items-center gap-x-2 text-sm font-medium rounded-full bg-white border border-gray-150 text-gray-800 shadow-2xs"
+          className={`relative py-3 px-4 pr-8 inline-flex items-center gap-x-2 text-sm font-medium rounded-full bg-white border border-gray-150 shadow-2xs cursor-pointer ${
+            activeFilters.includes(tag.name) ? "ring-2 ring-curieBlue" : ""
+          }`}
+          onClick={() => onClickTag(tag.name)}
         >
           <span className="font-semibold">{tag.name}</span>
           <svg
@@ -79,7 +82,10 @@ export default function DirectoryDropdown({ tags = [], onAddTag, onRemoveTag }) 
             />
           </svg>
           <button
-            onClick={() => onRemoveTag(tag.name)}
+            onClick={(e) => {
+              e.stopPropagation(); // so clicking "X" doesn't trigger filter toggle
+              onRemoveTag(tag.name);
+            }}
             className="absolute right-3 text-gray-500 hover:text-red-500 text-xs"
           >
             X
