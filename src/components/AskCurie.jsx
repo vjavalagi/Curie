@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState , useEffect} from 'react';
 import { useGlobal } from '../context/GlobalContext';
 import axios from 'axios';
 
@@ -8,7 +8,14 @@ const AskCurie = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const { activePaper } = useGlobal();
-
+    
+    useEffect(() => {
+        if (activePaper) {
+            setQuestion("");
+            setAnswer("");
+            setError("");
+        }
+    }, [activePaper]);
     const handleAskCurie = async () => {
         setLoading(true);
         setError("");
