@@ -35,149 +35,11 @@ export default function ProfilePage() {
     refreshFileSystem,
   } = useGlobal();
 
-  // A list of colors used to assign to tags
-  const presetColors = [
-    "#EF4444", "#F97316", "#EAB308", "#84CC16", "#22C55E",
-    "#14B8A6", "#06B6D4", "#3B82F6", "#6366F1", "#8B5CF6",
-    "#A855F7", "#D946EF", "#EC4899", "#F43F5E", "#6B7280",
-    "#10B981", "#0EA5E9", "#F59E0B", "#7C3AED", "#DC2626"
-  ];
 
-  // Filtering handler functions
-  const handleClickYear = (year) => {
-    setSelectedYearFilter((prev) => (prev === year ? null : year));
-  };
-
-  const toggleFilterTag = (tagName) => {
-    setActiveFilters((prev) =>
-      prev.includes(tagName)
-        ? prev.filter((t) => t !== tagName)
-        : [...prev, tagName]
-    );
-  };
-
-  const toggleFilterAuthor = (authorName) => {
-    setActiveAuthorFilters((prev) =>
-      prev.includes(authorName)
-        ? prev.filter((a) => a !== authorName)
-        : [...prev, authorName]
-    );
-  };
-
-  // Checks if a paper (card) matches the active filter criteria
-  const cardMatchesFilters = (cardTags, cardDate, cardAuthors = []) => {
-    const cardYear = cardDate?.slice(0, 4);
-    const tagMatch =
-      activeFilters.length === 0 ||
-      activeFilters.every((filter) =>
-        cardTags.some((t) => t.name === filter)
-      );
-    const yearMatch = !selectedYearFilter || selectedYearFilter === cardYear;
-    const authorMatch =
-      activeAuthorFilters.length === 0 ||
-      activeAuthorFilters.every((filterAuthor) =>
-        cardAuthors.some((author) =>
-          author.toLowerCase().includes(filterAuthor.toLowerCase())
-        )
-      );
-    return tagMatch && yearMatch && authorMatch;
-  };
-
-  // Tag management functions
-  const handleAddTag = (name) => {
-    const color = presetColors[tags.length % presetColors.length];
-    const newTag = { name, color };
-    setTags((prev) => [...prev, newTag]);
-  };
-
-  const handleRemoveTagGlobally = async (tagName) => {
-    setTags((prev) => prev.filter((t) => t.name !== tagName));
-    setPdfTags((prev) => {
-      const updated = {};
-      Object.keys(prev).forEach((id) => {
-        updated[id] = prev[id].filter((t) => t.name !== tagName);
-      });
-      return updated;
-    });
-
-    const removeTagRecursively = async (fs, folderName = "") => {
-      for (const paper of fs.jsons) {
-        if (paper.tags?.some((t) => t.name === tagName)) {
-          const newTags = paper.tags.filter((t) => t.name !== tagName);
-          await updatePaperTags(paper, folderName, newTags);
-        }
-      }
-      for (const folder of fs.folders) {
-        await removeTagRecursively(folder.content, folder.name);
-      }
-    };
-
-    if (fileSystem) {
-      await removeTagRecursively(fileSystem, "");
-      refreshFileSystem();
-    }
-  };
+  
 
   // Updates tags for a paper on the backend and then updates state accordingly
-  const updatePaperTags = async (paper, folderName, newTags) => {
-    try {
-      const res = await axios.post("http://localhost:5001/api/update-tags", {
-        username: user.UserID,
-        folder: folderName,
-        paper_id: paper.entry_id,
-        new_tags: newTags,
-      });
-      const updated = res.data.updated_metadata.tags;
-      setPdfTags((prev) => ({ ...prev, [paper.entry_id]: updated }));
-      // Merge any new tags into the global sidebar
-      setTags((prev) => {
-        const existing = new Set(prev.map((t) => t.name));
-        const merged = [...prev];
-        updated.forEach((t) => {
-          if (!existing.has(t.name)) merged.push(t);
-        });
-        return merged;
-      });
-      refreshFileSystem();
-    } catch (error) {
-      console.error("Error updating tags:", error);
-    }
-  };
-
-  // Handles assigning a tag to a paper
-  const handleAssignTag = (paperId, tag, folderName, paper) => {
-    setPdfTags((prev) => {
-      const current = prev[paperId] || [];
-      if (current.some((t) => t.name === tag.name)) return prev;
-      const updated = [...current, tag];
-      updatePaperTags(paper, folderName, updated);
-      return { ...prev, [paperId]: updated };
-    });
-  };
-
-  // Handles removing a tag from a paper
-  const handleRemoveTagFromCard = (paperId, tagName, folderName, paper) => {
-    setPdfTags((prev) => {
-      const current = prev[paperId] || [];
-      const updated = current.filter((t) => t.name !== tagName);
-      updatePaperTags(paper, folderName, updated);
-      return { ...prev, [paperId]: updated };
-    });
-  };
-
-  // Deletes a paper from the backend, then refreshes the file system view
-  const handleDeletePaper = async (paper, folderName) => {
-    try {
-      await axios.post("http://localhost:5001/api/delete-paper", {
-        username: user.UserID,
-        folder: folderName,
-        paper_id: paper.entry_id,
-      });
-      refreshFileSystem();
-    } catch (error) {
-      console.error("Error deleting paper:", error);
-    }
-  };
+  
 
   // Create folder function (called when the modal form is submitted)
   // A list of colors used to assign to tags
@@ -501,6 +363,7 @@ export default function ProfilePage() {
             <div className="ml-6">{renderFileSystem(f.content, f.name)}</div>
           </div>
         ))}
+      <div className="flex flex-wrap gap-6 justify-center">
         <AnimatePresence mode="popLayout">
           {[...fs.jsons]
             .sort((a, b) => {
@@ -555,6 +418,7 @@ export default function ProfilePage() {
               );
             })}
         </AnimatePresence>
+        </div>
       </div>
     );
 
