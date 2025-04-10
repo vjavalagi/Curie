@@ -73,7 +73,7 @@ export default function FolderView() {
 
   const handleMovePaper = async (paperId, fromFolder, toFolder) => {
     try {
-      console.log("HELOOOOOOOOOOO Moving paper", paperId, "from", fromFolder, "to", toFolder);
+      console.log("Folder View Moving paper", paperId, "from", fromFolder, "to", toFolder);
 
       await axios.post("http://localhost:5001/api/move-paper", {
         username: user.UserID,

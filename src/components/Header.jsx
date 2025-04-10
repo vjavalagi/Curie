@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 import ProfileIcon from "./ProfileIcon";
 import curieLogo from "../assets/curie_no_background.png";
 import SearchBar from "./SearchBar";
-import { useGlobal } from "../context/GlobalContext"; // ✅ import context
+import { useGlobal } from "../context/GlobalContext"; 
 
 const Header = ({ handleSearch }) => {
-  const { user } = useGlobal(); // ✅ get user info from context
-  const profileImage = user?.PhotoURL || null; // ✅ fallback if no photo
+  const { user } = useGlobal();
+  const profileImage = user?.PhotoURL || null; 
 
   return (
     <div className="flex flex-row justify-between text-center items-center bg-curieLightBlue">

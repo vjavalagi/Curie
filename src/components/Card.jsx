@@ -42,11 +42,10 @@ export default function Card({
   }, [dropdownRef]);
 
   const handleCopyBibtex = async () => {
-    console.log("COPY BIBTEX");
-    console.log("LINKS:", links);
     setIsCopying(true);
 
     try {
+      
       const arxivUrl = links;
 
       if (!arxivUrl || (!arxivUrl.includes("arxiv.org/abs") && !arxivUrl.includes("arxiv.org/pdf"))) {
@@ -63,9 +62,6 @@ export default function Card({
 
       const arxivIdMatch = arxivUrl.match(/arxiv\.org\/(?:abs|pdf)\/(\d{4}\.\d{5})(v\d+)?/);
       const arxivId = arxivIdMatch ? arxivIdMatch[1] + (arxivIdMatch[2] || "") : null;
-
-      console.log("arxivUrl:", arxivUrl);
-      console.log("arxivId:", arxivId);
 
       let bibtexContent = "";
 

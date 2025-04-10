@@ -25,7 +25,7 @@ export default function Login() {
         setUser({
           UserID: response.data.user.UserID,
           Email: response.data.user.Email,
-          PhotoURL: response.data.user.PhotoURL,  // ✅ make sure this is included
+          PhotoURL: response.data.user.PhotoURL,  
         });
         
         console.log("User INFO :", response.data.user);
