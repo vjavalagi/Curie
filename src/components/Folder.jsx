@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useGlobal } from "../context/GlobalContext";
+import RenameFolderModal from "./RenameFolderModal";
 import axios from "axios";
 
 const Folder = ({ name, onOpenFolder }) => {
@@ -187,52 +188,33 @@ const Folder = ({ name, onOpenFolder }) => {
         </div>
       )}
       {showRenameModal && (
-        <div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
-            <h2 className="text-lg font-semibold mb-2">Rename Folder</h2>
-            <input
-              type="text"
-              value={newFolderName}
-              onChange={(e) => setNewFolderName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="New folder name"
-              maxLength={30}
-            />
-            <div className="flex justify-end gap-2 mt-4">
-              <button
-                onClick={() => {
-                  setShowRenameModal(false);
-                  setNewFolderName(name); // Reset on cancel
-                }}
-                className="px-4 py-2 text-sm bg-gray-200 rounded hover:bg-gray-300"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  try {
-                    if (!newFolderName.trim() || newFolderName === name) return;
+        <RenameFolderModal
+          name={name}
+          newFolderName={newFolderName}
+          setNewFolderName={setNewFolderName}
+          onCancel={() => {
+            setShowRenameModal(false);
+            setNewFolderName(name);
+          }}
+          onRename={async () => {
+            try {
+              if (!newFolderName.trim() || newFolderName === name) return;
 
-                    await axios.post("http://localhost:5001/api/rename-folder", {
-                      username: user.UserID,
-                      oldFolderName: name,
-                      newFolderName: newFolderName.trim(),
-                    });
+              await axios.post("http://localhost:5001/api/rename-folder", {
+                username: user.UserID,
+                oldFolderName: name,
+                newFolderName: newFolderName.trim(),
+              });
 
-                    refreshFileSystem();
-                    setShowRenameModal(false);
-                  } catch (error) {
-                    console.error("Error renaming folder:", error);
-                  }
-                }}
-                className="px-4 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Rename
-              </button>
-            </div>
-          </div>
-        </div>
+              refreshFileSystem();
+              setShowRenameModal(false);
+            } catch (error) {
+              console.error("Error renaming folder:", error);
+            }
+          }}
+        />
       )}
+
 
     </div>
   );
