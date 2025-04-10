@@ -22,7 +22,8 @@ export default function Card({
   onClickAuthor,
   links = [],
   currentFolder,
-  onMovePaper
+  onMovePaper,
+  paper_url,
 }) {
   const [isCopying, setIsCopying] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -99,7 +100,7 @@ export default function Card({
 
   return (
     <div className="relative">
-      <div className="relative flex flex-col h-full bg-white border border-gray-200 group w-80 shadow-2xs rounded-xl">
+      <div className="relative flex flex-col h-full bg-white border border-gray-300 group w-80 shadow-2xs rounded-xl">
         {copied && (
           <div className="absolute top-2 left-2 px-2 py-1 text-xs bg-green-100 text-green-800 rounded shadow z-30">
             Copied!
@@ -263,8 +264,20 @@ export default function Card({
             </div>
           )}
         </div>
+        
+        <div className="h-52 rounded-t-xl overflow-hidden bg-white relative">
+          <iframe
+            src={paper_url}
+            title="Paper Preview"
+            className="absolute top-0 left-0 w-full h-full bg-white pointer-events-none"
+            style={{ border: "none",
+              transform: "scale(1.05)", // Zoom in by 10%
+            }}
+          />
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-white/20 to-white pointer-events-none" />
+        </div>
 
-        <div className="h-52 flex flex-col justify-center items-center bg-blue-600 rounded-t-xl" />
+
 
         <div className="inline-flex flex-wrap gap-2 mb-1.5 pt-1 pl-1">
           <span
@@ -311,6 +324,7 @@ export default function Card({
         </div>
 
         <h3 className="text-xl font-semibold text-gray-800 px-4">{name}</h3>
+
         <div className="inline-flex flex-wrap gap-2 mb-1.5 mt-1.5 px-4">
           {authors &&
             authors.map((author, idx) => {

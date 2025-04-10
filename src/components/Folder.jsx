@@ -63,14 +63,13 @@ const Folder = ({ name, onOpenFolder }) => {
             <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
           </svg>
           <span
-          // truncates the name of the folder if it's too long
             className="text-sm font-medium text-gray-800 truncate max-w-[260px]"
             title={name}
           >
             {name.length > 30 ? name.slice(0, 30) + "…" : name}
           </span>
         </div>
-  
+
         {/* Kebab menu (far right of card) */}
         <div ref={menuRef} className="relative">
           <button
@@ -79,7 +78,7 @@ const Folder = ({ name, onOpenFolder }) => {
               e.stopPropagation();
               setMenuOpen(!menuOpen);
             }}
-            className="p-2 rounded hover:bg-gray-300"
+            className="p-1 rounded hover:bg-gray-300"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

@@ -297,31 +297,31 @@ export default function ProfilePage() {
                   exit={{ x: 50, opacity: 0 }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
-                <Card
-                  paperId={paper.entry_id}
-                  name={paper.title}
-                  authors={paper.authors}
-                  date={paper.published}
-                  abstract={paper.summary}
-                  journal_ref={paper.journal_ref}
-                  tags={current}
-                  availableTags={tags}
-                  onAssignTag={(tag) =>
-                    handleAssignTag(paper.entry_id, tag, "", paper)
-                  }
-                  onRemoveTagFromCard={(tagName) =>
-                    handleRemoveTagFromCard(paper.entry_id, tagName, "", paper)
-                  }
-                  onDeletePaper={() => handleDeletePaper(paper, "")}
-                  onClickTag={toggleFilterTag}
-                  activeFilters={activeFilters}
-                  selectedYearFilter={selectedYearFilter}
-                  onClickYear={handleClickYear}
-                  activeAuthorFilters={activeAuthorFilters}
-                  currentFolder={currentFolder}
-                  onClickAuthor={toggleFilterAuthor}
-                  onMovePaper={handleMovePaper}
-                  folders={fileSystem.folders}
+                  <Card
+                    paperId={paper.entry_id}
+                    name={paper.title}
+                    authors={paper.authors}
+                    date={paper.published}
+                    abstract={paper.summary}
+                    journal_ref={paper.journal_ref}
+                    tags={current}
+                    availableTags={tags}
+                    onAssignTag={(tag) =>
+                      handleAssignTag(paper.entry_id, tag, "", paper)
+                    }
+                    onRemoveTagFromCard={(tagName) =>
+                      handleRemoveTagFromCard(paper.entry_id, tagName, "", paper)
+                    }
+                    onDeletePaper={() => handleDeletePaper(paper, "")}
+                    onClickTag={toggleFilterTag}
+                    activeFilters={activeFilters}
+                    selectedYearFilter={selectedYearFilter}
+                    onClickYear={handleClickYear}
+                    activeAuthorFilters={activeAuthorFilters}
+                    currentFolder={currentFolder}
+                    onClickAuthor={toggleFilterAuthor}
+                    onMovePaper={handleMovePaper}
+                    folders={fileSystem.folders}
                   />
                 </motion.div>
               );
@@ -403,6 +403,7 @@ export default function ProfilePage() {
                     onClickAuthor={toggleFilterAuthor}
                     onMovePaper={handleMovePaper}
                     folders={fileSystem.folders}
+                    paper_url={paper.pdf_url}
                   />
                 </motion.div>
               );
@@ -458,7 +459,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-      <SaveGroupingButton />
       <LogoutButton />
       {selectedPdf && (
         <PdfViewer pdfUrl={selectedPdf} onClose={() => setSelectedPdf(null)} />
