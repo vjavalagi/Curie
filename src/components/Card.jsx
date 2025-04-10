@@ -8,6 +8,7 @@ export default function Card({
   date,
   abstract,
   journal_ref,
+  folders = [],
   tags = [],
   onAssignTag,
   onRemoveTagFromCard,
@@ -20,6 +21,9 @@ export default function Card({
   activeAuthorFilters = [],
   onClickAuthor,
   links = [],
+  currentFolder,
+  onMovePaper,
+  paper_url,
 }) {
   const [isCopying, setIsCopying] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -39,11 +43,10 @@ export default function Card({
   }, [dropdownRef]);
 
   const handleCopyBibtex = async () => {
-    console.log("COPY BIBTEX");
-    console.log("LINKS:", links);
     setIsCopying(true);
 
     try {
+      
       const arxivUrl = links;
 
       if (!arxivUrl || (!arxivUrl.includes("arxiv.org/abs") && !arxivUrl.includes("arxiv.org/pdf"))) {
@@ -60,9 +63,6 @@ export default function Card({
 
       const arxivIdMatch = arxivUrl.match(/arxiv\.org\/(?:abs|pdf)\/(\d{4}\.\d{5})(v\d+)?/);
       const arxivId = arxivIdMatch ? arxivIdMatch[1] + (arxivIdMatch[2] || "") : null;
-
-      console.log("arxivUrl:", arxivUrl);
-      console.log("arxivId:", arxivId);
 
       let bibtexContent = "";
 
@@ -100,7 +100,7 @@ export default function Card({
 
   return (
     <div className="relative">
-      <div className="relative flex flex-col h-full bg-white border border-gray-200 group w-80 shadow-2xs rounded-xl">
+      <div className="relative flex flex-col h-full bg-white border border-gray-300 group w-80 shadow-2xs rounded-xl">
         {copied && (
           <div className="absolute top-2 left-2 px-2 py-1 text-xs bg-green-100 text-green-800 rounded shadow z-30">
             Copied!
@@ -157,6 +157,7 @@ export default function Card({
                     })}
                   </div>
                 </details>
+                
 
                 <button
                   onClick={handleCopyBibtex}
@@ -175,7 +176,7 @@ export default function Card({
                     "Copy BibTeX"
                   )}
                 </button>
-
+                
                 {onDeletePaper && (
                   <button
                     className="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-red-600 hover:bg-red-50 focus:outline-none shadow"
@@ -190,12 +191,93 @@ export default function Card({
                     Delete Paper
                   </button>
                 )}
+                {onMovePaper && folders.length > 0 && (
+                  <>
+                    <hr className="my-1 border-gray-200" />
+                    <div className="px-2 py-1 text-sm text-gray-600">Move to folder:</div>
+
+                    {folders
+                      .filter((folder) => folder.name !== currentFolder) 
+                      .map((folder) => (
+                        <button
+                          key={folder.name}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsDropdownOpen(false);
+                            onMovePaper(paperId, currentFolder || "", folder.name);
+                          }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-left hover:bg-gray-100 text-sm"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          className="text-gray-500 shrink-0"
+                        >
+                          <path d="M2 9V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1" />
+                          <path d="M2 13h10" />
+                          <path d="m9 16 3-3-3-3" />
+                        </svg>
+                        {folder.name}
+                     </button>
+                     
+                    
+                    ))}
+
+                    {currentFolder && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsDropdownOpen(false);
+                          onMovePaper(paperId, currentFolder, "");
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-gray-100 text-sm"
+                      >
+                        <svg
+                        
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="18"
+                          height="18"
+                          className="text-gray-500 min-w-[14px] min-h-[14px]"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z"/><path d="M15 3v4a2 2 0 0 0 2 2h4"/>
+                        </svg>
+                        Loose Papers
+                      </button>
+                    )}
+                  </>
+                )}
+
               </div>
             </div>
           )}
         </div>
+        
+        <div className="h-52 rounded-t-xl overflow-hidden bg-white relative">
+          <iframe
+            src={paper_url}
+            title="Paper Preview"
+            className="absolute top-0 left-0 w-full h-full bg-white pointer-events-none"
+            style={{ border: "none",
+              transform: "scale(1.05)", // Zoom in by 10%
+            }}
+          />
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-white/20 to-white pointer-events-none" />
+        </div>
 
-        <div className="h-52 flex flex-col justify-center items-center bg-blue-600 rounded-t-xl" />
+
 
         <div className="inline-flex flex-wrap gap-2 mb-1.5 pt-1 pl-1">
           <span
@@ -242,6 +324,7 @@ export default function Card({
         </div>
 
         <h3 className="text-xl font-semibold text-gray-800 px-4">{name}</h3>
+
         <div className="inline-flex flex-wrap gap-2 mb-1.5 mt-1.5 px-4">
           {authors &&
             authors.map((author, idx) => {

@@ -16,7 +16,7 @@ from arxiv import Client, Search, SortCriterion
 import boto3
 from dotenv import load_dotenv, find_dotenv
 from botocore.exceptions import ClientError
-from aws import upload_paper, delete_paper_folder, delete_paper, create_user, update_tags, create_paper_folder, get_user_file_system, dynamodb, users, files_table
+from aws import upload_paper, delete_paper_folder, delete_paper, create_user, update_tags, create_paper_folder, get_user_file_system, move_file, dynamodb, users
 
 
 arxiv_python = ArxivAPI()
@@ -25,7 +25,7 @@ load_dotenv(find_dotenv())
 
 # Create your Flask app once
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173"])  # Enable CORS for all routes
+CORS(app, origins=["http://localhost:5173"], supports_credentials=True)  # Enable CORS for all routes
 
 # Set up the path for storing PDFs
 pdf_output_path = "pdfs/"
@@ -337,18 +337,97 @@ def get_arxiv_bibtex():
         bibkey = make_bibkey(result.authors, year, title)
 
         bibtex_entry = f"""@misc{{{bibkey},
-  title={{ {title} }},
-  author={{ {authors} }},
-  year={{ {year} }},
-  eprint={{ {arxiv_id_clean} }},
-  archivePrefix={{arXiv}},
-  primaryClass={{ {primary_class} }},
-  url={{https://arxiv.org/abs/{arxiv_id_clean} }},
-}}"""
+        title={{ {title} }},
+        author={{ {authors} }},
+        year={{ {year} }},
+        eprint={{ {arxiv_id_clean} }},
+        archivePrefix={{arXiv}},
+        primaryClass={{ {primary_class} }},
+        url={{https://arxiv.org/abs/{arxiv_id_clean} }},
+        }}"""
 
         return jsonify({"bibtex": bibtex_entry})
 
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/rename-folder", methods=["POST"])
+def rename_folder():
+    data = request.get_json()
+    username = data.get("username")
+    old_folder = data.get("oldFolderName")
+    new_folder = data.get("newFolderName")
+
+    if not username or not old_folder or not new_folder:
+        return jsonify({"error": "Missing required fields."}), 400
+
+    try:
+        # 1. List all objects in the old folder path
+        old_prefix = f"Users/{username}/{old_folder}/"
+        new_prefix = f"Users/{username}/{new_folder}/" 
+
+
+        response = s3_client.list_objects_v2(Bucket=S3_BUCKET_NAME, Prefix=old_prefix)
+
+        if "Contents" in response:
+            for obj in response["Contents"]:
+                old_key = obj["Key"]
+                new_key = old_key.replace(old_prefix, new_prefix, 1)
+
+                # 2. Copy object to new key
+                s3_client.copy_object(
+                    Bucket=S3_BUCKET_NAME,
+                    CopySource={"Bucket": S3_BUCKET_NAME, "Key": old_key},
+                    Key=new_key
+                )
+
+                # 3. Delete old object
+                s3_client.delete_object(Bucket=S3_BUCKET_NAME, Key=old_key)
+
+        # 4. Update DynamoDB (remove old folder, add new one with same content)
+        user_data = users.get_item(Key={"UserID": username}).get("Item")
+
+        if not user_data:
+            return jsonify({"error": "User not found."}), 404
+
+        folders = user_data.get("folders", [])
+        updated_folders = []
+        for folder in folders:
+            if folder["name"] == old_folder:
+                folder["name"] = new_folder
+            updated_folders.append(folder)
+
+        users.update_item(
+            Key={"UserID": username},
+            UpdateExpression="SET folders = :folders",
+            ExpressionAttributeValues={":folders": updated_folders},
+        )
+
+        return jsonify({"message": "Folder renamed successfully."})
+
+    except Exception as e:
+        print("Rename error:", e)
+        return jsonify({"error": str(e)}), 500
+    
+@app.route("/api/move-paper", methods=["POST"])
+def move_paper():
+    data = request.get_json()
+    print(" Move paper data:", data)
+
+    username = data.get("username")
+    paper_id = data.get("paper_id")
+    from_folder = data.get("from_folder") or ""
+    to_folder = data.get("to_folder") or ""
+
+    if not username or not paper_id:
+        return jsonify({"error": "Missing required fields."}), 400
+
+    try:
+        result = move_file(username, from_folder, to_folder, paper_id)
+        status = 200 if "message" in result else 500
+        return jsonify(result), status
+    except Exception as e:
+        print(" Move paper exception:", e)
         return jsonify({"error": str(e)}), 500
 
 
