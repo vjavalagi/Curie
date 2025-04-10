@@ -35,6 +35,13 @@ export default function ProfilePage() {
     refreshFileSystem,
   } = useGlobal();
 
+
+  
+
+  // Updates tags for a paper on the backend and then updates state accordingly
+  
+
+  // Create folder function (called when the modal form is submitted)
   // A list of colors used to assign to tags
   const presetColors = [
     "#EF4444", "#F97316", "#EAB308", "#84CC16", "#22C55E",
@@ -356,6 +363,7 @@ export default function ProfilePage() {
             <div className="ml-6">{renderFileSystem(f.content, f.name)}</div>
           </div>
         ))}
+      <div className="flex flex-wrap gap-6 justify-center">
         <AnimatePresence mode="popLayout">
           {[...fs.jsons]
             .sort((a, b) => {
@@ -410,6 +418,7 @@ export default function ProfilePage() {
               );
             })}
         </AnimatePresence>
+        </div>
       </div>
     );
 
@@ -460,6 +469,7 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+      <SaveGroupingButton />
       <LogoutButton />
       {selectedPdf && (
         <PdfViewer pdfUrl={selectedPdf} onClose={() => setSelectedPdf(null)} />

@@ -19,6 +19,10 @@ class Summary(BaseModel):
     results: str
     discussion: str
     conclusion: str
+class AskCurie(BaseModel):
+    question: str
+    answer: str
+    
 # Set up API credentials
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 google_creds_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
@@ -109,6 +113,22 @@ def summarize_sections(document_text, sentence_count=1):
     print("FINISHED")
     obj = json.loads(response.choices[0].message.content.strip())
     
+    return obj
+def ask_curie(document_text, question):
+    """Generates a summary per section."""
+    
+    prompt = f"""
+   answer the question {question} based on the document {document_text}
+    """
+    response = client.beta.chat.completions.parse(
+        model="gpt-4o-mini",
+        messages=[{"role": "system", "content": "You are a subject matter expert."},
+                  {"role": "user", "content": prompt}],
+        response_format=AskCurie
+    )
+    print("FINISHED")
+    obj = json.loads(response.choices[0].message.content.strip())
+    print("ASK CURIE RESPONSE", obj)
     return obj
 
     
