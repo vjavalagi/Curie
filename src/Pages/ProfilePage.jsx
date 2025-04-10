@@ -296,30 +296,6 @@ export default function ProfilePage() {
                   exit={{ x: 50, opacity: 0 }}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
-                  {/* <Card
-                    paperId={paper.entry_id}
-                    name={paper.title}
-                    authors={paper.authors}
-                    date={paper.published}
-                    abstract={paper.summary}
-                    journal_ref={paper.journal_ref}
-                    tags={current}
-                    availableTags={tags}
-
-                    links={paper.pdf_url} 
-                    onAssignTag={(tag) => {}}
-                    onRemoveTagFromCard={() => {}}
-                    onDeletePaper={handleDeletePaper} 
-                    onClickTag={() => {}}
-                    activeFilters={[]}
-                    selectedYearFilter={null}
-                    onClickYear={() => {}}
-                    activeAuthorFilters={[]}
-                    onClickAuthor={() => {}}
-                    onMovePaper={handleMovePaper}
-                    folders={fileSystem.folders}
-
-                  /> */}
                   <Card
                     paperId={paper.entry_id}
                     name={paper.title}
@@ -344,6 +320,7 @@ export default function ProfilePage() {
                     onClickAuthor={toggleFilterAuthor}
                     onMovePaper={handleMovePaper}
                     folders={fileSystem.folders}
+                    paper_url={paper.pdf_url}
                   />
                 </motion.div>
               );
@@ -424,6 +401,7 @@ export default function ProfilePage() {
                     onClickAuthor={toggleFilterAuthor}
                     onMovePaper={handleMovePaper}
                     folders={fileSystem.folders}
+                    paper_url={paper.pdf_url}
                   />
                 </motion.div>
               );
@@ -479,7 +457,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-      <SaveGroupingButton />
       <LogoutButton />
       {selectedPdf && (
         <PdfViewer pdfUrl={selectedPdf} onClose={() => setSelectedPdf(null)} />
