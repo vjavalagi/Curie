@@ -8,7 +8,7 @@ export default function WelcomeMessage() {
 
   return (
     <h2 className="text-5xl font-bold text-blue-800 text-center">
-      Welcome, {name}!
+      Welcome, {name} !👋
     </h2>
   );
 }

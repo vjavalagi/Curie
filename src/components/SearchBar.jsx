@@ -51,12 +51,10 @@ export default function SearchBar({ variant = "lightgray" }) {
     }
   }, [tempSearch]);
 
-  // Sync tempSearch with global state when search changes
   useEffect(() => {
     setTempSearch(search);
   }, [search]);
 
-  // Clear suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (containerRef.current && !containerRef.current.contains(event.target)) {
@@ -67,23 +65,32 @@ export default function SearchBar({ variant = "lightgray" }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Clear suggestions when switching away from /search
   useEffect(() => {
     if (location.pathname !== "/search") {
-      setTempSearch("");       // Clear the input
-      setSuggestions([]);      // Clear the dropdown
+      setTempSearch("");
+      setSuggestions([]);
     }
   }, [location.pathname]);
-  
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-xl">
-      <div className={`flex items-center rounded-full px-4 py-2 focus-within:ring-2 bg-white focus-within:ring-curieBlue ${bgColor}`}>
+    <div ref={containerRef} className="max-w-xl w-full relative" data-hs-combo-box='{
+      "groupingType": "default",
+      "isOpenOnFocus": true
+    }'>
+      <div className="relative">
+        <div className="absolute inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-3.5">
+          <svg className="shrink-0 size-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+        </div>
+
         <input
           type="text"
-          className={`flex-1 bg-white outline-none text-md ${bgColor} ${textColor}`}
+          className={`py-2.5 ps-10 pe-4 block w-full rounded-lg border-gray-200 bg-white sm:text-sm focus:border-blue-500 focus:ring-blue-500 ${bgColor} ${textColor}`}
           placeholder="Search Curie..."
           value={tempSearch}
+          data-hs-combo-box-input=""
           onChange={(e) => setTempSearch(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
@@ -91,41 +98,40 @@ export default function SearchBar({ variant = "lightgray" }) {
             }
           }}
         />
-        <button
-          onClick={() => handleSearch(tempSearch)}
-          className="px-6 py-1 font-semibold rounded-full bg-curieBlue hover:bg-blue-600 text-curieLightGray"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-          </svg>
-        </button>
       </div>
 
       {suggestions.length > 0 && (
-        <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-b-md shadow-md max-h-60 overflow-y-auto text-left">
-          {suggestions.map((suggestion, index) => {
-            const matchIndex = suggestion.value.toLowerCase().indexOf(tempSearch.toLowerCase());
-            const before = suggestion.value.slice(0, matchIndex);
-            const match = suggestion.value.slice(matchIndex, matchIndex + tempSearch.length);
-            const after = suggestion.value.slice(matchIndex + tempSearch.length);
+        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-md" data-hs-combo-box-output="">
+          <div className="max-h-72 overflow-y-auto rounded-b-lg [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
+            {suggestions.map((suggestion, index) => {
+              const matchIndex = suggestion.value.toLowerCase().indexOf(tempSearch.toLowerCase());
+              const before = suggestion.value.slice(0, matchIndex);
+              const match = suggestion.value.slice(matchIndex, matchIndex + tempSearch.length);
+              const after = suggestion.value.slice(matchIndex + tempSearch.length);
 
-            return (
-              <li
-                key={index}
-                className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-left"
-                onClick={() => {
-                  setJustSelected(true);
-                  setTempSearch(suggestion.value);
-                  handleSearch(suggestion.value);
-                }}
-              >
-                {before}
-                <span className="font-bold text-curieBlue">{match}</span>
-                {after}
-              </li>
-            );
-          })}
-        </ul>
+              return (
+                <div
+                  key={index}
+                  className="flex items-center cursor-pointer py-2 px-4 w-full text-sm text-gray-800 hover:bg-gray-100"
+                  data-hs-combo-box-output-item=""
+                  onClick={() => {
+                    setJustSelected(true);
+                    setTempSearch(suggestion.value);
+                    handleSearch(suggestion.value);
+                  }}
+                >
+                  <div className="flex items-center w-full">
+                    <span>
+                      {before}
+                      <span className="font-bold text-curieBlue">{match}</span>
+                      {after}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       )}
     </div>
   );
