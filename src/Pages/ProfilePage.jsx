@@ -322,6 +322,7 @@ export default function ProfilePage() {
                     onClickAuthor={toggleFilterAuthor}
                     onMovePaper={handleMovePaper}
                     folders={fileSystem.folders}
+                    paper_url={paper.pdf_url}
                   />
                 </motion.div>
               );
