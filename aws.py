@@ -683,7 +683,7 @@ def generate_test_files_with_arxiv():
             tags=["arxiv", "research"],
             arxiv_metadata=entry
         )
-    print("✅ ArXiv test files uploaded.")
+    print("ArXiv test files uploaded.")
 
 
 def check_table_exists(table_name):
@@ -699,10 +699,10 @@ def check_table_exists(table_name):
     client = session.client("dynamodb")
     try:
         client.describe_table(TableName=table_name)
-        print(f"✅ Table '{table_name}' exists.")
+        print(f"Table '{table_name}' exists.")
         return True
     except client.exceptions.ResourceNotFoundException:
-        print(f"❌ Table '{table_name}' does not exist.")
+        print(f" Table '{table_name}' does not exist.")
         return False
 
 
