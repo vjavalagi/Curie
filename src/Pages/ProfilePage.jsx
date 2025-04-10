@@ -181,6 +181,7 @@ export default function ProfilePage() {
 
   const handleMovePaper = async (paperId, fromFolder, toFolder) => {
     try {
+      console.log("Profile Page Handler ------- Moving paper: ", paperId, " from:", fromFolder, " to:", toFolder);
       await axios.post("http://localhost:5001/api/move-paper", {
         username: user.UserID,
         paper_id: paperId,
@@ -317,10 +318,10 @@ export default function ProfilePage() {
                     selectedYearFilter={selectedYearFilter}
                     onClickYear={handleClickYear}
                     activeAuthorFilters={activeAuthorFilters}
+                    currentFolder={currentFolder}
                     onClickAuthor={toggleFilterAuthor}
                     onMovePaper={handleMovePaper}
                     folders={fileSystem.folders}
-                    paper_url={paper.pdf_url}
                   />
                 </motion.div>
               );
@@ -398,6 +399,7 @@ export default function ProfilePage() {
                     selectedYearFilter={selectedYearFilter}
                     onClickYear={handleClickYear}
                     activeAuthorFilters={activeAuthorFilters}
+                    currentFolder={currentFolder}
                     onClickAuthor={toggleFilterAuthor}
                     onMovePaper={handleMovePaper}
                     folders={fileSystem.folders}

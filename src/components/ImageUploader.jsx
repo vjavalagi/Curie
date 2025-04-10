@@ -31,14 +31,14 @@ const ImageUploader = () => {
       });
 
       const s3Url = data.url.split("?")[0]; // Strip query params
-      setMessage("✅ Upload successful!");
+      setMessage("Upload successful!");
       console.log("S3 URL:", s3Url);
 
       // You can now call a backend endpoint to update DynamoDB with s3Url
 
     } catch (err) {
       console.error(err);
-      setMessage("❌ Upload failed.");
+      setMessage("Upload failed.");
     }
   };
 
