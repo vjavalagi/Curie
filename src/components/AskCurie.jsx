@@ -1,5 +1,6 @@
 import { useState , useEffect} from 'react';
 import { useGlobal } from '../context/GlobalContext';
+import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 
 const AskCurie = () => {
@@ -84,7 +85,7 @@ const AskCurie = () => {
             {answer && !loading && (
                 <div className="mt-4 p-4 border border-gray-300 rounded-lg">
                     <h3 className="text-lg font-semibold">Answer:</h3>
-                    <p>{answer}</p>
+                    <ReactMarkdown>{answer}</ReactMarkdown>
                 </div>
             )}
 
