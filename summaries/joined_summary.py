@@ -8,17 +8,18 @@ from pydantic import BaseModel
 import pymupdf
 load_dotenv(find_dotenv())
 
-'''
-Introduction, Methods, Results, Discussion, Conclusion.
-'''
-class Summary(BaseModel):
+
+class Content(BaseModel):
+    section: str
+    summary: str
+    actual_document_text: str
+
+class Summary2(BaseModel):
     title: str
-    authors: str
     introduction: str
-    methods: str
-    results: str
-    discussion: str
+    content: list[Content]
     conclusion: str
+
 class AskCurie(BaseModel):
     question: str
     answer: str
@@ -67,6 +68,8 @@ def extract_text_pymu(filepath):
     for page in doc:
         text += page.get_text()  # Extract text from the page
     return text
+
+
 # Function to extract raw text from a document
 def extract_text(file_path):
     """Extracts text from a document using Google Document AI."""
@@ -92,15 +95,26 @@ def extract_text(file_path):
 
 # Function to summarize extracted text by section
 def summarize_sections(document_text, sentence_count=1):
-    """Generates a summary per section."""
-    
-    prompt = f"""
-    Generate a summary for each section of the following document. I want each section to have a summary length of {sentence_count} sentences.
-    The sections are: Introduction, Methods, Results, Discussion, Conclusion.
 
-    {document_text}
+    """Generates a section-based summary and maps it to the Summary class structure."""
+        
+    prompt = f"""
+    You are an expert in academic document analysis. Do the following:
+
+    1. Read the document below.
+    2. Extract the `title` and `authors` if available; otherwise, infer them briefly.
+    3. Identify all section headers (e.g., Introduction, Background, Related Work, Experiments, Conclusion, etc.).
+    4. For each section, write a {sentence_count}-sentence summary and return approximately 7 of the most relevant sentences taken exactly from the text in the key `actual_document_text`. 
+    5. Return ONLY **valid JSON object** with these keys:
+    - "title"
+    - "authors"
+    - one key per section (use the actual section names from the document).
+
+    The values should be plain strings.
+
+    Document:
+    \"\"\"{document_text}\"\"\"
     """
-    
         
     print("summarized sections in joined_summary with __ sentences", sentence_count)
     
@@ -108,12 +122,44 @@ def summarize_sections(document_text, sentence_count=1):
         model="gpt-4o-mini",
         messages=[{"role": "system", "content": "You are a subject matter expert."},
                   {"role": "user", "content": prompt}],
-        response_format=Summary
+        response_format=Summary2
     )
     print("FINISHED")
-    obj = json.loads(response.choices[0].message.content.strip())
-    
-    return obj
+
+ # Get the response content
+    raw_response = response.choices[0].message.content.strip()
+    print("raw response", raw_response)
+
+    # try to find between two brackets
+    try:
+        start_index = raw_response.index("{")
+        end_index = raw_response.rindex("}") + 1
+        json_str = raw_response[start_index:end_index]
+        print("json_str", json_str)
+
+    except:
+        print("Failed to find JSON in the response.")
+        return None
+
+
+    try:
+        # Try parsing the response content as JSON
+        obj = json.loads(json_str)
+        print("Parsed JSON object:", obj)
+    except json.JSONDecodeError as e:
+        print("Failed to decode JSON. Here's the raw response that caused the issue:")
+        print(json_str)
+        # Handle the error or clean up the response if necessary
+
+    #updated_obj = split_sections_from_text(full_text, obj)
+    #print("updated_obj", updated_obj)
+
+    #obj=updated_obj
+
+    return obj if 'obj' in locals() else None  # Return the object if it was parsed successfully, else return None
+
+
+
 def ask_curie(document_text, question):
     """Generates a summary per section."""
     
