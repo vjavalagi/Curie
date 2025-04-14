@@ -2,11 +2,13 @@ import React, { useMemo, useState, useEffect, useRef } from "react";
 import { useGlobal } from "../context/GlobalContext";
 import { PDFDownload } from "../backend/PdfDownload";
 import { SummarizeSections } from "../backend/SummarizeSections";
+import { SummarizeSectionsSent } from "../backend/SummarizeSectionsSent";
 
 export default function SearchSideBar({ selectedFilter, yearRange, researchPapers, loading }) {
   const { setActivePaper, setActiveSummary, activePaper } = useGlobal(); // Assuming activePaper is in GlobalContext
   const [loadingSummary, setLoadingSummary] = useState(false); // Track if the summary is being loaded
   const currentPaperRef = useRef(null); // Ref to store the currently selected paper
+
 
   const handlePaperClick = async (paper) => {
     try {
@@ -18,7 +20,13 @@ export default function SearchSideBar({ selectedFilter, yearRange, researchPaper
       currentPaperRef.current = paper;
   
       // Check if the summary already exists
-      const storedSummary = localStorage.getItem(`summary_${paper.title}`);
+
+      //const storedSummary = localStorage.getItem(`summary_4_${paper.title}`);
+
+      const summaryLength = Number(localStorage.getItem("current_summary_length")) || 4;
+      const storageKey = `summary_${summaryLength}_${paper.title}`;
+      const storedSummary = localStorage.getItem(storageKey);
+      
       if (storedSummary) {
         if (currentPaperRef.current === paper) {
           setActiveSummary(JSON.parse(storedSummary)); // Load from cache
@@ -29,12 +37,16 @@ export default function SearchSideBar({ selectedFilter, yearRange, researchPaper
   
       // If not found, proceed to fetch summary
       await PDFDownload(paper);
-      const sumresp = await SummarizeSections(paper.title);
+      //const sumresp = await SummarizeSectionsSent(paper.title, 4);
+
+      const sumresp = await SummarizeSectionsSent(paper.title, summaryLength);
+      //localStorage.setItem(storageKey, JSON.stringify(sumresp));
   
       // Ensure it's still the active paper before setting the summary
       if (currentPaperRef.current === paper) {
         setActiveSummary(sumresp);
-        localStorage.setItem(`summary_${paper.title}`, JSON.stringify(sumresp));
+        localStorage.setItem(storageKey, JSON.stringify(sumresp));
+        //localStorage.setItem(`summary_4_${paper.title}`, JSON.stringify(sumresp));
       }
   
       setLoadingSummary(false);

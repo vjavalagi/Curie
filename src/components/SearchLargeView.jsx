@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import Timeline from "./Timeline";
 import { SummarizeSectionsSent } from "../backend/SummarizeSectionsSent";
 import { useGlobal } from "../context/GlobalContext";
@@ -11,26 +11,34 @@ import AskCurie from "./AskCurie";
 export default function SearchLargeView() {
   const { search, activePaper, setActivePaper, setActiveSummary, activeSummary, user, fileSystem, setFileSystem } = useGlobal();
   const [isSummaryLoading, setIsSummaryLoading] = useState(true);
-  const [activeSummaryLevel, setActiveSummaryLevel] = useState(3); // Insight is default - 3 sentences
+
+  
   const [showSaveModal, setShowSaveModal] = useState(false);
+
+  //clear storage when refresh page
+  useEffect(() => {
+    localStorage.clear();
+  }, []);
 
   useEffect(() => {
     if (activeSummary === null) {
       setIsSummaryLoading(true);
-    } else if (activeSummary) {
+    } 
+    else if (activeSummary) {
       setIsSummaryLoading(false);
     }
   }, [activeSummary]);
 
-  
 
   const handleSummaryClick = async (summaryLength) => {
-    if (summaryLength === activeSummaryLevel) return; // prevent refresh if same
   
     setActiveSummary(undefined);
-    setActiveSummaryLevel(summaryLength);
-  
-    const storageKey = `summary_${activePaper.title}_${summaryLength}`;
+
+    //if loading summary return
+    if (isSummaryLoading) return;
+
+    
+    const storageKey = `summary_${summaryLength}_${activePaper.title}`;
     const storedSummary = localStorage.getItem(storageKey);
   
     if (storedSummary) {
@@ -38,7 +46,7 @@ export default function SearchLargeView() {
     } else {
       const summary = await SummarizeSectionsSent(activePaper.title, summaryLength);
       localStorage.setItem(storageKey, JSON.stringify(summary));
-      setActiveSummary(summary);
+      // setActiveSummary(summary);
     }
   };
   
@@ -193,8 +201,12 @@ export default function SearchLargeView() {
       min="2"
       max="6"
       step="2"
-      value={activeSummaryLevel}
-      onChange={(e) => handleSummaryClick(Number(e.target.value))}
+      // value={localStorage.getItem("current_summary_length") || 4} // <--- retrieve it globally
+      onChange={(e) => {
+        const value = Number(e.target.value);
+        localStorage.setItem("current_summary_length", value); // <--- store it globally
+        handleSummaryClick(value); // existing logic
+      }}
       className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
     />
 
