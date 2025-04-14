@@ -42,6 +42,7 @@ export default function ActiveSummary({ activeSummary, activePaper }) {
   
 
   return (
+    
     <div className="flex transition-all duration-300 ease-in-out">
       {/* Main Content */}
       <div

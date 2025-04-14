@@ -94,7 +94,7 @@ def extract_text(file_path):
     return result.document.text  # Return extracted text
 
 # Function to summarize extracted text by section
-def summarize_sections(document_text, sentence_count=1):
+def summarize_sections(document_text, sentence_count=4):
 
     """Generates a section-based summary and maps it to the Summary class structure."""
         
