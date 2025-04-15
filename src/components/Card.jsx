@@ -24,6 +24,7 @@ export default function Card({
   currentFolder,
   onMovePaper,
   paper_url,
+  onViewPaper,
 }) {
   const [isCopying, setIsCopying] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -323,7 +324,13 @@ export default function Card({
           })}
         </div>
 
-        <h3 className="text-xl font-semibold text-gray-800 px-4">{name}</h3>
+        <h3
+          className="text-xl font-semibold text-gray-800 px-4 cursor-pointer hover:text-curieBlue transition"
+          onClick={() => onViewPaper && onViewPaper()}
+        >
+          {name}
+        </h3>
+
 
         <div className="inline-flex flex-wrap gap-2 mb-1.5 mt-1.5 px-4">
           {authors &&
