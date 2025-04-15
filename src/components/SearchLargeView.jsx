@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import Timeline from "./Timeline";
 import { SummarizeSectionsSent } from "../backend/SummarizeSectionsSent";
 import { useGlobal } from "../context/GlobalContext";
@@ -6,31 +6,41 @@ import axios from "axios";
 import { PDFDownload } from "../backend/PdfDownload"; // Ensure correct path
 import ActiveSummary from "./ActiveSummary";
 import SaveToProfileModal from "./SaveToProfileModal"; // Adjust path if needed
-
+import AskCurie from "./AskCurie";
+import PaperModal from "./PaperModal";
 
 export default function SearchLargeView() {
   const { search, activePaper, setActivePaper, setActiveSummary, activeSummary, user, fileSystem, setFileSystem } = useGlobal();
   const [isSummaryLoading, setIsSummaryLoading] = useState(true);
-  const [activeSummaryLevel, setActiveSummaryLevel] = useState(3); // Insight is default - 3 sentences
+
+  
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showPaperModal, setShowPaperModal] = useState(false);
+
+  //clear storage when refresh page
+  useEffect(() => {
+    localStorage.clear();
+  }, []);
 
   useEffect(() => {
     if (activeSummary === null) {
       setIsSummaryLoading(true);
-    } else if (activeSummary) {
+    } 
+    else if (activeSummary) {
       setIsSummaryLoading(false);
     }
   }, [activeSummary]);
 
-  
 
   const handleSummaryClick = async (summaryLength) => {
-    if (summaryLength === activeSummaryLevel) return; // prevent refresh if same
   
     setActiveSummary(undefined);
-    setActiveSummaryLevel(summaryLength);
-  
-    const storageKey = `summary_${activePaper.title}_${summaryLength}`;
+
+    //if loading summary return
+    if (isSummaryLoading) return;
+
+    
+    const storageKey = `summary_${summaryLength}_${activePaper.title}`;
     const storedSummary = localStorage.getItem(storageKey);
   
     if (storedSummary) {
@@ -38,16 +48,16 @@ export default function SearchLargeView() {
     } else {
       const summary = await SummarizeSectionsSent(activePaper.title, summaryLength);
       localStorage.setItem(storageKey, JSON.stringify(summary));
-      setActiveSummary(summary);
+      // setActiveSummary(summary);
     }
   };
   
 
-  const handleDeepDiveClick = () => {
-    console.log("!!Current search value before download:", search);
-    setActivePaper("");
-    console.log("Emptying paper", activePaper);
-  };
+  // const handleDeepDiveClick = () => {
+  //   console.log("!!Current search value before download:", search);
+  //   setActivePaper("");
+  //   console.log("Emptying paper", activePaper);
+  // };
 
   // This function is called when the user clicks the "Save to Profile" button
   const handleSaveToProfileClick = () => {
@@ -115,7 +125,7 @@ export default function SearchLargeView() {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="lucide lucide-bookmark-icon lucide-bookmark w-5 h-5"
+              className="w-5 h-5 lucide lucide-bookmark-icon lucide-bookmark"
             >
               <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
             </svg>
@@ -127,30 +137,34 @@ export default function SearchLargeView() {
           <p className="text-sm text-gray-500">
             Authors: {activePaper.authors?.join(", ")}
           </p>
-          
+
+        {/* Abstract */}
+          <p className="text-sm text-gray-500">
+            Abstract: {activePaper.summary}
+          </p>
+
           {activePaper.links?.[0] && (
-            <a
-              href={activePaper.links[0]}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="absolute right-4 bottom-1 flex items-center gap-0.5 text-curieBlue hover:text-blue-700"
+            <button
+            onClick={() => setShowPaperModal(true)}
+            className="absolute right-4 bottom-1 flex items-center gap-0.5 text-curieBlue hover:text-blue-700"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+              className="w-5 h-5"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="w-5 h-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
-                />
-              </svg>
-              <span className="text-sm underline">View Paper</span>
-            </a>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+              />
+            </svg>
+            <span className="text-sm underline">View Paper</span>
+          </button>
+          
           )}
 
         </section>
@@ -173,41 +187,54 @@ export default function SearchLargeView() {
     <div className="flex items-center justify-between mb-4">
       <h3 className="text-xl font-semibold">Active Summary</h3>
       <div className="inline-flex rounded-lg shadow-2xs">
-      <button
-          type="button"
-          onClick={() => handleSummaryClick(1)}
-          className={`inline-flex items-center px-3 py-2 text-sm font-medium border -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg
-            ${activeSummaryLevel === 1
-              ? "bg-curieBlue text-white border-curieBlue"
-              : "bg-white text-gray-800 border-gray-200 hover:bg-gray-50 dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800"}
-          `}
-        >
+      <div className="flex flex-col items-center w-full">
+
+
+  <div className="relative flex flex-col items-center w-64">
+    <label htmlFor="summarySlider" className="mb-2 text-sm font-medium text-center text-gray-700">
+      Summary Length
+    </label>
+
+    {/* Slider */}
+    <input
+      id="summarySlider"
+      type="range"
+      min="2"
+      max="6"
+      step="2"
+      // value={localStorage.getItem("current_summary_length") || 4} // <--- retrieve it globally
+      onChange={(e) => {
+        const value = Number(e.target.value);
+        localStorage.setItem("current_summary_length", value); // <--- store it globally
+        handleSummaryClick(value); // existing logic
+      }}
+      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+    />
+
+    {/* Label markers aligned to slider dot positions */}
+    <div className="absolute left-0 bottom-[-1.5rem] w-full">
+      <div className="relative w-full">
+        {/* Position 2 (left dot) */}
+        <span className="absolute left-0 text-xs text-gray-500 transform -translate-x-1/2">
           Snapshot 📸
-        </button>
+        </span>
 
-        <button
-          type="button"
-          onClick={() => handleSummaryClick(3)}
-          className={`inline-flex items-center px-3 py-2 text-sm font-medium border -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg
-            ${activeSummaryLevel === 3
-              ? "bg-curieBlue text-white border-curieBlue"
-              : "bg-white text-gray-800 border-gray-200 hover:bg-gray-50 dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800"}
-          `}
-        >
+        {/* Position 4 (middle dot) */}
+        <span className="absolute text-xs text-gray-500 transform -translate-x-1/2 left-1/2">
           Insight 🔍
-        </button>
+        </span>
 
-        <button
-          type="button"
-          onClick={() => handleSummaryClick(6)}
-          className={`inline-flex items-center px-3 py-2 text-sm font-medium border -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg
-            ${activeSummaryLevel === 6
-              ? "bg-curieBlue text-white border-curieBlue"
-              : "bg-white text-gray-800 border-gray-200 hover:bg-gray-50 dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800"}
-          `}
-        >
+        {/* Position 6 (right dot) */}
+        <span className="absolute text-xs text-gray-500 transform -translate-x-1/2 left-full">
           DeepDive ✨
-        </button>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 
       </div>
     </div>
@@ -226,8 +253,23 @@ export default function SearchLargeView() {
       <ActiveSummary activeSummary={activeSummary} activePaper={activePaper} />
     )}
   </section>
-  
-)}
+      )}
+
+      {/* Ask Curie Component */}
+      {activePaper && (
+        <section className="p-6 mt-4 bg-white rounded-lg shadow-md">
+          <AskCurie />
+        </section>
+      )}
+
+      {/* Paper Modal */}
+      <PaperModal
+        isOpen={showPaperModal}
+        onClose={() => setShowPaperModal(false)}
+        activePaper={activePaper}
+        activeSummary={activeSummary}
+        onSliderChange={handleSummaryClick}
+      />
 
     </main>
   );

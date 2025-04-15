@@ -19,6 +19,12 @@ export default function SearchFilterSidebar({ minYear, maxYear, onYearRangeChang
     onYearRangeChange(values);
   };
 
+  // // Sentence Count State
+  // const [sentenceCount, setSentenceCount] = useState(() => {
+  //   const stored = localStorage.getItem("sentenceCount");
+  //   return stored ? JSON.parse(stored) : [2, 6];
+  // });
+
   return (
     <div className="relative">
       <div
@@ -29,15 +35,16 @@ export default function SearchFilterSidebar({ minYear, maxYear, onYearRangeChang
         {/* Sidebar content */}
         {isOpen && (
           <div className="p-4">
-            <h2 className="text-xl font-semibold mb-3">Filters</h2>
+            <h2 className="mb-3 text-xl font-semibold">Filters</h2>
             {/* Navigation, etc. */}
             <nav className="h-full overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-thumb]:bg-gray-300">
               <div
-                className="hs-accordion-group pb-0 flex flex-col flex-wrap"
+                className="flex flex-col flex-wrap pb-0 hs-accordion-group"
                 data-hs-accordion-always-open
               >
-                <ul className="space-y-1">
-                  {/* Existing accordion items */}
+            <ul className="space-y-1 height-full">
+
+                  {/* Publication Date Accordion */}
                   <li className="hs-accordion" id="account-accordion">
                     <button
                       type="button"
@@ -71,7 +78,7 @@ export default function SearchFilterSidebar({ minYear, maxYear, onYearRangeChang
                       </svg>
                       Publication Date
                       <svg
-                        className="hs-accordion-active:block ms-auto hidden size-4 text-gray-600 group-hover:text-gray-500"
+                        className="hidden text-gray-600 hs-accordion-active:block ms-auto size-4 group-hover:text-gray-500"
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
                         height="24"
@@ -85,7 +92,7 @@ export default function SearchFilterSidebar({ minYear, maxYear, onYearRangeChang
                         <path d="m18 15-6-6-6 6" />
                       </svg>
                       <svg
-                        className="hs-accordion-active:hidden ms-auto block size-4 text-gray-600 group-hover:text-gray-500"
+                        className="block text-gray-600 hs-accordion-active:hidden ms-auto size-4 group-hover:text-gray-500"
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
                         height="24"
@@ -158,6 +165,87 @@ export default function SearchFilterSidebar({ minYear, maxYear, onYearRangeChang
                     </div>
                   </li>
 
+
+                  {/* Sentence Count Accordion front-end added if we want it
+                  <li className="hs-accordion" id="sentence-count-accordion">
+                    <button
+                      type="button"
+                      className="hs-accordion-toggle w-full text-start flex items-center gap-x-3.5 py-2 px-2.5 text-sm text-gray-800 rounded-lg hover:bg-gray-100 focus:outline-hidden focus:bg-gray-100"
+                      aria-expanded="true"
+                      aria-controls="sentence-count-accordion-collapse"
+                    >
+                      <svg className="size-4" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                        <path d="M4 4h16M4 8h10M4 12h16M4 16h10M4 20h16" />
+                      </svg>
+                      Sentence Count
+                      <svg className="hidden text-gray-600 hs-accordion-active:block ms-auto size-4 group-hover:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                        <path d="m18 15-6-6-6 6" />
+                      </svg>
+                      <svg className="block text-gray-600 hs-accordion-active:hidden ms-auto size-4 group-hover:text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                        <path d="m6 9 6 6 6-6" />
+                      </svg>
+                    </button>
+
+                    <div
+                      id="sentence-count-accordion-collapse"
+                      className="hs-accordion-content overflow-hidden transition-[height] duration-300 hidden"
+                      role="region"
+                      aria-labelledby="sentence-count-accordion"
+                    >
+                      <div className="mt-2 ml-4 mr-4">
+                        <Range
+                          values={sentenceCount}
+                          step={1}
+                          min={2}
+                          max={6}
+                          onChange={(values) => setSentenceCount(values)}
+                          renderTrack={({ props, children }) => (
+                            <div
+                              {...props}
+                              style={{
+                                ...props.style,
+                                height: "6px",
+                                width: "100%",
+                                borderRadius: "4px",
+                                background: getTrackBackground({
+                                  values: sentenceCount,
+                                  colors: ["#E5E7EB", "#1a2d8d", "#E5E7EB"],
+                                  min: 2,
+                                  max: 6,
+                                }),
+                                boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+                                transition: "background 0.3s ease",
+                              }}
+                            >
+                              {children}
+                            </div>
+                          )}
+                          renderThumb={({ props }) => (
+                            <div
+                              {...props}
+                              style={{
+                                ...props.style,
+                                height: "18px",
+                                width: "18px",
+                                borderRadius: "50%",
+                                backgroundColor: "#1a2d8d",
+                                boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.2)",
+                                border: "2px solid white",
+                                transition: "transform ease-in-out",
+                              }}
+                            />
+                          )}
+                        />
+                        <div className="flex justify-between mt-2">
+                          <span>{sentenceCount[0]}</span>
+                          <span>{sentenceCount[1]}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </li> */}
+
+
+                  {/* Conference! */}
                   <li className="hs-accordion" id="projects-accordion">
                     <button
                       type="button"
@@ -183,7 +271,7 @@ export default function SearchFilterSidebar({ minYear, maxYear, onYearRangeChang
                       </svg>
                       Conference
                       <svg
-                        className="hs-accordion-active:block ms-auto hidden size-4 text-gray-600 group-hover:text-gray-500"
+                        className="hidden text-gray-600 hs-accordion-active:block ms-auto size-4 group-hover:text-gray-500"
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
                         height="24"
@@ -197,7 +285,7 @@ export default function SearchFilterSidebar({ minYear, maxYear, onYearRangeChang
                         <path d="m18 15-6-6-6 6" />
                       </svg>
                       <svg
-                        className="hs-accordion-active:hidden ms-auto block size-4 text-gray-600 group-hover:text-gray-500"
+                        className="block text-gray-600 hs-accordion-active:hidden ms-auto size-4 group-hover:text-gray-500"
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
                         height="24"
@@ -221,10 +309,13 @@ export default function SearchFilterSidebar({ minYear, maxYear, onYearRangeChang
                     {/* Placeholder comment for projects dropdown */}
                     </div>
                   </li>
-                </ul>
-              </div>
-            </nav>
-          </div>
+
+      
+            </ul>
+                
+      </div>
+      </nav>
+      </div>
         )}
       </div>
 
@@ -266,3 +357,4 @@ export default function SearchFilterSidebar({ minYear, maxYear, onYearRangeChang
     </div>
   );
 }
+
