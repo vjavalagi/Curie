@@ -269,6 +269,7 @@ export default function SearchLargeView() {
           onClose={() => setShowPaperModal(false)}
           activePaper={activePaper}
           activeSummary={activeSummary}
+          onSliderChange={handleSummaryClick}
         />
       )}
 
