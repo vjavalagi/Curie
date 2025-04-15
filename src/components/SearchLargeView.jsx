@@ -263,15 +263,13 @@ export default function SearchLargeView() {
       )}
 
       {/* Paper Modal */}
-      {showPaperModal && (
-        <PaperModal
-          isOpen={showPaperModal}
-          onClose={() => setShowPaperModal(false)}
-          activePaper={activePaper}
-          activeSummary={activeSummary}
-          onSliderChange={handleSummaryClick}
-        />
-      )}
+      <PaperModal
+  isOpen={showPaperModal}
+  onClose={() => setShowPaperModal(false)}
+  activePaper={activePaper}
+  activeSummary={activeSummary}
+  onSliderChange={handleSummaryClick}
+/>
 
     </main>
   );
