@@ -1,10 +1,13 @@
+// components/CopyFolderBibtexButton.jsx
 import React, { useState } from "react";
 
-export default function ExportBulkCitationButton({ papers, folderName }) {
-  const [isExporting, setIsExporting] = useState(false);
+export default function CopyFolderBibtexButton({ papers }) {
+  const [isCopying, setIsCopying] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const handleExportBibtex = async () => {
-    setIsExporting(true);
+  const handleCopyBibtex = async () => {
+    setIsCopying(true);
+    setCopied(false);
 
     const bibtexEntries = await Promise.all(
       papers.map(async (paper) => {
@@ -22,7 +25,6 @@ export default function ExportBulkCitationButton({ papers, folderName }) {
           }
         }
 
-        // Fallback
         const safeId = paper.title?.replace(/[^a-zA-Z0-9]/g, "_");
         return (
           `@misc{${safeId},\n` +
@@ -35,24 +37,26 @@ export default function ExportBulkCitationButton({ papers, folderName }) {
       })
     );
 
-    const fileContent = bibtexEntries.join("\n\n");
-    const blob = new Blob([fileContent], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${folderName}_citations.bib`;
-    a.click();
-    URL.revokeObjectURL(url);
-    setIsExporting(false);
+    const bibtexText = bibtexEntries.join("\n\n");
+
+    try {
+      await navigator.clipboard.writeText(bibtexText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (err) {
+      console.error("Failed to copy BibTeX to clipboard:", err);
+    }
+
+    setIsCopying(false);
   };
 
   return (
     <button
-      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition ml-4"
-      onClick={handleExportBibtex}
-      disabled={isExporting}
+      className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition ml-2"
+      onClick={handleCopyBibtex}
+      disabled={isCopying}
     >
-      {isExporting ? "Exporting..." : "Export Bulk Citation"}
+      {isCopying ? "Copying..." : copied ? "Copied!" : "Copy Folder BibTeX"}
     </button>
   );
 }

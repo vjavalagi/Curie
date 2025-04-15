@@ -2,8 +2,6 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Card from "./Card";
 import { useGlobal } from "../context/GlobalContext";
-import ExportBulkCitationButton from "./ExportBulkCitationButton";
-
 import axios from "axios";
 
 
