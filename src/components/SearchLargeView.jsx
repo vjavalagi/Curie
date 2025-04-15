@@ -180,6 +180,14 @@ export default function SearchLargeView() {
       )}
 
 
+    {/* Ask Curie Component */}
+          {activePaper && (
+        <section className="p-6 mt-4 bg-white rounded-lg shadow-md">
+          <AskCurie />
+        </section>
+    )}
+
+
       {/* Render active summary section if an active paper is selected */}
     {activePaper && (
     <section className="p-6 mt-4 bg-white rounded-lg shadow-md">
@@ -190,8 +198,8 @@ export default function SearchLargeView() {
       <div className="flex flex-col items-center w-full">
 
 
-  <div className="relative flex flex-col items-center w-64">
-    <label htmlFor="summarySlider" className="mb-2 text-sm font-medium text-center text-gray-700">
+  <div className="relative flex flex-col items-center w-full pr-8">
+    <label htmlFor="summarySlider" className="py-1 space-y-1 font-medium text-center text-black t-sm py-">
       Summary Length
     </label>
 
@@ -208,25 +216,38 @@ export default function SearchLargeView() {
         localStorage.setItem("current_summary_length", value); // <--- store it globally
         handleSummaryClick(value); // existing logic
       }}
-      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+      //className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+      className="w-full h-2 rounded-lg appearance-none cursor-pointer bg-gray-200
+      [&::-webkit-slider-thumb]:appearance-none 
+      [&::-webkit-slider-thumb]:h-4 
+      [&::-webkit-slider-thumb]:w-4 
+      [&::-webkit-slider-thumb]:rounded-full 
+      [&::-webkit-slider-thumb]:bg-[#1a2d8d] 
+      [&::-webkit-slider-thumb]:shadow-md 
+      [&::-moz-range-thumb]:appearance-none 
+      [&::-moz-range-thumb]:h-4 
+      [&::-moz-range-thumb]:w-4 
+      [&::-moz-range-thumb]:rounded-full 
+      [&::-moz-range-thumb]:bg-[#1a2d8d]"
+
     />
 
     {/* Label markers aligned to slider dot positions */}
-    <div className="absolute left-0 bottom-[-1.5rem] w-full">
+    <div className="space-y-1 left-0 bottom-[-1.5rem] w-full">
       <div className="relative w-full">
         {/* Position 2 (left dot) */}
-        <span className="absolute left-0 text-xs text-gray-500 transform -translate-x-1/2">
-          Snapshot 📸
+        <span className="absolute left-0 text-xs text-gray-500 transform -translate-x-1/2 top-1">
+          Snapshot
         </span>
 
         {/* Position 4 (middle dot) */}
-        <span className="absolute text-xs text-gray-500 transform -translate-x-1/2 left-1/2">
-          Insight 🔍
+        <span className="absolute text-xs text-gray-500 transform -translate-x-1/2 left-1/2 top-1">
+          Insight
         </span>
 
         {/* Position 6 (right dot) */}
-        <span className="absolute text-xs text-gray-500 transform -translate-x-1/2 left-full">
-          DeepDive ✨
+        <span className="absolute text-xs text-gray-500 transform -translate-x-1/2 left-full top-1">
+          DeepDive
         </span>
       </div>
     </div>
@@ -238,10 +259,11 @@ export default function SearchLargeView() {
 
       </div>
     </div>
+
   
     {/* Summary Content */}
     {activeSummary === undefined ? (
-      <div className="flex items-center justify-center mt-4">
+      <div className="flex items-center justify-center mt-10">
         <div className="w-full h-2 bg-gray-200 rounded-full">
           <div
             className="h-2 rounded-full bg-curieBlue animate-pulse"
@@ -252,15 +274,15 @@ export default function SearchLargeView() {
     ) : (
       <ActiveSummary activeSummary={activeSummary} activePaper={activePaper} />
     )}
-  </section>
+    </section>
       )}
 
       {/* Ask Curie Component */}
-      {activePaper && (
+      {/* {activePaper && (
         <section className="p-6 mt-4 bg-white rounded-lg shadow-md">
           <AskCurie />
         </section>
-      )}
+      )} */}
 
       {/* Paper Modal */}
       <PaperModal
