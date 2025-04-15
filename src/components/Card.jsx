@@ -162,12 +162,12 @@ export default function Card({
 
                 <button
                   onClick={handleCopyBibtex}
-                  className="block w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                  className="block w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg"
                   disabled={isCopying}
                 >
                   {isCopying ? (
                     <div
-                      className="animate-spin inline-block size-4 border-2 border-current border-t-transparent text-blue-600 rounded-full"
+                      className="animate-spin inline-block size-4 border-2 border-current border-t-transparent text-blue-600 rounded-lg"
                       role="status"
                       aria-label="loading"
                     >
@@ -180,7 +180,7 @@ export default function Card({
                 
                 {onDeletePaper && (
                   <button
-                    className="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-red-600 hover:bg-red-50 focus:outline-none shadow"
+                    className="flex w-full items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-red-600 hover:bg-red-50 "
                     onClick={() => {
                       setIsDropdownOpen(false);
                       onDeletePaper(paperId); 

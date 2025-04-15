@@ -98,11 +98,10 @@ export default function FolderView() {
       >
         Back
       </button>
-
+      
       <h3 className="text-lg font-semibold mb-3">
         Contents of {currentFolder}
       </h3>
-
       {papers.length === 0 ? (
         <div className="text-center text-gray-500 mt-10">
           <p className="mb-4">This folder is empty.</p>

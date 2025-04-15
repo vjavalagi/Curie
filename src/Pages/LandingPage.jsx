@@ -46,7 +46,7 @@ export default function LandingPage() {
       }}
     >
       <section className="flex flex-col items-center justify-center h-screen snap-start bg-curieLightGray">
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-2 right-8">
           <ProfileIcon />
         </div>
         {/* Curie Logo Slide in from Left */}

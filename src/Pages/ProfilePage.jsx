@@ -12,6 +12,8 @@ import Folder from "../components/Folder";
 import Card from "../components/Card";
 import CreateFolderModal from "../components/CreateFolderModal";
 import { useGlobal } from "../context/GlobalContext";
+import ExportBulkCitationButton from "../components/ExportBulkCitationButton";
+import CopyFolderBibtexButton from "../components/CopyFolderBibtexButton";
 import PaperModal from "../components/PaperModal";
 import { SummarizeSectionsSent } from "../backend/SummarizeSectionsSent";
 
@@ -487,6 +489,13 @@ export default function ProfilePage() {
         >
           ← Back
         </button>
+        <ExportBulkCitationButton
+          papers={folder.content.jsons}
+          folderName={currentFolder}
+        />
+        <CopyFolderBibtexButton
+          papers={folder.content.jsons}
+        />
         <h3 className="text-lg font-semibold mb-3">
           Contents of “{currentFolder}”
         </h3>
