@@ -12,6 +12,7 @@ import Folder from "../components/Folder";
 import Card from "../components/Card";
 import CreateFolderModal from "../components/CreateFolderModal";
 import { useGlobal } from "../context/GlobalContext";
+import ExportBulkCitationButton from "../components/ExportBulkCitationButton";
 
 export default function ProfilePage() {
   // Global tag & paper tag state
@@ -421,6 +422,7 @@ export default function ProfilePage() {
         >
           ← Back
         </button>
+        <ExportBulkCitationButton papers={papers} />
         <h3 className="text-lg font-semibold mb-3">
           Contents of “{currentFolder}”
         </h3>
