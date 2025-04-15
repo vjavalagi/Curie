@@ -17,6 +17,10 @@ export default function SearchLargeView() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showPaperModal, setShowPaperModal] = useState(false);
 
+  const [sliderValue, setSliderValue] = useState(() => {
+    return Number(localStorage.getItem("current_summary_length")) || 4;
+  });
+
   //clear storage when refresh page
   useEffect(() => {
     localStorage.clear();
@@ -31,25 +35,41 @@ export default function SearchLargeView() {
     }
   }, [activeSummary]);
 
+  // useEffect(() => {
+  //   if (activePaper) {
+  //     handleSummaryClick(sliderValue);
+  //   }
+  // }, [activePaper]);
+
 
   const handleSummaryClick = async (summaryLength) => {
   
     setActiveSummary(undefined);
-
-    //if loading summary return
-    if (isSummaryLoading) return;
-
+    setSliderValue(summaryLength);
+    localStorage.setItem("current_summary_length", summaryLength);
     
-    const storageKey = `summary_${summaryLength}_${activePaper.title}`;
-    const storedSummary = localStorage.getItem(storageKey);
+    //if loading summary return
+    //if (isSummaryLoading) return;
+    if (`summary_${Number(localStorage.getItem("current_summary_length"))}_${activePaper.title}` === undefined) return;
+    
+    // get the current summary length from localStorage or default to 4
+    const currentSummaryLength = Number(localStorage.getItem("current_summary_length"));
+    const summaryKey = `summary_${currentSummaryLength}_${activePaper.title}`;
+    const summary = localStorage.getItem(summaryKey);
+    setActiveSummary(JSON.parse(summary));
+    setLoadingSummary(false);
+    return;
+          
+    // const storageKey = `summary_${summaryLength}_${activePaper.title}`;
+    // const storedSummary = localStorage.getItem(storageKey);
   
-    if (storedSummary) {
-      setActiveSummary(JSON.parse(storedSummary));
-    } else {
-      const summary = await SummarizeSectionsSent(activePaper.title, summaryLength);
-      localStorage.setItem(storageKey, JSON.stringify(summary));
-      // setActiveSummary(summary);
-    }
+    // if (storedSummary) {
+    //   setActiveSummary(JSON.parse(storedSummary));
+    // } else {
+    //   const summary = await SummarizeSectionsSent(activePaper.title, summaryLength);
+    //   localStorage.setItem(storageKey, JSON.stringify(summary));
+    //   // setActiveSummary(summary);
+    // }
   };
   
 
@@ -211,8 +231,10 @@ export default function SearchLargeView() {
       max="6"
       step="2"
       // value={localStorage.getItem("current_summary_length") || 4} // <--- retrieve it globally
+      value={sliderValue}
       onChange={(e) => {
         const value = Number(e.target.value);
+        setSliderValue(value); // ← Keep internal state in sync
         localStorage.setItem("current_summary_length", value); // <--- store it globally
         handleSummaryClick(value); // existing logic
       }}
@@ -287,9 +309,15 @@ export default function SearchLargeView() {
       {/* Paper Modal */}
       <PaperModal
         isOpen={showPaperModal}
-        onClose={() => setShowPaperModal(false)}
+        //onClose={() => setShowPaperModal(false)}
+        onClose={() => {
+          setShowPaperModal(false);
+          const storedSlider = Number(localStorage.getItem("current_summary_length")) || 4;
+          handleSummaryClick(storedSlider); // <-- Re-fetch summary on modal close
+        }}
         activePaper={activePaper}
         activeSummary={activeSummary}
+        sliderValue={sliderValue}
         onSliderChange={handleSummaryClick}
       />
 
