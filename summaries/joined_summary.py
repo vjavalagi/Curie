@@ -12,7 +12,6 @@ load_dotenv(find_dotenv())
 class Content(BaseModel):
     section: str
     summary: str
-    actual_document_text: str
 
 class Summary2(BaseModel):
     title: str
@@ -104,7 +103,7 @@ def summarize_sections(document_text, sentence_count=4):
     1. Read the document below.
     2. Extract the `title` and `authors` if available; otherwise, infer them briefly.
     3. Identify all section headers (e.g., Introduction, Background, Related Work, Experiments, Conclusion, etc.).
-    4. For each section, write a {sentence_count}-sentence summary and return approximately 7 of the most relevant sentences taken exactly from the text in the key `actual_document_text`. 
+    4. For each section, write a {sentence_count}-sentence summary.
     5. Return ONLY **valid JSON object** with these keys:
     - "title"
     - "authors"
