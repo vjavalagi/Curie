@@ -12,6 +12,8 @@ import Folder from "../components/Folder";
 import Card from "../components/Card";
 import CreateFolderModal from "../components/CreateFolderModal";
 import { useGlobal } from "../context/GlobalContext";
+import PaperModal from "../components/PaperModal";
+import { SummarizeSectionsSent } from "../backend/SummarizeSectionsSent";
 
 export default function ProfilePage() {
   // Global tag & paper tag state
@@ -23,6 +25,41 @@ export default function ProfilePage() {
   const [activeFilters, setActiveFilters] = useState([]);
   const [selectedYearFilter, setSelectedYearFilter] = useState(null);
   const [activeAuthorFilters, setActiveAuthorFilters] = useState([]);
+
+  const [modalPaper, setModalPaper] = useState(null);
+  const [activeSummary, setActiveSummary] = useState(null);
+
+  const handleSummaryClick = async (summaryLength) => {
+    if (!modalPaper) return;
+    
+    setActiveSummary(undefined); // clear summary to trigger loading UI
+  
+    const storageKey = `summary_${summaryLength}_${modalPaper.title}`;
+    const storedSummary = localStorage.getItem(storageKey);
+  
+    if (storedSummary) {
+      setActiveSummary(JSON.parse(storedSummary));
+    } else {
+      try {
+        const summary = await SummarizeSectionsSent(modalPaper.title, summaryLength);
+        localStorage.setItem(storageKey, JSON.stringify(summary));
+        setActiveSummary(summary);
+      } catch (error) {
+        console.error("Error fetching summary:", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (modalPaper) {
+      const defaultLength = Number(localStorage.getItem("current_summary_length") || 4);
+      handleSummaryClick(defaultLength);
+    }
+  }, [modalPaper]);
+  
+  
+
+
 
   // Global context values
   const {
@@ -330,6 +367,16 @@ export default function ProfilePage() {
                     onMovePaper={handleMovePaper}
                     folders={fileSystem.folders}
                     paper_url={paper.pdf_url}
+                    onViewPaper={() => {
+                      setModalPaper({
+                        title: paper.title,
+                        links: [null, paper.pdf_url],
+                        authors: paper.authors,
+                        published: paper.published,
+                        summary: paper.summary
+                      });
+                      handleSummaryClick(4); // trigger default summary on modal open
+                    }}
                   />
                 </motion.div>
               );
@@ -413,6 +460,16 @@ export default function ProfilePage() {
                     onMovePaper={handleMovePaper}
                     folders={fileSystem.folders}
                     paper_url={paper.pdf_url}
+                    onViewPaper={() => {
+                      setModalPaper({
+                        title: paper.title,
+                        links: [null, paper.pdf_url],
+                        authors: paper.authors,
+                        published: paper.published,
+                        summary: paper.summary
+                      });
+                      handleSummaryClick(4); // trigger default summary on modal open
+                    }}
                   />
                 </motion.div>
               );
@@ -469,11 +526,24 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-      <SaveGroupingButton />
+      
       <LogoutButton />
       {selectedPdf && (
         <PdfViewer pdfUrl={selectedPdf} onClose={() => setSelectedPdf(null)} />
       )}
+
+      <PaperModal
+        isOpen={!!modalPaper}
+        onClose={() => {
+          setModalPaper(null);
+          setActiveSummary(null);
+        }}
+        activePaper={modalPaper}
+        activeSummary={activeSummary}
+        onSliderChange={handleSummaryClick}
+      />
+
+
     </div>
   );
 }
