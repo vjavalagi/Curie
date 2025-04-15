@@ -9,7 +9,6 @@ export default function SearchSideBar({ selectedFilter, yearRange, researchPaper
   const [loadingSummary, setLoadingSummary] = useState(false); // Track if the summary is being loaded
   const currentPaperRef = useRef(null); // Ref to store the currently selected paper
 
-
   const handlePaperClick = async (paper) => {
     try {
       setActivePaper(paper);
@@ -17,58 +16,70 @@ export default function SearchSideBar({ selectedFilter, yearRange, researchPaper
       setLoadingSummary(true);
       currentPaperRef.current = paper;
   
-      // Check if summaries 2, 4, and 6 are already in localStorage
-      const summariesInCache = {
-        2: localStorage.getItem(`summary_2_${paper.title}`),
-        4: localStorage.getItem(`summary_4_${paper.title}`),
-        6: localStorage.getItem(`summary_6_${paper.title}`),
-      };
+      const cacheKey = `summary_${paper.title}`;
+      const cachedSummaryData = localStorage.getItem(cacheKey);
   
-      // If all summaries exist in cache, load summary based on current_summary_length
-      if (summariesInCache[2] && summariesInCache[4] && summariesInCache[6]) {
-        // get the current summary length from localStorage or default to 4
-        const currentSummaryLength = Number(localStorage.getItem("current_summary_length") || 4);
-        const summaryKey = `summary_${currentSummaryLength}_${paper.title}`;
-        const summary = localStorage.getItem(summaryKey);
-        setActiveSummary(JSON.parse(summary));
+      if (cachedSummaryData) {
+        const parsedSummary = JSON.parse(cachedSummaryData);
+        const currentLength = Number(localStorage.getItem("current_summary_length") || 4);
+  
+        const summaryContent = {
+          title: parsedSummary.title,
+          introduction: parsedSummary.introduction,
+          content: parsedSummary.content.map((item) => ({
+            section: item.section,
+            summary:
+              currentLength === 2
+                ? item.two_entence_summary
+                : currentLength === 4
+                ? item.four_sentence_summary
+                : item.six_sentence_summary,
+          })),
+          conclusion: parsedSummary.conclusion,
+        };
+  
+        setActiveSummary(summaryContent);
         setLoadingSummary(false);
         return;
       }
   
-      // Fetch and store summary of length 2 if not cached
-      if (!summariesInCache[2]) {
-        await PDFDownload(paper); // Assuming this is needed for each request
-        const summary2 = await SummarizeSectionsSent(paper.title, 2);
-        localStorage.setItem(`summary_2_${paper.title}`, JSON.stringify(summary2));
+      // Download and summarize
+      await PDFDownload(paper);
+      const summaryData = await SummarizeSectionsSent(paper.title);
+  
+      // Store full object with all three lengths
+      localStorage.setItem(cacheKey, JSON.stringify(summaryData));
+  
+      // Build active summary based on length
+      const currentLength = Number(localStorage.getItem("current_summary_length") || 4);
+      const summaryContent = {
+        title: summaryData.title,
+        introduction: summaryData.introduction,
+        content: summaryData.content.map((item) => ({
+          section: item.section,
+          summary:
+            currentLength === 2
+              ? item.two_entence_summary
+              : currentLength === 4
+              ? item.four_sentence_summary
+              : item.six_sentence_summary,
+        })),
+        conclusion: summaryData.conclusion,
+      };
+  
+      if (currentPaperRef.current === paper) {
+        setActiveSummary(summaryContent);
+        setLoadingSummary(false);
       }
-  
-      // Fetch and store summary of length 4 if not cached
-      if (!summariesInCache[4]) {
-        const summary4 = await SummarizeSectionsSent(paper.title, 4);
-        localStorage.setItem(`summary_4_${paper.title}`, JSON.stringify(summary4));
-      }
-  
-      // Fetch and store summary of length 6 if not cached
-      if (!summariesInCache[6]) {
-        const summary6 = await SummarizeSectionsSent(paper.title, 6);
-        localStorage.setItem(`summary_6_${paper.title}`, JSON.stringify(summary6));
-      }
-  
-      // After all summaries are fetched, set the active summary
-      const currentSummaryLength = Number(localStorage.getItem("current_summary_length") || 4);
-      const summaryKey = `summary_${currentSummaryLength}_${paper.title}`;
-      const finalSummary= localStorage.getItem(summaryKey);
-    
-      //const finalSummary = JSON.parse(localStorage.getItem(`summary_4_${paper.title}`));
-      setActiveSummary(finalSummary);
-  
-      setLoadingSummary(false);
     } catch (error) {
-      console.error("Error loading summaries:", error);
-      setActiveSummary(undefined);
-      setLoadingSummary(false);
+      console.error("Error loading summary:", error);
+      if (currentPaperRef.current === paper) {
+        setActiveSummary(undefined);
+        setLoadingSummary(false);
+      }
     }
   };
+  
   
   
 

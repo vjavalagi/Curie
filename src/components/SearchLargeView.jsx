@@ -41,36 +41,39 @@ export default function SearchLargeView() {
   //   }
   // }, [activePaper]);
 
-
   const handleSummaryClick = async (summaryLength) => {
-  
     setActiveSummary(undefined);
     setSliderValue(summaryLength);
     localStorage.setItem("current_summary_length", summaryLength);
-    
-    //if loading summary return
-    //if (isSummaryLoading) return;
-    if (`summary_${Number(localStorage.getItem("current_summary_length"))}_${activePaper.title}` === undefined) return;
-    
-    // get the current summary length from localStorage or default to 4
-    const currentSummaryLength = Number(localStorage.getItem("current_summary_length"));
-    const summaryKey = `summary_${currentSummaryLength}_${activePaper.title}`;
-    const summary = localStorage.getItem(summaryKey);
-    setActiveSummary(JSON.parse(summary));
-    setLoadingSummary(false);
-    return;
-          
-    // const storageKey = `summary_${summaryLength}_${activePaper.title}`;
-    // const storedSummary = localStorage.getItem(storageKey);
   
-    // if (storedSummary) {
-    //   setActiveSummary(JSON.parse(storedSummary));
-    // } else {
-    //   const summary = await SummarizeSectionsSent(activePaper.title, summaryLength);
-    //   localStorage.setItem(storageKey, JSON.stringify(summary));
-    //   // setActiveSummary(summary);
-    // }
+    const cacheKey = `summary_${activePaper.title}`;
+    const cachedSummaryData = localStorage.getItem(cacheKey);
+  
+    if (!cachedSummaryData) {
+      // Summary not cached — do nothing
+      return;
+    }
+  
+    const parsedSummary = JSON.parse(cachedSummaryData);
+  
+    const summaryContent = {
+      title: parsedSummary.title,
+      introduction: parsedSummary.introduction,
+      content: parsedSummary.content.map((item) => ({
+        section: item.section,
+        summary:
+          summaryLength === 2
+            ? item.two_entence_summary
+            : summaryLength === 4
+            ? item.four_sentence_summary
+            : item.six_sentence_summary,
+      })),
+      conclusion: parsedSummary.conclusion,
+    };
+  
+    setActiveSummary(summaryContent);
   };
+  
   
 
   // const handleDeepDiveClick = () => {
