@@ -7,6 +7,7 @@ import { PDFDownload } from "../backend/PdfDownload"; // Ensure correct path
 import ActiveSummary from "./ActiveSummary";
 import SaveToProfileModal from "./SaveToProfileModal"; // Adjust path if needed
 import AskCurie from "./AskCurie";
+import PaperModal from "./PaperModal";
 
 export default function SearchLargeView() {
   const { search, activePaper, setActivePaper, setActiveSummary, activeSummary, user, fileSystem, setFileSystem } = useGlobal();
@@ -14,6 +15,7 @@ export default function SearchLargeView() {
 
   
   const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showPaperModal, setShowPaperModal] = useState(false);
 
   //clear storage when refresh page
   useEffect(() => {
@@ -142,28 +144,27 @@ export default function SearchLargeView() {
           </p>
 
           {activePaper.links?.[0] && (
-            <a
-              href={activePaper.links[0]}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="absolute right-4 bottom-1 flex items-center gap-0.5 text-curieBlue hover:text-blue-700"
+            <button
+            onClick={() => setShowPaperModal(true)}
+            className="absolute right-4 bottom-1 flex items-center gap-0.5 text-curieBlue hover:text-blue-700"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+              className="w-5 h-5"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="w-5 h-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
-                />
-              </svg>
-              <span className="text-sm underline">View Paper</span>
-            </a>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+              />
+            </svg>
+            <span className="text-sm underline">View Paper</span>
+          </button>
+          
           )}
 
         </section>
@@ -259,8 +260,17 @@ export default function SearchLargeView() {
         <section className="p-6 mt-4 bg-white rounded-lg shadow-md">
           <AskCurie />
         </section>
-  
-)}
+      )}
+
+      {/* Paper Modal */}
+      {showPaperModal && (
+        <PaperModal
+          isOpen={showPaperModal}
+          onClose={() => setShowPaperModal(false)}
+          activePaper={activePaper}
+          activeSummary={activeSummary}
+        />
+      )}
 
     </main>
   );
