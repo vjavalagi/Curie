@@ -25,7 +25,7 @@ export default function ActiveSummary({ activeSummary, activePaper }) {
   const [selectedSection, setSelectedSection] = useState(null);
 
   return (
-    <div className="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
+    <div className="max-w-[85rem] px-2 py-8 sm:px-6 lg:px-8 lg:py-14 mx-auto">
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {activeSummary.content.map((section, index) => {
           const color = colors[index % colors.length];
