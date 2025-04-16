@@ -536,7 +536,6 @@ export default function ProfilePage() {
         </div>
       </div>
       
-      <LogoutButton />
       {selectedPdf && (
         <PdfViewer pdfUrl={selectedPdf} onClose={() => setSelectedPdf(null)} />
       )}

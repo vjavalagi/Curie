@@ -20,10 +20,10 @@ function App() {
           <GlobalProvider>
             <Routes>
               
-              <Route path="/" element={<LandingPage />} />
+              <Route path="/" element={<Login />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/login" element={<Login />} />
+              <Route path="/landing" element={<LandingPage />} />
               <Route path="/createaccount" element={<CreateAccount />} />
               <Route path="*" element={<h1>Not Found</h1>} />
             </Routes>

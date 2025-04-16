@@ -325,7 +325,7 @@ export default function Card({
         </div>
 
         <h3
-          className="text-xl font-semibold text-gray-800 px-4 cursor-pointer hover:text-curieBlue transition"
+          className="text-xl font-semibold text-gray-800 px-4 cursor-pointer hover:underline hover:text-curieBlue transition"
           onClick={() => onViewPaper && onViewPaper()}
         >
           {name}
