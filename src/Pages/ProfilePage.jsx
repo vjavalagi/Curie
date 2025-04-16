@@ -83,6 +83,10 @@ export default function ProfilePage() {
     "#10B981", "#0EA5E9", "#F59E0B", "#7C3AED", "#DC2626"
   ];
 
+  // const presetColors = [
+  //   "#1s2d8d", "e8ecfc", "ebeaef", "cbf8fc", "#ffc928",
+  // ];
+
   // Filtering handler functions
   const handleClickYear = (year) => {
     setSelectedYearFilter((prev) => (prev === year ? null : year));
