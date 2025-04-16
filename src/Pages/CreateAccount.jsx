@@ -185,7 +185,7 @@ const CreateAccount = () => {
               htmlFor="profile-upload"
               className="py-2 px-3 inline-flex items-center gap-x-2 text-xs font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
             >
-              Upload photom(png)
+              Upload photo(png)
             </label>
             {form.previewUrl && (
               <button
