@@ -47,16 +47,14 @@ export default function SearchPage() {
     <div className="h-screen flex flex-col">
       <Header />
       <div className="flex flex-1 overflow-hidden">
-        <SearchFilterSidebar
-          minYear={minYear}
-          maxYear={maxYear}
-          onYearRangeChange={handleYearRangeChange}
-        />
         <SearchSideBar
           selectedFilter={selectedFilter}
           yearRange={yearRange}
           researchPapers={researchPapers}
           loading={loading}
+          minYear={minYear}
+          maxYear={maxYear}
+          onYearRangeChange={handleYearRangeChange}
         />
         <SearchLargeView />
       </div>
