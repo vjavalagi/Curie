@@ -67,7 +67,7 @@ const CreateAccount = () => {
 
       if (response.data.message) {
         setMessage("✅ Account created successfully!");
-        setTimeout(() => navigate("/login"), 1500);
+        setTimeout(() => navigate("/"), 1500);
       } else {
         setMessage("❌ " + (response.data.error || "Failed to create account."));
       }

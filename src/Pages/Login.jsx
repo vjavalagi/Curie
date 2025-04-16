@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import CurieLogo from "../assets/curie_no_background.png";
@@ -9,7 +9,7 @@ export default function Login() {
   const { setUser } = useGlobal();
 
   const [form, setForm] = useState({ username: "", password: "" });
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState({ text: "", type: "" }); // type: "success" | "error"
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -25,36 +25,35 @@ export default function Login() {
         setUser({
           UserID: response.data.user.UserID,
           Email: response.data.user.Email,
-          PhotoURL: response.data.user.PhotoURL,  
+          PhotoURL: response.data.user.PhotoURL,
         });
-        
-        console.log("User INFO :", response.data.user);
-        
-        setMessage("✅ Login successful!");
-        setTimeout(() => navigate("/"), 1000); // Redirect home
+
+        setMessage({ text: "Login successful!", type: "success" });
+        setTimeout(() => navigate("/landing"), 1000);
       } else {
-        setMessage("❌ Login failed");
+        setMessage({ text: "Login failed. Please try again.", type: "error" });
       }
     } catch (error) {
-      setMessage("❌ Invalid username or password");
+      setMessage({ text: "Invalid username or password", type: "error" });
       console.error(error);
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-neutral-900">
-      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md dark:bg-neutral-800">
         <div className="text-center">
           <img src={CurieLogo} alt="Curie Logo" className="w-40 h-24 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Sign in</h1>
         </div>
+
         <form className="mt-6" onSubmit={handleSubmit}>
           <input
             name="username"
             value={form.username}
             onChange={handleChange}
             placeholder="Username"
-            className="w-full p-2 mb-4 border rounded"
+            className="w-full p-2 mb-4 border border-gray-300 rounded dark:bg-neutral-700 dark:text-white"
             required
           />
           <input
@@ -63,13 +62,32 @@ export default function Login() {
             value={form.password}
             onChange={handleChange}
             placeholder="Password"
-            className="w-full p-2 mb-4 border rounded"
+            className="w-full p-2 mb-4 border border-gray-300 rounded dark:bg-neutral-700 dark:text-white"
             required
           />
-          {message && <p className="text-sm mb-2 text-center">{message}</p>}
+
+          {message.text && (
+            <div
+              className={`text-sm text-center p-2 rounded mb-4 shadow ${
+                message.type === "success"
+                  ? "bg-green-100 text-green-800 border border-green-300"
+                  : "bg-red-100 text-red-800 border border-red-300"
+              }`}
+            >
+              {message.text}
+            </div>
+          )}
+
           <button className="w-full p-2 text-white bg-curieBlue rounded hover:bg-blue-700">
             Sign In
           </button>
+
+          <p className="mt-4 text-sm text-center text-gray-600 dark:text-gray-300">
+            Not a member?{" "}
+            <a href="/createaccount" className="text-blue-500 hover:underline">
+              Join today
+            </a>
+          </p>
         </form>
       </div>
     </div>
