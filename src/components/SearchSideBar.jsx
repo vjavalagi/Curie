@@ -38,44 +38,71 @@ export default function SearchSideBar({
 
       // Store the current paper reference to prevent outdated updates
       currentPaperRef.current = paper;
-
-      // Check if the summary already exists
-
-      //const storedSummary = localStorage.getItem(`summary_4_${paper.title}`);
-
-      const summaryLength =
-        Number(localStorage.getItem("current_summary_length")) || 4;
-      const storageKey = `summary_${summaryLength}_${paper.title}`;
-      const storedSummary = localStorage.getItem(storageKey);
-
-      if (storedSummary) {
-        if (currentPaperRef.current === paper) {
-          setActiveSummary(JSON.parse(storedSummary)); // Load from cache
-        }
+  
+      const cacheKey = `summary_${paper.title}`;
+      const cachedSummaryData = localStorage.getItem(cacheKey);
+  
+      if (cachedSummaryData) {
+        const parsedSummary = JSON.parse(cachedSummaryData);
+        const currentLength = Number(localStorage.getItem("current_summary_length") || 4);
+  
+        const summaryContent = {
+          title: parsedSummary.title,
+          introduction: parsedSummary.introduction,
+          content: parsedSummary.content.map((item) => ({
+            section: item.section,
+            summary:
+              currentLength === 2
+                ? item.two_entence_summary
+                : currentLength === 4
+                ? item.four_sentence_summary
+                : item.six_sentence_summary,
+          })),
+          conclusion: parsedSummary.conclusion,
+        };
+  
+        setActiveSummary(summaryContent);
         setLoadingSummary(false);
         return;
       }
-
-      // If not found, proceed to fetch summary
+  
+      // Download and summarize
       await PDFDownload(paper);
-      //const sumresp = await SummarizeSectionsSent(paper.title, 4);
-
-      const sumresp = await SummarizeSectionsSent(paper.title, summaryLength);
-      //localStorage.setItem(storageKey, JSON.stringify(sumresp));
-
-      // Ensure it's still the active paper before setting the summary
+      const summaryData = await SummarizeSectionsSent(paper.title);
+  
+      // Store full object with all three lengths
+      localStorage.setItem(cacheKey, JSON.stringify(summaryData));
+  
+      // Build active summary based on length
+      const currentLength = Number(localStorage.getItem("current_summary_length") || 4);
+      const summaryContent = {
+        title: summaryData.title,
+        introduction: summaryData.introduction,
+        content: summaryData.content.map((item) => ({
+          section: item.section,
+          summary:
+            currentLength === 2
+              ? item.two_entence_summary
+              : currentLength === 4
+              ? item.four_sentence_summary
+              : item.six_sentence_summary,
+        })),
+        conclusion: summaryData.conclusion,
+      };
+  
       if (currentPaperRef.current === paper) {
-        setActiveSummary(sumresp);
-        localStorage.setItem(storageKey, JSON.stringify(sumresp));
-        //localStorage.setItem(`summary_4_${paper.title}`, JSON.stringify(sumresp));
+        setActiveSummary(summaryContent);
+        setLoadingSummary(false);
       }
-
-      setLoadingSummary(false);
     } catch (error) {
-      setActiveSummary(null);
-      setLoadingSummary(false);
+      console.error("Error loading summary:", error);
+      if (currentPaperRef.current === paper) {
+        setActiveSummary(undefined);
+        setLoadingSummary(false);
+      }
     }
   };
+  
 
   const filteredPapers = useMemo(() => {
     return researchPapers.filter((paper) => {
