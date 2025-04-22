@@ -1,5 +1,5 @@
 function searchAPI({ topic, limit } = {}) {
-  const baseUrl = "http://127.0.0.1:5001/api/search";
+  const baseUrl = `${API_BASE_URL}/api/search`;
   // Build the query parameters
   const params = new URLSearchParams({
     topic,
