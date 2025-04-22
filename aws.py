@@ -435,7 +435,7 @@ def get_file_system_recursive(prefix, bucket_name="curie-file-storage"):
               - "folders": a list of dictionaries with "name" and "content" keys,
               - "jsons": a list of JSON objects (parsed from the JSON files) at the current level.
     """
-    s3_client = boto3.client("s3")
+    s3_client = session.client("s3")
     response = s3_client.list_objects_v2(
         Bucket=bucket_name,
         Prefix=prefix,
