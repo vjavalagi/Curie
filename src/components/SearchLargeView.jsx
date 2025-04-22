@@ -21,10 +21,6 @@ export default function SearchLargeView() {
     return Number(localStorage.getItem("current_summary_length")) || 4;
   });
 
-  //clear storage when refresh page
-  useEffect(() => {
-    localStorage.clear();
-  }, []);
 
   useEffect(() => {
     if (activeSummary === null) {
@@ -75,7 +71,12 @@ export default function SearchLargeView() {
   };
   
   
+  //clear storage when refresh page
+  useEffect(() => {
+    handleSummaryClick(sliderValue);
+  }, []);
 
+  
   // const handleDeepDiveClick = () => {
   //   console.log("!!Current search value before download:", search);
   //   setActivePaper("");
