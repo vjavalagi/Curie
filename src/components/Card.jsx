@@ -279,6 +279,12 @@ export default function Card({
         </div>
 
 
+        <h3
+          className="text-xl font-semibold text-gray-800 px-4 cursor-pointer hover:underline hover:text-curieBlue transition"
+          onClick={() => onViewPaper && onViewPaper()}
+        >
+          {name}
+        </h3>
 
         <div className="inline-flex flex-wrap gap-2 mb-1.5 pt-1 pl-1">
           <span
@@ -297,8 +303,35 @@ export default function Card({
             </svg>
             {date?.slice(0, 4)}
           </span>
+          
+          {authors &&
+            authors.map((author, idx) => {
+              const isActive = activeAuthorFilters.some(
+                (active) => active.toLowerCase() === author.toLowerCase()
+              );
+              return (
+                
+                <span
+                  key={idx}
+                  onClick={() => onClickAuthor(author)}
+                  className={`py-1 px-2 inline-flex items-center gap-x-0.5 text-xs font-medium rounded-full cursor-pointer transform transition-transform duration-200 hover:scale-105 ${
+                    isActive
+                      ? "bg-curieLightGray text-black ring-2 ring-offset-2 ring-offset-white ring-curieBlue"
+                      : "bg-curieLightGray text-black"
+                  }`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                  </svg>
 
-          {tags.map((tag, idx) => {
+                  {author}
+                </span>
+              );
+            })}
+          
+        </div>
+        <div className="inline-flex flex-wrap gap-2 mb-1.5 pt-1 pl-1">
+        {tags.map((tag, idx) => {
             const isActive = activeFilters?.includes(tag.name);
             return (
               <span
@@ -324,36 +357,6 @@ export default function Card({
               </span>
             );
           })}
-        </div>
-
-        <h3
-          className="text-xl font-semibold text-gray-800 px-4 cursor-pointer hover:underline hover:text-curieBlue transition"
-          onClick={() => onViewPaper && onViewPaper()}
-        >
-          {name}
-        </h3>
-
-
-        <div className="inline-flex flex-wrap gap-2 mb-1.5 mt-1.5 px-4">
-          {authors &&
-            authors.map((author, idx) => {
-              const isActive = activeAuthorFilters.some(
-                (active) => active.toLowerCase() === author.toLowerCase()
-              );
-              return (
-                <span
-                  key={idx}
-                  onClick={() => onClickAuthor(author)}
-                  className={`py-1 px-2 inline-flex items-center gap-x-1 text-xs font-medium rounded-full cursor-pointer transform transition-transform duration-200 hover:scale-105 ${
-                    isActive
-                      ? "bg-curieLightGray text-black ring-2 ring-offset-2 ring-offset-white ring-curieBlue"
-                      : "bg-curieLightGray text-black"
-                  }`}
-                >
-                  {author}
-                </span>
-              );
-            })}
         </div>
         <div className="h-20 overflow-hidden text-sm text-gray-600 px-4 pb-4">
           <p>{abstract}</p>
