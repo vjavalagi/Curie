@@ -454,10 +454,10 @@ export default function ProfilePage() {
                     tags={current}
                     availableTags={tags}
                     onAssignTag={(tag) =>
-                      handleAssignTag(paper.entry_id, tag, "", paper)
+                      handleAssignTag(paper.entry_id, tag, folderName, paper)
                     }
                     onRemoveTagFromCard={(tagName) =>
-                      handleRemoveTagFromCard(paper.entry_id, tagName, "", paper)
+                      handleRemoveTagFromCard(paper.entry_id, tagName, folderName, paper)
                     }
                     onDeletePaper={() => handleDeletePaper(paper, "")}
                     onClickTag={toggleFilterTag}

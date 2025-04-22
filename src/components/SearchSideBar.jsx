@@ -145,7 +145,7 @@ export default function SearchSideBar({
               <p className="text-sm text-gray-500">
                 {paper.authors.join(", ")}
               </p>
-              <p className="text-sm text-gray-500">{paper.published}</p>
+              <p className="text-sm text-gray-500">{paper.published.slice(0, 10)}</p>
             </button>
           ))
         )}
