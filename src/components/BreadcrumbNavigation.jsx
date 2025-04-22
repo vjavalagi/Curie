@@ -3,7 +3,7 @@ import React from "react";
 export default function BreadcrumbNavigation({ path, onNavigate }) {
   return (
     <div className="w-full max-w-4xl px-4 pt-4">
-      <div className="bg-gray-50 border border-gray-300 rounded-lg p-3 shadow-sm">
+      <div className="bg-white border border-gray-300 rounded-lg p-3 shadow-sm">
         <nav className="flex items-center text-gray-500 text-sm">
           <button
             className="hover:text-blue-600 focus:outline-none focus:text-blue-600"
