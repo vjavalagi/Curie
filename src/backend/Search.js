@@ -1,3 +1,5 @@
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 function searchAPI({ topic, limit } = {}) {
   const baseUrl = `${API_BASE_URL}/api/search`;
   // Build the query parameters
