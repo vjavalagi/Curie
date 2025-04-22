@@ -560,7 +560,7 @@ export default function ProfilePage() {
         onSliderChange={handleSummaryClick}
       />
 
-
+    </div>
     </div>
   );
 }
