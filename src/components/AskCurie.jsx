@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useGlobal } from '../context/GlobalContext';
 import axios from 'axios';
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 
 const AskCurie = () => {
   const [question, setQuestion] = useState("");
@@ -24,7 +26,7 @@ const AskCurie = () => {
     setError("");
     try {
       const name = activePaper.title;
-      const response = await axios.get("http://localhost:5001/api/ask-curie", {
+      const response = await axios.get(`${API_BASE_URL}/api/ask-curie`, {
         params: { name, question },
       });
 

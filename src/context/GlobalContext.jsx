@@ -35,7 +35,7 @@ export const GlobalProvider = ({ children }) => {
   useEffect(() => {
     async function fetchFileSystem() {
       try {
-        const response = await axios.get("http://localhost:5001/api/get-file-system", {
+        const response = await axios.get(`${API_BASE_URL}/api/get-file-system`, {
           params: { username: user["UserID"] },
         });
         console.log("File system fetched:", response.data);

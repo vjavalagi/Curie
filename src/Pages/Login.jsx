@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import CurieLogo from "../assets/curie_no_background.png";
 import { useGlobal } from "../context/GlobalContext";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 
 export default function Login() {
   const navigate = useNavigate();
@@ -20,7 +22,7 @@ export default function Login() {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:5001/api/login", form);
+      const response = await axios.post(`${API_BASE_URL}/api/login`, form);
       if (response.data && response.data.user) {
         setUser({
           UserID: response.data.user.UserID,

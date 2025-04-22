@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 
 const CreateAccount = () => {
   const navigate = useNavigate();
@@ -45,7 +47,7 @@ const CreateAccount = () => {
 
       if (photo) {
         // Get a presigned URL from backend
-        const { data } = await axios.get("http://localhost:5001/api/s3-url", {
+        const { data } = await axios.get(`${API_BASE_URL}/api/s3-url`, {
           params: { filename: `ProfilePictures/${photo.name}` },
         });
 
@@ -58,7 +60,7 @@ const CreateAccount = () => {
       }
 
       // Send data to backend to create user
-      const response = await axios.post("http://localhost:5001/api/create-user", {
+      const response = await axios.post(`${API_BASE_URL}/api/create-user`, {
         username,
         email,
         password,

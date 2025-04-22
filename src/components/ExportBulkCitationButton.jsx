@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 
 export default function ExportBulkCitationButton({ papers, folderName }) {
   const [isExporting, setIsExporting] = useState(false);
@@ -14,7 +16,7 @@ export default function ExportBulkCitationButton({ papers, folderName }) {
 
         if (arxivId) {
           try {
-            const response = await fetch(`http://localhost:5001/api/arxiv-bibtex?arxiv_id=${arxivId}`);
+            const response = await fetch(`${API_BASE_URL}/api/arxiv-bibtex?arxiv_id=${arxivId}`);
             const data = await response.json();
             if (data.bibtex) return data.bibtex;
           } catch (err) {

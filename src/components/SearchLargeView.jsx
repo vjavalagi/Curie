@@ -8,6 +8,8 @@ import ActiveSummary from "./ActiveSummary";
 import SaveToProfileModal from "./SaveToProfileModal"; // Adjust path if needed
 import AskCurie from "./AskCurie";
 import PaperModal from "./PaperModal";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 
 export default function SearchLargeView() {
   const { search, activePaper, setActivePaper, setActiveSummary, activeSummary, user, fileSystem, setFileSystem } = useGlobal();
@@ -92,7 +94,7 @@ export default function SearchLargeView() {
   const handleFolderSelection = async (folderName) => {
     if (!activePaper) return;
     try {
-      const response = await axios.post("http://localhost:5001/api/upload-paper-to-folder", {
+      const response = await axios.post(`${API_BASE_URL}/api/upload-paper-to-folder`, {
         username: user["UserID"],
         folder: folderName, // if folderName is "", the paper is saved loose
         paper: activePaper,

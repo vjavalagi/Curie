@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Card from "./Card";
 import { useGlobal } from "../context/GlobalContext";
 import axios from "axios";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 
 
 export default function FolderView() {
@@ -64,7 +66,7 @@ export default function FolderView() {
         paper_id: paperId,
       };
       
-      await axios.post("http://localhost:5001/api/delete-paper", payload);
+      await axios.post(`${API_BASE_URL}/api/delete-paper`, payload);
       
     } catch (err) {
       console.error("Error deleting paper:", err);
@@ -75,7 +77,7 @@ export default function FolderView() {
     try {
       console.log("Folder View Moving paper", paperId, "from", fromFolder, "to", toFolder);
 
-      await axios.post("http://localhost:5001/api/move-paper", {
+      await axios.post(`${API_BASE_URL}/api/move-paper`, {
         username: user.UserID,
         paper_id: paperId,
         from_folder: fromFolder,

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Tag from "./Tag";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 
 export default function Card({
   paperId, 
@@ -68,7 +70,7 @@ export default function Card({
       let bibtexContent = "";
 
       if (arxivId) {
-        const response = await fetch(`http://localhost:5001/api/arxiv-bibtex?arxiv_id=${arxivId}`);
+        const response = await fetch(`${API_BASE_URL}/api/arxiv-bibtex?arxiv_id=${arxivId}`);
         const data = await response.json();
 
         if (data.bibtex) {
