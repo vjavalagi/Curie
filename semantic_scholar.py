@@ -63,11 +63,11 @@ def get_pdf(obj, name = None):
     """Download a PDF from the given URL and save it locally."""
     # print("pdf object", obj)
     # print(type(obj))
-    print("PDF object", obj)
-    paper = obj["paper"]
+    paper = obj["user"]
     name = name if name else paper["title"]
     if not name.endswith(".pdf"):
         name += ".pdf"
+    print("PDF name", name)
     arxiv_python.save_pdf(paper, name)
     
     
@@ -166,6 +166,7 @@ def api_summarize_sections_sent():
     summary = get_section_summaries(file_path, sentence_count)
     print("SUMMARY", summary)
     return jsonify({"summary": summary})
+
 
 
 @app.route('/api/summarize', methods=['GET'])

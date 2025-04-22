@@ -69,6 +69,7 @@ export default function SearchSideBar({
   
       // Download and summarize
       await PDFDownload(paper);
+      console.log("Paper downloaded successfully:", paper);
       const summaryData = await SummarizeSectionsSent(paper.title);
   
       // Store full object with all three lengths

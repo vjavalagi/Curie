@@ -185,22 +185,22 @@ def ask_curie(document_text, question):
     obj = json.loads(response.choices[0].message.content.strip())
     print("ASK CURIE RESPONSE", obj)
     return obj
-def ask_curie(document_text, question):
-    """Generates a summary per section."""
+# def ask_curie(document_text, question):
+#     """Generates a summary per section."""
     
-    prompt = f"""
-   answer the question {question} based on the document {document_text}
-    """
-    response = client.beta.chat.completions.parse(
-        model="gpt-4o-mini",
-        messages=[{"role": "system", "content": "You are a subject matter expert."},
-                  {"role": "user", "content": prompt}],
-        response_format=AskCurie
-    )
-    print("FINISHED")
-    obj = json.loads(response.choices[0].message.content.strip())
-    print("ASK CURIE RESPONSE", obj)
-    return obj
+#     prompt = f"""
+#    answer the question {question} based on the document {document_text}
+#     """
+#     response = client.beta.chat.completions.parse(
+#         model="gpt-4o-mini",
+#         messages=[{"role": "system", "content": "You are a subject matter expert."},
+#                   {"role": "user", "content": prompt}],
+#         response_format=AskCurie
+#     )
+#     print("FINISHED")
+#     obj = json.loads(response.choices[0].message.content.strip())
+#     print("ASK CURIE RESPONSE", obj)
+#     return obj
 def getPaperInfo(document_text):
     """gets all the info to store a paper"""
     
