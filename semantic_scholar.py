@@ -25,7 +25,7 @@ load_dotenv(find_dotenv())
 
 # Create your Flask app once
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173","https://main.d1d7sg0tu7v11c.amplifyapp.com"], supports_credentials=True)  # Enable CORS for all routes
+CORS(app, origins=["http://localhost:5173","https://set-up-amplify.d1d7sg0tu7v11c.amplifyapp.com"], supports_credentials=True)  # Enable CORS for all routes
 
 # Set up the path for storing PDFs
 pdf_output_path = "pdfs/"
@@ -33,16 +33,16 @@ os.makedirs(pdf_output_path, exist_ok=True)
 
 SEMANTIC_SCHOLAR_API_KEY = os.getenv('SEMANTICAPIKEY')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-AWS_DEFAULT_REGION = os.getenv("AWS_DEFAULT_REGION")
+AMAZON_ACCESS_KEY_ID = os.getenv("AMAZON_ACCESS_KEY_ID")
+AMAZON_SECRET_ACCESS_KEY = os.getenv("AMAZON_SECRET_ACCESS_KEY")
+AMAZON_DEFAULT_REGION = os.getenv("AMAZON_DEFAULT_REGION")
 S3_BUCKET_NAME = "curie-file-storage"
 
 s3_client = boto3.client(
     "s3",
-    region_name=AWS_DEFAULT_REGION,
-    aws_access_key_id=AWS_ACCESS_KEY_ID,
-    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    region_name=AMAZON_DEFAULT_REGION,
+    aws_access_key_id=AMAZON_ACCESS_KEY_ID,
+    aws_secret_access_key=AMAZON_SECRET_ACCESS_KEY,
 )
 
 def get_whole_summary(name):
