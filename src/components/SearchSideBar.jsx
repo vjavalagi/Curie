@@ -33,7 +33,6 @@ export default function SearchSideBar({
 
   const handlePaperClick = async (paper) => {
     try {
-      console.log("Paper clicked:", paper);
       setActivePaper(paper);
       setActiveSummary(undefined); // Clear previous summary immediately
       setLoadingSummary(true); // Indicate that the summary is being checked/loaded
@@ -68,11 +67,9 @@ export default function SearchSideBar({
         return;
       }
   
-      // If not found, proceed to fetch summary
-      console.log("Fetching new summary for:", paper);
-      const response = await PDFDownload(paper);
-      console.log("PDF download response:", response);
-      const sumresp = await SummarizeSections(paper.title);
+      // Download and summarize
+      await PDFDownload(paper);
+      const summaryData = await SummarizeSectionsSent(paper.title);
   
       // Store full object with all three lengths
       localStorage.setItem(cacheKey, JSON.stringify(summaryData));

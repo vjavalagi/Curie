@@ -299,14 +299,7 @@ export default function SearchLargeView() {
     ) : (
       <ActiveSummary activeSummary={activeSummary} activePaper={activePaper} />
     )}
-  </section>
-      )}
-
-      {/* Ask Curie Component */}
-      {activePaper && (
-        <section className="p-6 mt-4 bg-white rounded-lg shadow-md">
-          <AskCurie />
-          </section>
+    </section>
       )}
 
       {/* Ask Curie Component */}
