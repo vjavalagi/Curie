@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { PDFDownload } from "../backend/PdfDownload";
 import axios from "axios";
 import Header from "../components/Header";
 import DirectoryDropdown from "../components/DirectoryDropdown";
@@ -35,21 +36,30 @@ export default function ProfilePage() {
     if (!modalPaper) return;
     
     setActiveSummary(undefined); // clear summary to trigger loading UI
-  
-    const storageKey = `summary_${summaryLength}_${modalPaper.title}`;
-    const storedSummary = localStorage.getItem(storageKey);
-  
-    if (storedSummary) {
-      setActiveSummary(JSON.parse(storedSummary));
-    } else {
-      try {
-        const summary = await SummarizeSectionsSent(modalPaper.title, summaryLength);
-        localStorage.setItem(storageKey, JSON.stringify(summary));
-        setActiveSummary(summary);
-      } catch (error) {
-        console.error("Error fetching summary:", error);
-      }
+    const cacheKey = `summary_${modalPaper.title}`;
+    const cachedSummaryData = localStorage.getItem(cacheKey);
+    if (!cachedSummaryData) {
+      return;
     }
+  
+    const parsedSummary = JSON.parse(cachedSummaryData);
+  
+    const summaryContent = {
+      title: parsedSummary.title,
+      introduction: parsedSummary.introduction,
+      content: parsedSummary.content.map((item) => ({
+        section: item.section,
+        summary:
+          summaryLength === 2
+            ? item.two_entence_summary
+            : summaryLength === 4
+            ? item.four_sentence_summary
+            : item.six_sentence_summary,
+      })),
+      conclusion: parsedSummary.conclusion,
+    };
+  
+    setActiveSummary(summaryContent);
   };
 
   useEffect(() => {
@@ -304,11 +314,11 @@ export default function ProfilePage() {
   // Base view: folders and loose (top-level) papers, applying filters and sorting
   const renderBaseView = () => (
     <>
-      <div className="flex justify-between items-center mb-3">
+      <div className="flex items-center justify-between mb-3">
         <h3 className="text-lg font-semibold">Folders</h3>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-3 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+          className="flex items-center gap-2 px-3 py-2 text-white transition bg-green-500 rounded hover:bg-green-600"
         >
           + Create Folder
         </button>
@@ -318,8 +328,8 @@ export default function ProfilePage() {
           <Folder key={i} name={f.name} onOpenFolder={() => setCurrentFolder(f.name)} />
         ))}
       </div>
-      <h3 className="text-lg font-semibold mb-3">Loose Papers</h3>
-      <div className="flex flex-wrap gap-6 justify-center">
+      <h3 className="mb-3 text-lg font-semibold">Loose Papers</h3>
+      <div className="flex flex-wrap justify-center gap-6">
         <AnimatePresence mode="popLayout">
           {[...fileSystem.jsons]
             .sort((a, b) => {
@@ -407,12 +417,12 @@ export default function ProfilePage() {
     const renderFileSystem = (fs, folderName = "") => (
       <div>
         {fs.folders.map((f, i) => (
-          <div key={i} className="ml-4 my-2">
+          <div key={i} className="my-2 ml-4">
             <Folder name={f.name} onOpenFolder={() => setCurrentFolder(f.name)} />
             <div className="ml-6">{renderFileSystem(f.content, f.name)}</div>
           </div>
         ))}
-      <div className="flex flex-wrap gap-6 justify-center">
+      <div className="flex flex-wrap justify-center gap-6">
         <AnimatePresence mode="popLayout">
           {[...fs.jsons]
             .sort((a, b) => {
@@ -484,7 +494,7 @@ export default function ProfilePage() {
     return (
       <>
         <button
-          className="mb-4 px-4 py-2 bg-gray-300 rounded"
+          className="px-4 py-2 mb-4 bg-gray-300 rounded"
           onClick={() => setCurrentFolder("")}
         >
           ← Back
@@ -496,7 +506,7 @@ export default function ProfilePage() {
         <CopyFolderBibtexButton
           papers={folder.content.jsons}
         />
-        <h3 className="text-lg font-semibold mb-3">
+        <h3 className="mb-3 text-lg font-semibold">
           Contents of “{currentFolder}”
         </h3>
         {renderFileSystem(folder.content, currentFolder)}
@@ -505,7 +515,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="flex flex-col h-screen bg-gray-50">
       <Header variant="lightblue" />
       <div className="flex flex-1 overflow-hidden">
         <DirectoryDropdown
@@ -515,14 +525,14 @@ export default function ProfilePage() {
           onClickTag={toggleFilterTag}
           activeFilters={activeFilters}
         />
-        <div className="flex flex-col flex-1 items-center pt-3 overflow-y-auto">
+        <div className="flex flex-col items-center flex-1 pt-3 overflow-y-auto">
           <WelcomeMessage />
           <BreadcrumbNavigation
             path={currentFolder ? [currentFolder] : []}
             onNavigate={() => setCurrentFolder("")}
           />
-          <div className="w-full max-w-8xl mx-auto mt-4 p-4 bg-white rounded-lg shadow-md">
-            <h2 className="text-lg font-semibold mb-3 text-center">
+          <div className="w-full p-4 mx-auto mt-4 bg-white rounded-lg shadow-md max-w-8xl">
+            <h2 className="mb-3 text-lg font-semibold text-center">
               Saved PDFs
             </h2>
             {!fileSystem ? (
