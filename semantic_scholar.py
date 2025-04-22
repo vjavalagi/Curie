@@ -5,19 +5,21 @@ import urllib3
 import re
 import hashlib
 from arxiv import Client, Search, SortCriterion
-from flask import Flask, request, jsonify, send_from_directory, make_response
+from flask import Flask, request, jsonify, send_from_directory, make_response, send_file, abort, after_this_request
 from dotenv import load_dotenv, find_dotenv
 from flask_cors import CORS
 from gpt import get_foundational_papers
-from summaries.joined_summary import summarize_document, extract_text_pymu,  summarize_sections, ask_curie
+from summaries.joined_summary import summarize_document, extract_text_pymu,  summarize_sections, ask_curie 
 from arxiv_api import ArxivAPI
-from slide_gen import generate_presentation
+from slide_gen import generate_presentation, downloadAndZip
 from arxiv import Client, Search, SortCriterion
 import boto3
 from dotenv import load_dotenv, find_dotenv
 from botocore.exceptions import ClientError
 from aws import upload_paper, delete_paper_folder, delete_paper, create_user, update_tags, create_paper_folder, get_user_file_system, move_file, dynamodb, users
 
+import zipfile
+import tempfile
 
 arxiv_python = ArxivAPI()
 # Load environment variables from .env file
@@ -49,22 +51,23 @@ def get_whole_summary(name):
     return summarize_document(name)
 
 def get_section_summaries(name, sentence_count):
-    print("Getting Section Summaries", name)
-    print("extracting text")
+    # print("Getting Section Summaries", name)
+    # print("extracting text")
     #text = extract_text(name)
     text = extract_text_pymu(name)
     #print(text)
-    print("summarizing sections with sentence count", sentence_count)
+    # print("summarizing sections with sentence count", sentence_count)
     return summarize_sections(text, sentence_count)
 
 def get_pdf(obj, name = None):
     """Download a PDF from the given URL and save it locally."""
-    print("pdf object", obj)
-    print(type(obj))
+    # print("pdf object", obj)
+    # print(type(obj))
     paper = obj["user"]
     name = name if name else paper["title"]
     if not name.endswith(".pdf"):
         name += ".pdf"
+    print("PDF name", name)
     arxiv_python.save_pdf(paper, name)
     
     
@@ -100,7 +103,39 @@ Relevance Search, returns the most relevant papers https://api.semanticscholar.o
 #     return data
 
 
-    
+@app.route("/api/download-zip", methods=["POST"])
+def download_zip():
+    # Specify the folder you want to zip. Replace with your actual folder path.
+    # get the folder name from the request
+    data = request.get_json()
+    folder_to_zip = data.get('folder')
+
+    print("Folder to zip:", folder_to_zip)
+    if not folder_to_zip:
+        abort(400, description="Folder name is required.")
+    # Create a temporary file that will store the zip archive
+    tmp_zip = tempfile.NamedTemporaryFile(delete=False, suffix=".zip")
+    tmp_zip.close()  # Close the file so zip_folder can write to it
+
+    try:
+        downloadAndZip(folder_to_zip, tmp_zip.name)
+    except Exception as e:
+        print("Error zipping folder:", folder_to_zip, e)
+        app.logger.error("Error zipping folder: %s", e)
+        abort(500, description="An error occurred during zipping the folder.")
+
+    # Ensure the temporary file gets removed after sending the file
+    @after_this_request
+    def remove_file(response):
+        try:
+            os.remove(tmp_zip.name)
+        except Exception as error:
+            app.logger.error("Error removing temporary zip file: %s", error)
+        return response
+
+    # send_file returns the zipped file with 'as_attachment=True' to prompt a download.
+    return send_file(tmp_zip.name, as_attachment=True, download_name="folder.zip")
+
 @app.route('/api/summarize-sections', methods=['GET'])
 def api_summarize_sections():
     """
@@ -131,6 +166,7 @@ def api_summarize_sections_sent():
     summary = get_section_summaries(file_path, sentence_count)
     print("SUMMARY", summary)
     return jsonify({"summary": summary})
+
 
 
 @app.route('/api/summarize', methods=['GET'])
@@ -174,24 +210,40 @@ def api_search():
     """
     """
     topic = request.args.get('topic', 'Computer Science')
-    limit = int(request.args.get('limit', 7))
+    limit = int(request.args.get('limit', 60))
     results = arxiv_python.search(topic, limit, SortCriterion.Relevance)
     return jsonify(results)
+
 @app.route('/api/gen-slides', methods=['POST'])
 def api_generate_slides():
-    path = request.args.get("path")
-    generate_presentation(path)
-    return 
+    """
+    ```
+    curl -X POST http://localhost:5001/api/gen-slides \
+    -H "Content-Type: application/json" \
+    -d '{"path": "pdfs/A fixed-parameter tractable algorithm for combinatorial filter reduction.pdf"}'
+    ```
+    """
+    data = request.get_json()
+    path = data.get("path")
+
+    if not path:
+        return jsonify({"error": "Missing path parameter"}), 400
+
+    try:
+        print("generating slides for", path)
+        generate_presentation(path)
+        return jsonify({"message": "Slides generated successfully."}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/download-pdf', methods=['POST'])
 def api_download_pdf():
     """
-    Example: POST /api/download-pdf
-    {
-        "entry_id": "1234.56789",
-        "title": "example.pdf"
-    }
+    
     """
+    
     data = request.get_json()
+    print("Data for paper", data)
     get_pdf(data)
     return jsonify({"success": True})
 
@@ -430,6 +482,34 @@ def move_paper():
         print(" Move paper exception:", e)
         return jsonify({"error": str(e)}), 500
 
+def mass_upload_to_josh():
+    subject = "Flowers"
+    limit_per_batch = 100  # Reasonable number to avoid overloading arXiv or AWS at once
+    username = "Josh"
+    folder_name = "TAMU Professors"
+
+    # # Ensure Josh has the folder created
+    # create_paper_folder(username, folder_name)
+
+    for i in range(100):
+        print(f"--- Batch {i+1}/100 ---")
+        papers = arxiv_python.search(subject, limit_per_batch, SortCriterion.Relevance)
+        for paper in papers:
+            try:
+                # Download the paper
+                # file_name = get_pdf({"paper": paper})
+                # Upload to Josh's S3 folder
+                upload_response = upload_paper(username, folder_name, paper)
+                print(f"Uploaded paper: {paper['title']}... | Response: {upload_response}")
+            except Exception as e:
+                print(f"Error uploading paper {paper.get('title', '')}: {e}")
+@app.route('/api/dev/mass-upload-josh')
+def run_mass_upload():
+    try:
+        mass_upload_to_josh()
+        return jsonify({"message": "Done uploading 1000 batches to Josh's account!"})
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
     # Run on port 5001

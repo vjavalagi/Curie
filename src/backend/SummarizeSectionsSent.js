@@ -20,4 +20,3 @@ async function SummarizeSectionsSent(name, sentenceCount) {
 }
 
 export { SummarizeSectionsSent };
-

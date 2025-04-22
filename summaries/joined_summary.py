@@ -20,10 +20,18 @@ class Summary2(BaseModel):
     introduction: str
     content: list[Content]
     conclusion: str
-
 class AskCurie(BaseModel):
     question: str
     answer: str
+class PaperInfo(BaseModel):
+    title: str
+    authors: str
+    journal: str
+    publication_date: str
+    doi: str
+    abstract: str
+    keywords: list[str]
+    references: list[str]
     
 # Set up API credentials
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -166,6 +174,38 @@ def ask_curie(document_text, question):
     
     prompt = f"""
    answer the question {question} based on the document {document_text}
+    """
+    response = client.beta.chat.completions.parse(
+        model="gpt-4o-mini",
+        messages=[{"role": "system", "content": "You are a subject matter expert."},
+                  {"role": "user", "content": prompt}],
+        response_format=AskCurie
+    )
+    print("FINISHED")
+    obj = json.loads(response.choices[0].message.content.strip())
+    print("ASK CURIE RESPONSE", obj)
+    return obj
+# def ask_curie(document_text, question):
+#     """Generates a summary per section."""
+    
+#     prompt = f"""
+#    answer the question {question} based on the document {document_text}
+#     """
+#     response = client.beta.chat.completions.parse(
+#         model="gpt-4o-mini",
+#         messages=[{"role": "system", "content": "You are a subject matter expert."},
+#                   {"role": "user", "content": prompt}],
+#         response_format=AskCurie
+#     )
+#     print("FINISHED")
+#     obj = json.loads(response.choices[0].message.content.strip())
+#     print("ASK CURIE RESPONSE", obj)
+#     return obj
+def getPaperInfo(document_text):
+    """gets all the info to store a paper"""
+    
+    prompt = f"""
+    Can you extract the information as requested in the response frormat
     """
     response = client.beta.chat.completions.parse(
         model="gpt-4o-mini",

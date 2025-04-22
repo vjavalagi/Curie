@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import Tag from "./Tag";
-
+import { PDFDownload } from "../backend/PdfDownload"; // Ensure correct path
+import axios from "axios";
 export default function Card({
+  paper,
   paperId, 
   name,
   authors,
@@ -29,6 +31,8 @@ export default function Card({
   const [isCopying, setIsCopying] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [slidesLoading, setSlidesloading] = useState(false);
+  const [canDownloadSlide, setCanDownloadSlide] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -41,7 +45,75 @@ export default function Card({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [dropdownRef]);
+  }, [dropdownRef, slidesLoading]);
+
+
+  // slide gen
+  const handleSlideGeneration = async () => {
+    // download the paper 
+    setSlidesloading(true);
+    console.log("Generating slide for paper:", paper);
+    console.log("the paper id is:", paperId); 
+    await PDFDownload(paper);
+    const paper_path = "pdfs/" + paper.title + ".pdf"
+    console.log("Paper downloaded, now generating slide...", );
+    await fetch("http://localhost:5001/api/gen-slides", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        path: paper_path
+      }),
+    })
+    setSlidesloading(false);
+    setCanDownloadSlide(true);
+    return;
+  }
+  const downloadSlides = async () => {
+    // Construct the folder path from which to download the slides.
+    const folder_path = "slides/" + paper.title;
+    console.log("Downloading slides from folder:", folder_path);
+  
+    // Send POST request with folder path in the JSON body.
+    const response = await fetch("http://localhost:5001/api/download-zip", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        folder: folder_path,
+      }),
+    });
+  
+    // Check if the response is OK.
+    if (!response.ok) {
+      console.error("Failed to download zip file");
+      return;
+    }
+  
+    // Convert the response into a Blob.
+    const blob = await response.blob();
+    
+    // Create a URL for the blob.
+    const url = window.URL.createObjectURL(blob);
+    
+    // Create a temporary anchor element.
+    const a = document.createElement("a");
+    a.href = url;
+    // Set the download attribute to set the file name.
+    a.download = "folder.zip";
+    
+    // Append the anchor to the document body (required for Firefox).
+    document.body.appendChild(a);
+    
+    // Programmatically click the anchor to trigger the download.
+    a.click();
+    
+    // Clean up: remove the anchor and revoke the Blob URL.
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  };
 
   const handleCopyBibtex = async () => {
     setIsCopying(true);
@@ -177,6 +249,31 @@ export default function Card({
                     "Copy BibTeX"
                   )}
                 </button>
+                
+                <button
+                  onClick={handleSlideGeneration}
+                  className="block w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                >
+                  {slidesLoading ? (
+                    <div
+                      className="animate-spin inline-block size-4 border-2 border-current border-t-transparent text-blue-600 rounded-full"
+                      role="status"
+                      aria-label="loading"
+                      >
+                      <span className="sr-only">Loading...</span>
+                    </div>
+                  ) : (
+                    "Generate Slide"
+                  )}
+                </button>
+                {canDownloadSlide && (
+                  <button
+                    onClick={downloadSlides}
+                    className="block w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                  >
+                    Download Slides
+                  </button>
+                )}
                 
                 {onDeletePaper && (
                   <button

@@ -1,4 +1,4 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Timeline from "./Timeline";
 import { SummarizeSectionsSent } from "../backend/SummarizeSectionsSent";
 import { useGlobal } from "../context/GlobalContext";
