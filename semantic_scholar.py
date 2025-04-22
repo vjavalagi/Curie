@@ -16,9 +16,10 @@ import boto3
 from dotenv import load_dotenv, find_dotenv
 from botocore.exceptions import ClientError
 from aws import upload_paper, delete_paper_folder, delete_paper, create_user, update_tags, create_paper_folder, get_user_file_system, move_file, dynamodb, users
-import fitz
 from google.api_core.client_options import ClientOptions
 from google.cloud import documentai
+import tempfile
+import requests
 
 
 
@@ -132,22 +133,50 @@ def api_summarize_sections():
 
 
 
+# @app.route('/api/summarize-sections-sent', methods=['GET'])
+# def api_summarize_sections_sent():
+#     """
+#     Example: GET /api/summarize-section-sent?file_path=/path/to/file.pdf?sentence_count=5
+#     """
+#     print("File path", request.args.get('file_path'))
+#     file_path = "./pdfs/" + request.args.get('file_path', 'ExamRubric') + ".pdf"
+#     print(file_path)
+#     print("FILE PATH for section summaries", file_path)
+
+#     sentence_count = request.args.get('sentence_count')
+#     print(f"Sentence count: {sentence_count}")
+
+#     summary = get_section_summaries(file_path, sentence_count)
+#     print("SUMMARY", summary)
+#     return jsonify({"summary": summary})
+
+# TESTING NO PDF DOWNLOAD
 @app.route('/api/summarize-sections-sent', methods=['GET'])
 def api_summarize_sections_sent():
-    """
-    Example: GET /api/summarize-section-sent?file_path=/path/to/file.pdf?sentence_count=5
-    """
-    print("File path", request.args.get('file_path'))
-    file_path = "./pdfs/" + request.args.get('file_path', 'ExamRubric') + ".pdf"
-    print(file_path)
-    print("FILE PATH for section summaries", file_path)
+    pdf_url = request.args.get("pdf_url")
 
-    sentence_count = request.args.get('sentence_count')
-    print(f"Sentence count: {sentence_count}")
+    if not pdf_url:
+        return jsonify({"error": "Missing pdf_url"}), 400
 
-    summary = get_section_summaries(file_path, sentence_count)
-    print("SUMMARY", summary)
-    return jsonify({"summary": summary})
+    try:
+        # Download the PDF to a temp file
+        response = requests.get(pdf_url)
+        response.raise_for_status()
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+            temp_file.write(response.content)
+            temp_file_path = temp_file.name
+
+        print("Downloaded PDF to:", temp_file_path)
+
+        # Extract text and summarize
+        extracted_text = extract_text_pymu(temp_file_path)
+        summary = summarize_sections(extracted_text)
+        return jsonify({"summary": summary})
+
+    except Exception as e:
+        print("Error during summarization:", e)
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route('/api/summarize', methods=['GET'])
