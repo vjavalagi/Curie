@@ -6,6 +6,8 @@ import json
 from dotenv import load_dotenv, find_dotenv
 from pydantic import BaseModel
 import pymupdf
+import requests
+
 load_dotenv(find_dotenv())
 
 
@@ -93,6 +95,25 @@ def extract_text(file_path):
     result = docai_client.process_document(request=request)
 
     return result.document.text  # Return extracted text
+
+def extract_text_from_url(pdf_url):
+    project_id = "curie-451919"
+    processor_id = "e023529ca8b39cc"
+    location = "us"
+
+    opts = ClientOptions(api_endpoint=f"{location}-documentai.googleapis.com")
+    docai_client = documentai.DocumentProcessorServiceClient(client_options=opts)
+    processor_path = f"projects/{project_id}/locations/{location}/processors/{processor_id}"
+
+    response = requests.get(pdf_url)
+    response.raise_for_status()
+
+    raw_document = documentai.RawDocument(content=response.content, mime_type="application/pdf")
+    request = documentai.ProcessRequest(name=processor_path, raw_document=raw_document)
+    result = docai_client.process_document(request=request)
+    
+    return result.document.text
+
 
 # Function to summarize extracted text by section
 def summarize_sections(document_text, sentence_count=4):

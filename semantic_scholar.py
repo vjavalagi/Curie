@@ -12,11 +12,15 @@ from gpt import get_foundational_papers
 from summaries.joined_summary import summarize_document, extract_text_pymu,  summarize_sections, ask_curie
 from arxiv_api import ArxivAPI
 from slide_gen import generate_presentation
-from arxiv import Client, Search, SortCriterion
 import boto3
 from dotenv import load_dotenv, find_dotenv
 from botocore.exceptions import ClientError
 from aws import upload_paper, delete_paper_folder, delete_paper, create_user, update_tags, create_paper_folder, get_user_file_system, move_file, dynamodb, users
+import fitz
+from google.api_core.client_options import ClientOptions
+from google.cloud import documentai
+
+
 
 
 arxiv_python = ArxivAPI()
@@ -73,46 +77,59 @@ def get_pdf(obj, name = None):
 def sortCriteria(a,b):
     pass
 
-'''
-Alternative URLS
+# TESTING NO PDF DOWNLOAD  
+# @app.route('/api/summarize-sections', methods=['GET'])
+# def api_summarize_sections():
+#     """
+#     Example: GET /api/summarize-sections?file_path=/path/to/file.pdf
+#     """
+#     print("File path", request.args.get('file_path'))
+#     file_path = "./pdfs/" + request.args.get('file_path', 'ExamRubric') + ".pdf"
+#     print(file_path)
+#     print("FILE PATH for section summaries", file_path)
+#     summary = get_section_summaries(file_path, 1)
+#     print("SUMMARY", summary)
+#     return jsonify({"summary": summary})
 
-Bulk Search, returns as many as possible https://api.semanticscholar.org/graph/v1/paper/search/bulk
-
-Relevance Search, returns the most relevant papers https://api.semanticscholar.org/graph/v1/paper/search
-'''
-# def search_semantic_scholar(query_params, only_open_access=False):
-#     url = "https://api.semanticscholar.org/graph/v1/paper/search/"
-#     headers = {"x-api-key": SEMANTIC_SCHOLAR_API_KEY}
-    
-#     response = requests.get(url, params=query_params, headers=headers)
-#     print("Response status code:", response.status_code)
-    
-#     try:
-#         response_json = response.json()
-#     except Exception as e:
-#         print("Error parsing JSON:", e)
-#         return {"error": "Invalid response from API"}
-    
-#     data = response_json.get('data', [])
-#     if only_open_access:
-#         data = [d for d in data if 'openAccessPdf' in d and d['openAccessPdf']]
-    
-#     return data
-
-
-    
 @app.route('/api/summarize-sections', methods=['GET'])
 def api_summarize_sections():
     """
-    Example: GET /api/summarize-sections?file_path=/path/to/file.pdf
+    Example: GET /api/summarize-sections?pdf_url=https://...&sentence_count=4
     """
-    print("File path", request.args.get('file_path'))
-    file_path = "./pdfs/" + request.args.get('file_path', 'ExamRubric') + ".pdf"
-    print(file_path)
-    print("FILE PATH for section summaries", file_path)
-    summary = get_section_summaries(file_path, 1)
-    print("SUMMARY", summary)
-    return jsonify({"summary": summary})
+    pdf_url = request.args.get("pdf_url")
+    sentence_count = int(request.args.get("sentence_count", 4))
+
+    if not pdf_url:
+        return jsonify({"error": "Missing pdf_url"}), 400
+
+    try:
+        # Download the PDF from the URL into memory
+        response = requests.get(pdf_url)
+        response.raise_for_status()
+
+        # Send the in-memory PDF to Document AI
+        project_id = "curie-451919"
+        processor_id = "e023529ca8b39cc"
+        location = "us"
+
+        opts = ClientOptions(api_endpoint=f"{location}-documentai.googleapis.com")
+        docai_client = documentai.DocumentProcessorServiceClient(client_options=opts)
+        processor_path = f"projects/{project_id}/locations/{location}/processors/{processor_id}"
+
+        raw_document = documentai.RawDocument(content=response.content, mime_type="application/pdf")
+        doc_request = documentai.ProcessRequest(name=processor_path, raw_document=raw_document)
+        result = docai_client.process_document(request=doc_request)
+
+        extracted_text = result.document.text
+
+        # Summarize using your OpenAI pipeline
+        summary = summarize_sections(extracted_text, sentence_count)
+        return jsonify({"summary": summary})
+    except Exception as e:
+        print("Error during summarize-sections:", e)
+        return jsonify({"error": str(e)}), 500
+
+
 
 
 @app.route('/api/summarize-sections-sent', methods=['GET'])

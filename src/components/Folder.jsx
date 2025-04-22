@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { useGlobal } from "../context/GlobalContext";
 import RenameFolderModal from "./RenameFolderModal";
 import axios from "axios";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5001";
+
 
 const Folder = ({ name, onOpenFolder }) => {
   const { user, refreshFileSystem, setCurrentFolder } = useGlobal();
