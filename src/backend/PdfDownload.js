@@ -1,4 +1,4 @@
-function PDFDownload(user, paper) {
+function PDFDownload(paper, user) {
   const baseUrl = 'http://127.0.0.1:5001/api/download-pdf';
   console.log("Downloading PDF", paper);
   return fetch(baseUrl, {

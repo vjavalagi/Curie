@@ -305,6 +305,7 @@ export default function ProfilePage() {
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                   <Card
+                    paper={paper}
                     paperId={paper.entry_id}
                     name={paper.title}
                     authors={paper.authors}
@@ -388,6 +389,7 @@ export default function ProfilePage() {
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                   <Card
+                    paper={paper}
                     paperId={paper.entry_id}
                     name={paper.title}
                     authors={paper.authors}

@@ -126,6 +126,7 @@ export default function FolderView() {
                 exit={{ x: 50, opacity: 0 }}
               >
                 <Card
+                  paper = {paper}
                   paperId={paper.entry_id}
                   name={paper.title}
                   authors={paper.authors}

@@ -10,6 +10,7 @@ export default function SearchSideBar({ selectedFilter, yearRange, researchPaper
 
   const handlePaperClick = async (paper) => {
     try {
+      console.log("Paper clicked:", paper);
       setActivePaper(paper);
       setActiveSummary(undefined); // Clear previous summary immediately
       setLoadingSummary(true); // Indicate that the summary is being checked/loaded
@@ -28,7 +29,9 @@ export default function SearchSideBar({ selectedFilter, yearRange, researchPaper
       }
   
       // If not found, proceed to fetch summary
-      await PDFDownload(paper);
+      console.log("Fetching new summary for:", paper);
+      const response = await PDFDownload(paper);
+      console.log("PDF download response:", response);
       const sumresp = await SummarizeSections(paper.title);
   
       // Ensure it's still the active paper before setting the summary
