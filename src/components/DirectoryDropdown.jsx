@@ -17,7 +17,7 @@ export default function DirectoryDropdown({ tags = [], onAddTag, onRemoveTag, on
       {!showInput ? (
         <button
           type="button"
-          className="text-white w-3/4 bg-curieBlue rounded-xl text-base px-6 py-3 mt-2 mb-1 transition-all duration-200 hover:bg-blue-700 hover:shadow-lg hover:ring-2 hover:ring-blue-300/60"
+          className="text-white w-full bg-curieBlue rounded-xl text-base px-6 py-3 mt-2 mb-1 transition-all duration-200 hover:bg-blue-700 hover:shadow-lg hover:ring-2 hover:ring-blue-300/60"
           onClick={() => setShowInput(true)}
         >
           <div className="flex items-center justify-center gap-2">
@@ -25,7 +25,7 @@ export default function DirectoryDropdown({ tags = [], onAddTag, onRemoveTag, on
               viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
-            <p className="font-semibold">New</p>
+            <p className="font-semibold">New Tag</p>
           </div>
         </button>
       ) : (

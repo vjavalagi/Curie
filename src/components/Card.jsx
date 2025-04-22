@@ -26,6 +26,7 @@ export default function Card({
   currentFolder,
   onMovePaper,
   paper_url,
+  onViewPaper,
 }) {
   const [isCopying, setIsCopying] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -233,12 +234,12 @@ export default function Card({
 
                 <button
                   onClick={handleCopyBibtex}
-                  className="block w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                  className="block w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg"
                   disabled={isCopying}
                 >
                   {isCopying ? (
                     <div
-                      className="animate-spin inline-block size-4 border-2 border-current border-t-transparent text-blue-600 rounded-full"
+                      className="animate-spin inline-block size-4 border-2 border-current border-t-transparent text-blue-600 rounded-lg"
                       role="status"
                       aria-label="loading"
                     >
@@ -276,7 +277,7 @@ export default function Card({
                 
                 {onDeletePaper && (
                   <button
-                    className="flex items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-red-600 hover:bg-red-50 focus:outline-none shadow"
+                    className="flex w-full items-center gap-x-3.5 py-2 px-3 rounded-lg text-sm text-red-600 hover:bg-red-50 "
                     onClick={() => {
                       setIsDropdownOpen(false);
                       onDeletePaper(paperId); 
@@ -420,7 +421,13 @@ export default function Card({
           })}
         </div>
 
-        <h3 className="text-xl font-semibold text-gray-800 px-4">{name}</h3>
+        <h3
+          className="text-xl font-semibold text-gray-800 px-4 cursor-pointer hover:underline hover:text-curieBlue transition"
+          onClick={() => onViewPaper && onViewPaper()}
+        >
+          {name}
+        </h3>
+
 
         <div className="inline-flex flex-wrap gap-2 mb-1.5 mt-1.5 px-4">
           {authors &&
