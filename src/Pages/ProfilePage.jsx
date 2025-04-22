@@ -83,14 +83,8 @@ export default function ProfilePage() {
     setCurrentFolder,
     refreshFileSystem,
   } = useGlobal();
-
-
   
 
-  // Updates tags for a paper on the backend and then updates state accordingly
-  
-
-  // Create folder function (called when the modal form is submitted)
   // A list of colors used to assign to tags
   const presetColors = [
     "#EF4444", "#F97316", "#EAB308", "#84CC16", "#22C55E",
@@ -98,6 +92,10 @@ export default function ProfilePage() {
     "#A855F7", "#D946EF", "#EC4899", "#F43F5E", "#6B7280",
     "#10B981", "#0EA5E9", "#F59E0B", "#7C3AED", "#DC2626"
   ];
+
+  // const presetColors = [
+  //   "#1s2d8d", "e8ecfc", "ebeaef", "cbf8fc", "#ffc928",
+  // ];
 
   // Filtering handler functions
   const handleClickYear = (year) => {
@@ -516,6 +514,7 @@ export default function ProfilePage() {
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-white">
       <Header variant="lightblue" />
       <div className="flex flex-1 overflow-hidden">
         <DirectoryDropdown

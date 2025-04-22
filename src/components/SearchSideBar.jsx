@@ -4,6 +4,7 @@ import { PDFDownload } from "../backend/PdfDownload";
 import { SummarizeSectionsSent } from "../backend/SummarizeSectionsSent";
 import { PublicationDateSlider } from "./PublicationDateSlider";
 
+
 export default function SearchSideBar({
   selectedFilter,
   yearRange,

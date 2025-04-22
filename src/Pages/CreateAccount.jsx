@@ -84,7 +84,7 @@ const CreateAccount = () => {
           <div className="mt-4 text-center text-sm text-gray-600 dark:text-neutral-400">
             Already have an account?{" "}
             <span
-              onClick={() => navigate("/login")}
+              onClick={() => navigate("/")}
               className="text-blue-600 hover:underline cursor-pointer dark:text-blue-400"
             >
               Sign in here
@@ -185,7 +185,7 @@ const CreateAccount = () => {
               htmlFor="profile-upload"
               className="py-2 px-3 inline-flex items-center gap-x-2 text-xs font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
             >
-              Upload photo
+              Upload photo (png)
             </label>
             {form.previewUrl && (
               <button
