@@ -254,7 +254,10 @@ export default function Card({
                 
                 <button
                   onClick={handleSlideGeneration}
-                  className="block w-full px-3 py-2 text-sm text-left text-blue-600 hover:bg-blue-50"
+                  className={`block w-full px-3 py-2 text-sm text-left ${
+                    canDownloadSlide ? "text-gray-400 cursor-not-allowed" : "text-blue-600 hover:bg-blue-50"
+                  }`}
+                  disabled={canDownloadSlide || slidesLoading}
                 >
                   {slidesLoading ? (
                     <div
