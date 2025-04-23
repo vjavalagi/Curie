@@ -5,7 +5,8 @@ import shutil
 import pymupdf
 from PIL import Image
 import io
-from summaries.joined_summary import extract_text_pymu, summarize_sections
+import zipfile
+from summaries.joined_summary import extract_text_pymu, summarize_sections, summarize_sections_old
 
 """
 class Summary(BaseModel):
@@ -126,11 +127,13 @@ class Summary(BaseModel):
 
 # print("Presentation PDF generated successfully!")
 def generate_presentation(pdf_path):
+    print("Generating presentation... from pdf path:", pdf_path)
     # Get the base directory where this script is located (Curie folder)
     base_dir = os.path.dirname(os.path.abspath(__file__))
-
+    name = pdf_path.replace("pdfs/", "").replace(".pdf", "")
+    print(name)
     # Define paths relative to Curie folder
-    slides_dir = os.path.join(base_dir, "slides")
+    slides_dir = os.path.join(base_dir, f"slides/{name}")
     # summaries_file = os.path.join(base_dir, "summaries", "summaries.json")
     output_folder = os.path.join(slides_dir, "extracted_images")  # Move images inside slides folder
 
@@ -139,7 +142,8 @@ def generate_presentation(pdf_path):
 
     text = extract_text_pymu(pdf_path)
 
-    data = summarize_sections(text)
+    data = summarize_sections_old(text)
+    print("DATA FROM OLD SUMMARY", data)
 
     # Extract images from PDF
     doc = pymupdf.open(pdf_path)
@@ -226,4 +230,33 @@ def generate_presentation(pdf_path):
             shutil.move(os.path.join(slides_dir, file), os.path.join(slides_dir, file))
 
     print("Presentation PDF generated successfully!")
-#generate_presentation("pdfs/Pattern Formation for Asynchronous Robots without Agreement in Chirality.pdf")
+def downloadAndZip(folder_path, output_zip_path=None):
+    """
+    Zips the contents of folder_path into a zip file.
+    
+    Parameters:
+        folder_path (str): The full path to the folder to be zipped.
+        output_zip_path (str, optional): The full file path for the generated zip file.
+                                         If not provided, a zip file will be created using
+                                         the folder name.
+    """
+    # If no output zip file path is provided, construct one using the folder's name.
+    if output_zip_path is None:
+        # Normalize the folder path and extract its base name.
+        folder_name = os.path.basename(os.path.normpath(folder_path))
+        # Create the output zip file path in the same directory as folder_path.
+        output_zip_path = os.path.join(os.path.dirname(folder_path), folder_name + ".zip")
+    
+    # Create a new zip file for writing with compression enabled.
+    with zipfile.ZipFile(output_zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        # Walk through the folder and add each file to the zip.
+        for root, _, files in os.walk(folder_path):
+            for file in files:
+                file_path = os.path.join(root, file)
+                # Use os.path.relpath to preserve the folder structure inside the zip.
+                relative_path = os.path.relpath(file_path, folder_path)
+                zipf.write(file_path, relative_path)
+    print(f"Folder has been zipped to: {output_zip_path}")
+    
+# generate_presentation("pdfs/Do As I Can, Not As I Say: Grounding Language in Robotic Affordances.pdf")
+# downloadAndZip("slides/Do As I Can, Not As I Say: Grounding Language in Robotic Affordances")

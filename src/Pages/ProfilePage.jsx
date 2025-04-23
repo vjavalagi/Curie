@@ -83,7 +83,14 @@ export default function ProfilePage() {
     setCurrentFolder,
     refreshFileSystem,
   } = useGlobal();
+
+
   
+
+  // Updates tags for a paper on the backend and then updates state accordingly
+  
+
+  // Create folder function (called when the modal form is submitted)
 
   // A list of colors used to assign to tags
   const presetColors = [
@@ -352,6 +359,7 @@ export default function ProfilePage() {
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                   <Card
+                    paper={paper}
                     paperId={paper.entry_id}
                     name={paper.title}
                     authors={paper.authors}
@@ -445,6 +453,7 @@ export default function ProfilePage() {
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
                   <Card
+                    paper={paper}
                     paperId={paper.entry_id}
                     name={paper.title}
                     authors={paper.authors}
