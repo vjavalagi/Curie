@@ -457,39 +457,11 @@ export default function Card({
             );
           })}
         </div>
-
-        <h3
-          className="px-4 text-xl font-semibold text-gray-800 transition cursor-pointer hover:underline hover:text-curieBlue"
-          onClick={() => onViewPaper && onViewPaper()}
-        >
-          {name}
-        </h3>
-
-
-        <div className="inline-flex flex-wrap gap-2 mb-1.5 mt-1.5 px-4">
-          {authors &&
-            authors.map((author, idx) => {
-              const isActive = activeAuthorFilters.some(
-                (active) => active.toLowerCase() === author.toLowerCase()
-              );
-              return (
-                <span
-                  key={idx}
-                  onClick={() => onClickAuthor(author)}
-                  className={`py-1 px-2 inline-flex items-center gap-x-1 text-xs font-medium rounded-full cursor-pointer transform transition-transform duration-200 hover:scale-105 ${
-                    isActive
-                      ? "bg-curieLightGray text-black ring-2 ring-offset-2 ring-offset-white ring-curieBlue"
-                      : "bg-curieLightGray text-black"
-                  }`}
-                >
-                  {author}
-                </span>
-              );
-            })}
-        </div>
+        
         <div className="h-20 px-4 pb-4 overflow-hidden text-sm text-gray-600">
           <p>{abstract}</p>
         </div>
+        
       </div>
     </div>
   );
