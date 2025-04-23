@@ -6,7 +6,7 @@ import pymupdf
 from PIL import Image
 import io
 import zipfile
-from summaries.joined_summary import extract_text_pymu, summarize_sections
+from summaries.joined_summary import extract_text_pymu, summarize_sections, summarize_sections_old
 
 """
 class Summary(BaseModel):
@@ -127,6 +127,7 @@ class Summary(BaseModel):
 
 # print("Presentation PDF generated successfully!")
 def generate_presentation(pdf_path):
+    print("Generating presentation... from pdf path:", pdf_path)
     # Get the base directory where this script is located (Curie folder)
     base_dir = os.path.dirname(os.path.abspath(__file__))
     name = pdf_path.replace("pdfs/", "").replace(".pdf", "")
@@ -141,7 +142,8 @@ def generate_presentation(pdf_path):
 
     text = extract_text_pymu(pdf_path)
 
-    data = summarize_sections(text)
+    data = summarize_sections_old(text)
+    print("DATA FROM OLD SUMMARY", data)
 
     # Extract images from PDF
     doc = pymupdf.open(pdf_path)

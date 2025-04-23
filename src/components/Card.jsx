@@ -54,7 +54,9 @@ export default function Card({
     setSlidesloading(true);
     console.log("Generating slide for paper:", paper);
     console.log("the paper id is:", paperId); 
-    await PDFDownload(paper);
+    // await PDFDownload(paper);
+    //save_pdf(paper);
+    
     const paper_path = "pdfs/" + paper.title + ".pdf"
     console.log("Paper downloaded, now generating slide...", );
     await fetch("http://localhost:5001/api/gen-slides", {
@@ -175,7 +177,7 @@ export default function Card({
     <div className="relative">
       <div className="relative flex flex-col h-full bg-white border border-gray-300 group w-80 shadow-2xs rounded-xl">
         {copied && (
-          <div className="absolute top-2 left-2 px-2 py-1 text-xs bg-green-100 text-green-800 rounded shadow z-30">
+          <div className="absolute z-30 px-2 py-1 text-xs text-green-800 bg-green-100 rounded shadow top-2 left-2">
             Copied!
           </div>
         )}
@@ -184,7 +186,7 @@ export default function Card({
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             type="button"
-            className="flex items-center justify-center text-sm font-semibold text-gray-800 bg-white border border-gray-200 rounded-lg p-2 shadow hover:bg-gray-50 focus:outline-none cursor-pointer"
+            className="flex items-center justify-center p-2 text-sm font-semibold text-gray-800 bg-white border border-gray-200 rounded-lg shadow cursor-pointer hover:bg-gray-50 focus:outline-none"
             aria-haspopup="menu"
             aria-expanded={isDropdownOpen}
             aria-label="Dropdown"
@@ -197,10 +199,10 @@ export default function Card({
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 w-48 mt-2 bg-white rounded-lg shadow-md z-20">
+            <div className="absolute right-0 z-20 w-48 mt-2 bg-white rounded-lg shadow-md">
               <div className="p-1 space-y-1">
                 <details className="group">
-                  <summary className="flex items-center justify-between cursor-pointer py-2 px-3 text-sm font-medium text-gray-800 hover:bg-gray-100 rounded-lg">
+                  <summary className="flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-800 rounded-lg cursor-pointer hover:bg-gray-100">
                     <span className="flex items-center gap-x-2">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -208,7 +210,7 @@ export default function Card({
                       Add tags
                     </span>
                   </summary>
-                  <div className="ml-4 mt-1 space-y-1">
+                  <div className="mt-1 ml-4 space-y-1">
                     {availableTags.map((tag, idx) => {
                       const alreadyAdded = tags.some((t) => t.name === tag.name);
                       return (
@@ -224,7 +226,7 @@ export default function Card({
                         >
                           <span className="w-3 h-3 rounded-full" style={{ backgroundColor: tag.color }} />
                           {tag.name}
-                          {alreadyAdded && <span className="text-xs ml-auto">(Added)</span>}
+                          {alreadyAdded && <span className="ml-auto text-xs">(Added)</span>}
                         </button>
                       );
                     })}
@@ -234,12 +236,12 @@ export default function Card({
 
                 <button
                   onClick={handleCopyBibtex}
-                  className="block w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg"
+                  className="block w-full px-3 py-2 text-sm text-left text-blue-600 rounded-lg hover:bg-blue-50"
                   disabled={isCopying}
                 >
                   {isCopying ? (
                     <div
-                      className="animate-spin inline-block size-4 border-2 border-current border-t-transparent text-blue-600 rounded-lg"
+                      className="inline-block text-blue-600 border-2 border-current rounded-lg animate-spin size-4 border-t-transparent"
                       role="status"
                       aria-label="loading"
                     >
@@ -252,11 +254,11 @@ export default function Card({
                 
                 <button
                   onClick={handleSlideGeneration}
-                  className="block w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                  className="block w-full px-3 py-2 text-sm text-left text-blue-600 hover:bg-blue-50"
                 >
                   {slidesLoading ? (
                     <div
-                      className="animate-spin inline-block size-4 border-2 border-current border-t-transparent text-blue-600 rounded-full"
+                      className="inline-block text-blue-600 border-2 border-current rounded-full animate-spin size-4 border-t-transparent"
                       role="status"
                       aria-label="loading"
                       >
@@ -269,7 +271,7 @@ export default function Card({
                 {canDownloadSlide && (
                   <button
                     onClick={downloadSlides}
-                    className="block w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50"
+                    className="block w-full px-3 py-2 text-sm text-left text-blue-600 hover:bg-blue-50"
                   >
                     Download Slides
                   </button>
@@ -335,7 +337,7 @@ export default function Card({
                           setIsDropdownOpen(false);
                           onMovePaper(paperId, currentFolder, "");
                         }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-gray-100 text-sm"
+                        className="flex items-center w-full gap-2 px-3 py-2 text-sm text-left hover:bg-gray-100"
                       >
                         <svg
                         
@@ -363,7 +365,7 @@ export default function Card({
           )}
         </div>
         
-        <div className="h-52 rounded-t-xl overflow-hidden bg-white relative">
+        <div className="relative overflow-hidden bg-white h-52 rounded-t-xl">
           <iframe
             src={paper_url}
             title="Paper Preview"
@@ -372,7 +374,7 @@ export default function Card({
               transform: "scale(1.05)", // Zoom in by 10%
             }}
           />
-          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-white/20 to-white pointer-events-none" />
+          <div className="absolute top-0 left-0 w-full h-full pointer-events-none bg-gradient-to-b from-transparent via-white/20 to-white" />
         </div>
 
 
@@ -413,7 +415,7 @@ export default function Card({
                     e.stopPropagation();
                     onRemoveTagFromCard(tag.name);
                   }}
-                  className="ml-1 text-white hover:text-red-200 text-xs"
+                  className="ml-1 text-xs text-white hover:text-red-200"
                 >
                               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
 
@@ -424,7 +426,7 @@ export default function Card({
         </div>
 
         <h3
-          className="text-xl font-semibold text-gray-800 px-4 cursor-pointer hover:underline hover:text-curieBlue transition"
+          className="px-4 text-xl font-semibold text-gray-800 transition cursor-pointer hover:underline hover:text-curieBlue"
           onClick={() => onViewPaper && onViewPaper()}
         >
           {name}
@@ -452,7 +454,7 @@ export default function Card({
               );
             })}
         </div>
-        <div className="h-20 overflow-hidden text-sm text-gray-600 px-4 pb-4">
+        <div className="h-20 px-4 pb-4 overflow-hidden text-sm text-gray-600">
           <p>{abstract}</p>
         </div>
       </div>
