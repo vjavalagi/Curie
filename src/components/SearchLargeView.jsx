@@ -106,11 +106,9 @@ export default function SearchLargeView() {
   };
 
   return (
-    <main className="flex-1 p-4 pt-4 overflow-auto">
+    <main className="flex-1 p-4 pt-4 overflow-auto bg-white rounded-lg shadow-md">
       <div className="flex items-center justify-between mb-4">
         {/* Beginner Buttons on Left */}
-        <div className="grid grid-cols-2 gap-2">
-        </div>
         
         {/* Deep Dive Button on Right
         <button
@@ -124,14 +122,19 @@ export default function SearchLargeView() {
 
       {/* Main content: render active paper details if available, otherwise a search summary */}
       {!activePaper ? (
-        <section className="p-6 bg-white rounded-lg shadow-md">
-          <h1 className="text-2xl font-bold">{search}</h1>
-          <h2 className="mt-2 text-lg font-semibold">Summary</h2>
-          <p className="text-gray-700">
-            Shows an AI-generated summary of the field itself along with a timeline.
-          </p>
-          <Timeline search={search} />
-        </section>
+        <div className="flex flex-col items-center justify-center h-full text-center text-gray-300">
+        <div className>
+          {/* image of Curiehat.png */}
+          <img
+            src="src/assets/Curiehat.png"
+            alt="Curie Hat"
+            className="w-32 h-32"
+          />
+        </div>
+
+        <h2 className="text-lg font-medium text-gray-500">Select an item to read about {search}</h2>
+        <p className="text-sm mt-1 text-gray-400">Nothing is selected</p>
+      </div>
       ) : (
         <section className="relative p-6 bg-white rounded-lg shadow-md">
           {/* Save to Profile Button */}

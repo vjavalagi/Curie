@@ -468,7 +468,7 @@ export default function ProfilePage() {
                     onRemoveTagFromCard={(tagName) =>
                       handleRemoveTagFromCard(paper.entry_id, tagName, folderName, paper)
                     }
-                    onDeletePaper={() => handleDeletePaper(paper, "")}
+                    onDeletePaper={() => handleDeletePaper(paper, folderName)}
                     onClickTag={toggleFilterTag}
                     activeFilters={activeFilters}
                     selectedYearFilter={selectedYearFilter}
