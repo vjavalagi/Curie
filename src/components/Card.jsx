@@ -126,6 +126,7 @@ export default function Card({
     try {
       
       const arxivUrl = links;
+      console.log("LINKS FROM BIB TEX", links);
 
       if (!arxivUrl || (!arxivUrl.includes("arxiv.org/abs") && !arxivUrl.includes("arxiv.org/pdf"))) {
         console.error("No valid arXiv URL found.");
