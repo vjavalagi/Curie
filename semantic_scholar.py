@@ -30,7 +30,12 @@ load_dotenv(find_dotenv())
 
 # Create your Flask app once
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173","https://set-up-amplify.d1d7sg0tu7v11c.amplifyapp.com"], supports_credentials=True)  # Enable CORS for all routes
+CORS(app, origins=[
+    "https://set-up-amplify.d1d7sg0tu7v11c.amplifyapp.com",
+    "https://curie-guide.com",
+    "https://www.curie-guide.com"
+], supports_credentials=True)
+
 
 # Set up the path for storing PDFs
 pdf_output_path = "pdfs/"
