@@ -12,7 +12,6 @@ from gpt import get_foundational_papers
 from summaries.joined_summary import summarize_document, extract_text_pymu,  summarize_sections, ask_curie 
 from arxiv_api import ArxivAPI
 from slide_gen import generate_presentation, downloadAndZip
-from arxiv import Client, Search, SortCriterion
 import boto3
 from dotenv import load_dotenv, find_dotenv
 from botocore.exceptions import ClientError
