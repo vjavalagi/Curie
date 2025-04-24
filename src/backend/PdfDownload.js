@@ -8,7 +8,7 @@ function PDFDownload(user, paper) {
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ user, paper})
+    body: JSON.stringify({user, paper})
   })
   .then(response => {
     if (!response.ok) {

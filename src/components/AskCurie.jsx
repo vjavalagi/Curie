@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGlobal } from '../context/GlobalContext';
+import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
@@ -94,7 +95,7 @@ const AskCurie = () => {
           {answer && !loading && (
             <div className="p-4 mt-4 border border-gray-300 rounded-lg">
               <h3 className="text-lg font-semibold">Answer:</h3>
-              <p>{answer}</p>
+              <ReactMarkdown>{answer}</ReactMarkdown>
             </div>
           )}
 

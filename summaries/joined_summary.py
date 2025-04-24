@@ -10,22 +10,39 @@ import requests
 
 load_dotenv(find_dotenv())
 
+"""OLD STUFF NEEDED FOR SLIDEGEN"""
+class Summary(BaseModel):
+    title : str
+    authors: str
+    introduction: str
+    methods: str
+    results: str
+    discussion: str
+    conclusion: str
 
+"""new stuff"""
 class Content(BaseModel):
     section: str
     two_entence_summary: str
     four_sentence_summary: str
     six_sentence_summary: str
-
 class Summary2(BaseModel):
     title: str
     introduction: str
     content: list[Content]
     conclusion: str
-
 class AskCurie(BaseModel):
     question: str
     answer: str
+class PaperInfo(BaseModel):
+    title: str
+    authors: str
+    journal: str
+    publication_date: str
+    doi: str
+    abstract: str
+    keywords: list[str]
+    references: list[str]
     
 # Set up API credentials
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -96,25 +113,29 @@ def extract_text(file_path):
 
     return result.document.text  # Return extracted text
 
-def extract_text_from_url(pdf_url):
-    project_id = "curie-451919"
-    processor_id = "e023529ca8b39cc"
-    location = "us"
-
-    opts = ClientOptions(api_endpoint=f"{location}-documentai.googleapis.com")
-    docai_client = documentai.DocumentProcessorServiceClient(client_options=opts)
-    processor_path = f"projects/{project_id}/locations/{location}/processors/{processor_id}"
-
-    response = requests.get(pdf_url)
-    response.raise_for_status()
-
-    raw_document = documentai.RawDocument(content=response.content, mime_type="application/pdf")
-    request = documentai.ProcessRequest(name=processor_path, raw_document=raw_document)
-    result = docai_client.process_document(request=request)
+def summarize_sections_old(document_text, sentence_count=1):
+    """Generates a summary per section."""
     
-    return result.document.text
+    prompt = f"""
+    Generate a summary for each section of the following document. I want each section to have a summary length of {sentence_count} sentences.
+    The sections are: Introduction, Methods, Results, Discussion, Conclusion.
 
-
+    {document_text}
+    """
+    
+        
+    print("summarized sections in joined_summary with __ sentences", sentence_count)
+    
+    response = client.beta.chat.completions.parse(
+        model="gpt-4o-mini",
+        messages=[{"role": "system", "content": "You are a subject matter expert."},
+                  {"role": "user", "content": prompt}],
+        response_format=Summary
+    )
+    print("FINISHED")
+    obj = json.loads(response.choices[0].message.content.strip())
+    
+    return obj
 # Function to summarize extracted text by section
 def summarize_sections(document_text, sentence_count=4):
 
@@ -187,6 +208,38 @@ def ask_curie(document_text, question):
     
     prompt = f"""
    answer the question {question} based on the document {document_text}
+    """
+    response = client.beta.chat.completions.parse(
+        model="gpt-4o-mini",
+        messages=[{"role": "system", "content": "You are a subject matter expert."},
+                  {"role": "user", "content": prompt}],
+        response_format=AskCurie
+    )
+    print("FINISHED")
+    obj = json.loads(response.choices[0].message.content.strip())
+    print("ASK CURIE RESPONSE", obj)
+    return obj
+# def ask_curie(document_text, question):
+#     """Generates a summary per section."""
+    
+#     prompt = f"""
+#    answer the question {question} based on the document {document_text}
+#     """
+#     response = client.beta.chat.completions.parse(
+#         model="gpt-4o-mini",
+#         messages=[{"role": "system", "content": "You are a subject matter expert."},
+#                   {"role": "user", "content": prompt}],
+#         response_format=AskCurie
+#     )
+#     print("FINISHED")
+#     obj = json.loads(response.choices[0].message.content.strip())
+#     print("ASK CURIE RESPONSE", obj)
+#     return obj
+def getPaperInfo(document_text):
+    """gets all the info to store a paper"""
+    
+    prompt = f"""
+    Can you extract the information as requested in the response frormat
     """
     response = client.beta.chat.completions.parse(
         model="gpt-4o-mini",
