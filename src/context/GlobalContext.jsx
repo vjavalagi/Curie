@@ -73,7 +73,20 @@ export const GlobalProvider = ({ children }) => {
 
   const updateSearch = (query) => setSearch(query);
   const updateUser = (newUser) => setUser(newUser);
-  const updateActivePaper = (paper) => setActivePaper(paper);
+  const updateActivePaper = (paper) => {
+    // Sanitize insecure arXiv PDF URLs
+    const sanitizedPdfUrl = paper?.pdf_url?.startsWith("http://arxiv.org")
+      ? paper.pdf_url.replace("http://", "https://")
+      : paper.pdf_url;
+  
+    const patchedPaper = {
+      ...paper,
+      pdf_url: sanitizedPdfUrl,
+    };
+  
+    setActivePaper(patchedPaper);
+  };
+  
 
   return (
     <GlobalContext.Provider
