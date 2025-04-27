@@ -59,3 +59,9 @@ Each document in this collection is a JSON object with the following fields:
     authors: A list of the document's authors.
     journal_ref: A reference to the journal or conference where the document was published (if available).
     links: A list of URLs related to the document, such as the abstract page or the PDF.
+
+# Arxiv docs
+
+Uses Vitest to test functionality, integration, and features
+
+Use "npm test" after installing dependencies
