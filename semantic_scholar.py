@@ -32,7 +32,9 @@ app = Flask(__name__)
 CORS(app, origins=[
     "https://set-up-amplify.d1d7sg0tu7v11c.amplifyapp.com",
     "https://curie-guide.com",
-    "https://www.curie-guide.com"
+    "https://www.curie-guide.com", 
+    "http://localhost:3000"
+    "http://localhost:5173"
 ], supports_credentials=True)
 
 

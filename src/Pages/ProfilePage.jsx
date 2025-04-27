@@ -555,10 +555,7 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-      
-      {selectedPdf && (
-        <PdfViewer pdfUrl={selectedPdf} onClose={() => setSelectedPdf(null)} />
-      )}
+     
 
       <PaperModal
         isOpen={!!modalPaper}

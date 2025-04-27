@@ -22,6 +22,7 @@ export default function Login() {
     e.preventDefault();
 
     try {
+      console.log("API URL:", API_BASE_URL);
       const response = await axios.post(`${API_BASE_URL}/api/login`, form);
       if (response.data && response.data.user) {
         setUser({

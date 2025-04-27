@@ -125,23 +125,27 @@ export default function Card({
 
     try {
       
-      const arxivUrl = links;
-      console.log("LINKS FROM BIB TEX", links);
+      //const arxivUrl = links;
+      //console.log("LINKS FROM BIB TEX", links);
 
-      if (!arxivUrl || (!arxivUrl.includes("arxiv.org/abs") && !arxivUrl.includes("arxiv.org/pdf"))) {
-        console.error("No valid arXiv URL found.");
-        setIsCopying(false);
-        return;
-      }
+      // if (!arxivUrl || (!arxivUrl.includes("arxiv.org/abs") && !arxivUrl.includes("arxiv.org/pdf"))) {
+      //   console.error("No valid arXiv URL found.");
+      //   setIsCopying(false);
+      //   return;
+      // }
 
-      if (!arxivUrl) {
-        console.error("No arXiv URL found in the links array.");
-        setIsCopying(false);
-        return;
-      }
+      // if (!arxivUrl) {
+      //   console.error("No arXiv URL found in the links array.");
+      //   setIsCopying(false);
+      //   return;
+      // }
 
-      const arxivIdMatch = arxivUrl.match(/arxiv\.org\/(?:abs|pdf)\/(\d{4}\.\d{5})(v\d+)?/);
-      const arxivId = arxivIdMatch ? arxivIdMatch[1] + (arxivIdMatch[2] || "") : null;
+      //const arxivIdMatch = arxivUrl.match(/arxiv\.org\/(?:abs|pdf)\/(\d{4}\.\d{5})(v\d+)?/);
+      //const arxivId = arxivIdMatch ? arxivIdMatch[1] + (arxivIdMatch[2] || "") : null;
+      console.log("Paper URL:", paper);
+      console.log("Paper ID:", paper.entry_id);
+      const arxivId = paper.entry_id; // Use the paperId as the arXiv ID
+      console.log("arXiv ID:", arxivId);
 
       let bibtexContent = "";
 
