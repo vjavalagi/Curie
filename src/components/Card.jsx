@@ -62,7 +62,7 @@ export default function Card({
     
     const paper_path = "pdfs/" + paper.title + ".pdf"
     console.log("Paper downloaded, now generating slide...", );
-    await fetch("http://localhost:5001/api/gen-slides", {
+    await fetch(`${API_BASE_URL}/api/gen-slides`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -81,7 +81,7 @@ export default function Card({
     console.log("Downloading slides from folder:", folder_path);
   
     // Send POST request with folder path in the JSON body.
-    const response = await fetch("http://localhost:5001/api/download-zip", {
+    const response = await fetch(`${API_BASE_URL}/api/download-zip`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

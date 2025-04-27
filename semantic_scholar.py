@@ -306,27 +306,27 @@ def api_download_pdf():
     get_pdf(data)
     return jsonify({"success": True})
 
-@app.route("/api/s3-url", methods=["GET"])
-def get_presigned_url():
-    filename = request.args.get("filename")
+# @app.route("/api/s3-url", methods=["GET"])
+# def get_presigned_url():
+#     filename = request.args.get("filename")
     
-    if not filename:
-        return make_response(jsonify({"error": "Missing filename"}), 400)
+#     if not filename:
+#         return make_response(jsonify({"error": "Missing filename"}), 400)
 
-    try:
-        presigned_url = s3_client.generate_presigned_url(
-            "put_object",
-            Params={"Bucket": S3_BUCKET_NAME, "Key": filename, "ContentType": "image/png"},
-            ExpiresIn=3600,
-            HttpMethod="PUT"
-        )
-        response = make_response(jsonify({"url": presigned_url}))
-        response.headers["Access-Control-Allow-Origin"] = "http://localhost:5173"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-        response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
-        return response
-    except Exception as e:
-        return make_response(jsonify({"error": str(e)}), 500)
+#     try:
+#         presigned_url = s3_client.generate_presigned_url(
+#             "put_object",
+#             Params={"Bucket": S3_BUCKET_NAME, "Key": filename, "ContentType": "image/png"},
+#             ExpiresIn=3600,
+#             HttpMethod="PUT"
+#         )
+#         response = make_response(jsonify({"url": presigned_url}))
+#         response.headers["Access-Control-Allow-Origin"] = "http://localhost:5173"
+#         response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+#         response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+#         return response
+#     except Exception as e:
+#         return make_response(jsonify({"error": str(e)}), 500)
 
 @app.route("/api/create-user", methods=["POST"])
 def api_create_user():
