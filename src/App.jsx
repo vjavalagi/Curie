@@ -5,7 +5,6 @@ import Profile from "./Pages/ProfilePage";
 import Login from "./Pages/Login";
 import CreateAccount from "./Pages/CreateAccount";
 import SearchPage from "./Pages/SearchPage";
-import CreateProfile from "./Pages/CreateProfile";
 import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from "react-router-dom";
 import ProfilePage from "./Pages/ProfilePage";
