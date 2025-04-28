@@ -22,7 +22,10 @@ const ImageUploader = () => {
     try {
       // Get a presigned URL from your backend
       const { data } = await axios.get(`${API_BASE_URL}/api/s3-url`, {
-        params: { filename: file.name },
+        params: { 
+          filename: file.name,
+          content_type: file.type // Pass the real file type!
+        }
       });
 
       // Upload file to S3
