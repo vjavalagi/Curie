@@ -48,7 +48,10 @@ const CreateAccount = () => {
       if (photo) {
         // Get a presigned URL from backend
         const { data } = await axios.get(`${API_BASE_URL}/api/s3-url`, {
-          params: { filename: `ProfilePictures/${photo.name}` },
+          params: { 
+            filename: `ProfilePictures/${photo.name}`,
+            content_type: photo.type 
+          },
         });
 
         // Upload to S3
