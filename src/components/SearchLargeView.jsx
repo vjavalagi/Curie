@@ -128,7 +128,7 @@ export default function SearchLargeView() {
         <div className>
           {/* image of Curiehat.png */}
           <img
-            src="../Pictures/Curiehat.png"
+            src="/assets/Curiehat.png"
             alt="Curie Hat"
             className="w-32 h-32"
           />
