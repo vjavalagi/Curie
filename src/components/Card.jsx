@@ -378,9 +378,9 @@ export default function Card({
         
         <div className="relative overflow-hidden bg-white h-52 rounded-t-xl">
           <iframe
-            src={paper.paper_url.startsWith("http://") 
-              ? paper.paper_url.replace("http://", "https://") 
-              : paper.paper_url}
+            src={paper_url.startsWith("http://") 
+              ? paper_url.replace("http://", "https://") 
+              : paper_url}
             title="Paper Preview"
             className="absolute top-0 left-0 w-full h-full bg-white pointer-events-none"
             style={{ border: "none",
