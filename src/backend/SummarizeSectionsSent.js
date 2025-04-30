@@ -1,5 +1,7 @@
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5001";
+
 async function SummarizeSectionsSent(name, sentenceCount) {
-    const baseUrl = 'http://127.0.0.1:5001/api/summarize-sections-sent';
+    const baseUrl = `${API_BASE_URL}/api/summarize-sections-sent`;
     try {
         console.log(name, "name in SummarizeSectionsSent");
         // Build the complete URL with the file_path query parameter

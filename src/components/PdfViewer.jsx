@@ -1,6 +1,11 @@
 import React from "react";
+import { useEffect } from "react";
 
 export default function PdfViewer({ pdfUrl, onClose }) {
+  useEffect(() => {
+    console.log("PDF URL:", pdfUrl);
+    
+  }, []);
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-white p-4 rounded-lg shadow-lg max-w-4xl w-full h-5/6 flex flex-col">

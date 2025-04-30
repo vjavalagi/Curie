@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import Tag from "./Tag";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
+
 import { PDFDownload } from "../backend/PdfDownload"; // Ensure correct path
 import axios from "axios";
 export default function Card({
@@ -59,7 +62,7 @@ export default function Card({
     
     const paper_path = "pdfs/" + paper.title + ".pdf"
     console.log("Paper downloaded, now generating slide...", );
-    await fetch("http://localhost:5001/api/gen-slides", {
+    await fetch(`${API_BASE_URL}/api/gen-slides`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -78,7 +81,7 @@ export default function Card({
     console.log("Downloading slides from folder:", folder_path);
   
     // Send POST request with folder path in the JSON body.
-    const response = await fetch("http://localhost:5001/api/download-zip", {
+    const response = await fetch(`${API_BASE_URL}/api/download-zip`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -122,27 +125,32 @@ export default function Card({
 
     try {
       
-      const arxivUrl = links;
+      //const arxivUrl = links;
+      //console.log("LINKS FROM BIB TEX", links);
 
-      if (!arxivUrl || (!arxivUrl.includes("arxiv.org/abs") && !arxivUrl.includes("arxiv.org/pdf"))) {
-        console.error("No valid arXiv URL found.");
-        setIsCopying(false);
-        return;
-      }
+      // if (!arxivUrl || (!arxivUrl.includes("arxiv.org/abs") && !arxivUrl.includes("arxiv.org/pdf"))) {
+      //   console.error("No valid arXiv URL found.");
+      //   setIsCopying(false);
+      //   return;
+      // }
 
-      if (!arxivUrl) {
-        console.error("No arXiv URL found in the links array.");
-        setIsCopying(false);
-        return;
-      }
+      // if (!arxivUrl) {
+      //   console.error("No arXiv URL found in the links array.");
+      //   setIsCopying(false);
+      //   return;
+      // }
 
-      const arxivIdMatch = arxivUrl.match(/arxiv\.org\/(?:abs|pdf)\/(\d{4}\.\d{5})(v\d+)?/);
-      const arxivId = arxivIdMatch ? arxivIdMatch[1] + (arxivIdMatch[2] || "") : null;
+      //const arxivIdMatch = arxivUrl.match(/arxiv\.org\/(?:abs|pdf)\/(\d{4}\.\d{5})(v\d+)?/);
+      //const arxivId = arxivIdMatch ? arxivIdMatch[1] + (arxivIdMatch[2] || "") : null;
+      console.log("Paper URL:", paper);
+      console.log("Paper ID:", paper.entry_id);
+      const arxivId = paper.entry_id; // Use the paperId as the arXiv ID
+      console.log("arXiv ID:", arxivId);
 
       let bibtexContent = "";
 
       if (arxivId) {
-        const response = await fetch(`http://localhost:5001/api/arxiv-bibtex?arxiv_id=${arxivId}`);
+        const response = await fetch(`${API_BASE_URL}/api/arxiv-bibtex?arxiv_id=${arxivId}`);
         const data = await response.json();
 
         if (data.bibtex) {
@@ -370,7 +378,9 @@ export default function Card({
         
         <div className="relative overflow-hidden bg-white h-52 rounded-t-xl">
           <iframe
-            src={paper_url}
+            src={paper_url.startsWith("http://") 
+              ? paper_url.replace("http://", "https://") 
+              : paper_url}
             title="Paper Preview"
             className="absolute top-0 left-0 w-full h-full bg-white pointer-events-none"
             style={{ border: "none",

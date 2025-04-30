@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, use } from "react";
 import ActiveSummary from "./ActiveSummary";
 import AskCurie from "./AskCurie";
 import { motion, AnimatePresence } from "framer-motion";
@@ -70,27 +70,30 @@ export default function PaperModal({ isOpen, onClose, activePaper, activeSummary
               ✕
             </button>
 
-            {/* Title */}
-            <div className="px-6 pt-4 pb-2 text-center border-b border-gray-200">
-              <h2 className="text-2xl font-bold">{activePaper.title}</h2>
-            </div>
+            
+                  <div className="px-6 pt-4 pb-2 text-center border-b border-gray-200">
+                    <h2 className="text-2xl font-bold">{activePaper.title}</h2>
+                  </div>
 
-            {/* Main content: Paper (left) + Summary (right) */}
-            <div className="flex flex-1 overflow-hidden">
-              {/* Left: PDF Viewer */}
-              <div className="w-[55%] h-full">
-                <iframe
-                  src={activePaper.links[1]}
-                  title="Paper PDF"
-                  className="w-full h-full"
-                  frameBorder="0"
-                />
-              </div>
+                  {/* Main content: Paper (left) + Summary (right) */}
+                  <div className="flex flex-1 overflow-hidden">
+                 
+                        <div className="w-[55%] h-full">
+                        {console.log(activePaper.links)}
+                        <iframe
+                        src={activePaper.links[1]?.startsWith("http://") 
+                          ? activePaper.links[1].replace("http://", "https://") 
+                          : activePaper.links[1]}
+                        title="Paper PDF"
+                        className="w-full h-full"
+                        frameBorder="0"
+                        />
+                        </div>
 
-              {/* Right: Summary */}
-              <div className="w-[45%] h-full p-6 overflow-y-auto border-l border-gray-200">
+                        {/* Right: Summary */}
+                    <div className="w-[45%] h-full p-6 overflow-y-auto border-l border-gray-200">
 
-                {/* Ask Curie Component */}
+                    {/* Ask Curie Component */}
                 {activePaper && (
                 <section className="p-6 mt-4 bg-white rounded-lg shadow-md">
                     <AskCurie />

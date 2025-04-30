@@ -16,7 +16,10 @@ import boto3
 from dotenv import load_dotenv, find_dotenv
 from botocore.exceptions import ClientError
 from aws import upload_paper, delete_paper_folder, delete_paper, create_user, update_tags, create_paper_folder, get_user_file_system, move_file, dynamodb, users
-
+from google.api_core.client_options import ClientOptions
+from google.cloud import documentai
+import tempfile
+import requests
 import zipfile
 import tempfile
 
@@ -26,7 +29,14 @@ load_dotenv(find_dotenv())
 
 # Create your Flask app once
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173"], supports_credentials=True)  # Enable CORS for all routes
+CORS(app, origins=[
+    "https://set-up-amplify.d1d7sg0tu7v11c.amplifyapp.com",
+    "https://curie-guide.com",
+    "https://www.curie-guide.com", 
+    "http://localhost:3000"
+    "http://localhost:5173"
+], supports_credentials=True)
+
 
 # Set up the path for storing PDFs
 pdf_output_path = "pdfs/"
@@ -34,16 +44,16 @@ os.makedirs(pdf_output_path, exist_ok=True)
 
 SEMANTIC_SCHOLAR_API_KEY = os.getenv('SEMANTICAPIKEY')
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-AWS_DEFAULT_REGION = os.getenv("AWS_DEFAULT_REGION")
+AMAZON_ACCESS_KEY_ID = os.getenv("AMAZON_ACCESS_KEY_ID")
+AMAZON_SECRET_ACCESS_KEY = os.getenv("AMAZON_SECRET_ACCESS_KEY")
+AMAZON_DEFAULT_REGION = os.getenv("AMAZON_DEFAULT_REGION")
 S3_BUCKET_NAME = "curie-file-storage"
 
 s3_client = boto3.client(
     "s3",
-    region_name=AWS_DEFAULT_REGION,
-    aws_access_key_id=AWS_ACCESS_KEY_ID,
-    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    region_name=AMAZON_DEFAULT_REGION,
+    aws_access_key_id=AMAZON_ACCESS_KEY_ID,
+    aws_secret_access_key=AMAZON_SECRET_ACCESS_KEY,
 )
 
 def get_whole_summary(name):
@@ -100,8 +110,6 @@ Relevance Search, returns the most relevant papers https://api.semanticscholar.o
 #         data = [d for d in data if 'openAccessPdf' in d and d['openAccessPdf']]
     
 #     return data
-
-
 @app.route("/api/download-zip", methods=["POST"])
 def download_zip():
     # Specify the folder you want to zip. Replace with your actual folder path.
@@ -133,38 +141,92 @@ def download_zip():
         return response
 
     # send_file returns the zipped file with 'as_attachment=True' to prompt a download.
-    return send_file(tmp_zip.name, as_attachment=True, download_name="folder.zip")
-
+    return send_file(tmp_zip.name, as_attachment=True, download_name="folder.zip")    
 @app.route('/api/summarize-sections', methods=['GET'])
 def api_summarize_sections():
     """
-    Example: GET /api/summarize-sections?file_path=/path/to/file.pdf
+    Example: GET /api/summarize-sections?pdf_url=https://...&sentence_count=4
     """
-    print("File path", request.args.get('file_path'))
-    file_path = "./pdfs/" + request.args.get('file_path', 'ExamRubric') + ".pdf"
-    print(file_path)
-    print("FILE PATH for section summaries", file_path)
-    summary = get_section_summaries(file_path, 1)
-    print("SUMMARY", summary)
-    return jsonify({"summary": summary})
+    pdf_url = request.args.get("pdf_url")
+    sentence_count = int(request.args.get("sentence_count", 4))
+
+    if not pdf_url:
+        return jsonify({"error": "Missing pdf_url"}), 400
+
+    try:
+        # Download the PDF from the URL into memory
+        response = requests.get(pdf_url)
+        response.raise_for_status()
+
+        # Send the in-memory PDF to Document AI
+        project_id = "curie-451919"
+        processor_id = "e023529ca8b39cc"
+        location = "us"
+
+        opts = ClientOptions(api_endpoint=f"{location}-documentai.googleapis.com")
+        docai_client = documentai.DocumentProcessorServiceClient(client_options=opts)
+        processor_path = f"projects/{project_id}/locations/{location}/processors/{processor_id}"
+
+        raw_document = documentai.RawDocument(content=response.content, mime_type="application/pdf")
+        doc_request = documentai.ProcessRequest(name=processor_path, raw_document=raw_document)
+        result = docai_client.process_document(request=doc_request)
+
+        extracted_text = result.document.text
+
+        # Summarize using your OpenAI pipeline
+        summary = summarize_sections(extracted_text, sentence_count)
+        return jsonify({"summary": summary})
+    except Exception as e:
+        print("Error during summarize-sections:", e)
+        return jsonify({"error": str(e)}), 500
 
 
+
+
+# @app.route('/api/summarize-sections-sent', methods=['GET'])
+# def api_summarize_sections_sent():
+#     """
+#     Example: GET /api/summarize-section-sent?file_path=/path/to/file.pdf?sentence_count=5
+#     """
+#     print("File path", request.args.get('file_path'))
+#     file_path = "./pdfs/" + request.args.get('file_path', 'ExamRubric') + ".pdf"
+#     print(file_path)
+#     print("FILE PATH for section summaries", file_path)
+
+#     sentence_count = request.args.get('sentence_count')
+#     print(f"Sentence count: {sentence_count}")
+
+#     summary = get_section_summaries(file_path, sentence_count)
+#     print("SUMMARY", summary)
+#     return jsonify({"summary": summary})
+
+# TESTING NO PDF DOWNLOAD
 @app.route('/api/summarize-sections-sent', methods=['GET'])
 def api_summarize_sections_sent():
-    """
-    Example: GET /api/summarize-section-sent?file_path=/path/to/file.pdf?sentence_count=5
-    """
-    print("File path", request.args.get('file_path'))
-    file_path = "./pdfs/" + request.args.get('file_path', 'ExamRubric') + ".pdf"
-    print(file_path)
-    print("FILE PATH for section summaries", file_path)
+    pdf_url = request.args.get("pdf_url")
 
-    sentence_count = request.args.get('sentence_count')
-    print(f"Sentence count: {sentence_count}")
+    if not pdf_url:
+        return jsonify({"error": "Missing pdf_url"}), 400
 
-    summary = get_section_summaries(file_path, sentence_count)
-    print("SUMMARY", summary)
-    return jsonify({"summary": summary})
+    try:
+        # Download the PDF to a temp file
+        response = requests.get(pdf_url)
+        response.raise_for_status()
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+            temp_file.write(response.content)
+            temp_file_path = temp_file.name
+
+        print("Downloaded PDF to:", temp_file_path)
+
+        # Extract text and summarize
+        extracted_text = extract_text_pymu(temp_file_path)
+        summary = summarize_sections(extracted_text)
+        return jsonify({"summary": summary})
+
+    except Exception as e:
+        print("Error during summarization:", e)
+        return jsonify({"error": str(e)}), 500
 
 
 
@@ -249,22 +311,23 @@ def api_download_pdf():
 @app.route("/api/s3-url", methods=["GET"])
 def get_presigned_url():
     filename = request.args.get("filename")
-    
+    content_type = request.args.get("content_type", "image/png")  
+
     if not filename:
         return make_response(jsonify({"error": "Missing filename"}), 400)
 
     try:
         presigned_url = s3_client.generate_presigned_url(
             "put_object",
-            Params={"Bucket": S3_BUCKET_NAME, "Key": filename, "ContentType": "image/png"},
+            Params={
+                "Bucket": S3_BUCKET_NAME,
+                "Key": filename,
+                "ContentType": content_type
+            },
             ExpiresIn=3600,
             HttpMethod="PUT"
         )
-        response = make_response(jsonify({"url": presigned_url}))
-        response.headers["Access-Control-Allow-Origin"] = "http://localhost:5173"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
-        response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
-        return response
+        return jsonify({"url": presigned_url})
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
 

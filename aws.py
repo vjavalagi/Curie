@@ -27,20 +27,20 @@ from dotenv import load_dotenv, find_dotenv
 # ------------------------------------------------------------------------------
 load_dotenv(find_dotenv())
 
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-AWS_DEFAULT_REGION = os.getenv("AWS_DEFAULT_REGION")
+AMAZON_ACCESS_KEY_ID = os.getenv("AMAZON_ACCESS_KEY_ID")
+AMAZON_SECRET_ACCESS_KEY = os.getenv("AMAZON_SECRET_ACCESS_KEY")
+AMAZON_DEFAULT_REGION = os.getenv("AMAZON_DEFAULT_REGION")
 SERP = os.getenv('SERP')
-print(AWS_ACCESS_KEY_ID)
-print(AWS_SECRET_ACCESS_KEY)
-print(AWS_DEFAULT_REGION)
+print(AMAZON_ACCESS_KEY_ID)
+print(AMAZON_SECRET_ACCESS_KEY)
+print(AMAZON_DEFAULT_REGION)
 # ------------------------------------------------------------------------------
 # Initialize AWS services (DynamoDB & S3)
 # ------------------------------------------------------------------------------
 session = boto3.Session(
-    aws_access_key_id=AWS_ACCESS_KEY_ID,
-    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-    region_name=AWS_DEFAULT_REGION
+    aws_access_key_id=AMAZON_ACCESS_KEY_ID,
+    aws_secret_access_key=AMAZON_SECRET_ACCESS_KEY,
+    region_name=AMAZON_DEFAULT_REGION
 )
 
 dynamodb = session.resource("dynamodb")
@@ -48,7 +48,7 @@ users = dynamodb.Table("Users")
 # files_table = dynamodb.Table("Files")
 
 ## new s3 directory bucket'
-s3 = boto3.resource('s3', region_name=AWS_DEFAULT_REGION)
+s3 = boto3.resource('s3', region_name=AMAZON_DEFAULT_REGION)
 file_bucket = s3.Bucket('curie-file-storage')
 
 
@@ -230,9 +230,9 @@ def delete_paper_folder(username, folder_name):
     
     s3_client = boto3.client(
         "s3",
-        region_name=AWS_DEFAULT_REGION,
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY
+        region_name=AMAZON_DEFAULT_REGION,
+        aws_access_key_id=AMAZON_ACCESS_KEY_ID,
+        aws_secret_access_key=AMAZON_SECRET_ACCESS_KEY
     )
     
     try:
@@ -435,7 +435,7 @@ def get_file_system_recursive(prefix, bucket_name="curie-file-storage"):
               - "folders": a list of dictionaries with "name" and "content" keys,
               - "jsons": a list of JSON objects (parsed from the JSON files) at the current level.
     """
-    s3_client = boto3.client("s3")
+    s3_client = session.client("s3")
     response = s3_client.list_objects_v2(
         Bucket=bucket_name,
         Prefix=prefix,

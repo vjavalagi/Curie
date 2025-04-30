@@ -17,6 +17,8 @@ import ExportBulkCitationButton from "../components/ExportBulkCitationButton";
 import CopyFolderBibtexButton from "../components/CopyFolderBibtexButton";
 import PaperModal from "../components/PaperModal";
 import { SummarizeSectionsSent } from "../backend/SummarizeSectionsSent";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 
 export default function ProfilePage() {
   // Global tag & paper tag state
@@ -182,7 +184,7 @@ export default function ProfilePage() {
   // Updates tags for a paper on the backend and then updates state accordingly
   const updatePaperTags = async (paper, folderName, newTags) => {
     try {
-      const res = await axios.post("http://localhost:5001/api/update-tags", {
+      const res = await axios.post(`${API_BASE_URL}/api/update-tags`, {
         username: user.UserID,
         folder: folderName,
         paper_id: paper.entry_id,
@@ -229,7 +231,7 @@ export default function ProfilePage() {
   // Deletes a paper from the backend, then refreshes the file system view
   const handleDeletePaper = async (paper, folderName) => {
     try {
-      await axios.post("http://localhost:5001/api/delete-paper", {
+      await axios.post(`${API_BASE_URL}/api/delete-paper`, {
         username: user.UserID,
         folder: folderName,
         paper_id: paper.entry_id,
@@ -243,7 +245,7 @@ export default function ProfilePage() {
   const handleMovePaper = async (paperId, fromFolder, toFolder) => {
     try {
       console.log("Profile Page Handler ------- Moving paper: ", paperId, " from:", fromFolder, " to:", toFolder);
-      await axios.post("http://localhost:5001/api/move-paper", {
+      await axios.post(`${API_BASE_URL}/api/move-paper`, {
         username: user.UserID,
         paper_id: paperId,
         from_folder: fromFolder,
@@ -265,7 +267,7 @@ export default function ProfilePage() {
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) return;
     try {
-      await axios.post("http://localhost:5001/api/create-folder", {
+      await axios.post(`${API_BASE_URL}/api/create-folder`, {
         username: user.UserID,
         folder: newFolderName.trim(),
       });
@@ -553,10 +555,7 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-      
-      {selectedPdf && (
-        <PdfViewer pdfUrl={selectedPdf} onClose={() => setSelectedPdf(null)} />
-      )}
+     
 
       <PaperModal
         isOpen={!!modalPaper}

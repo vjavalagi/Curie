@@ -1,6 +1,8 @@
 // GlobalContext.jsx
 import React, { createContext, useState, useEffect, useContext, useCallback } from "react";
 import axios from "axios";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 
 const GlobalContext = createContext();
 
@@ -19,7 +21,7 @@ export const GlobalProvider = ({ children }) => {
   // Memoize refreshFileSystem so that its reference remains stable.
   const refreshFileSystem = useCallback(async () => {
     try {
-      const response = await axios.get("http://localhost:5001/api/get-file-system", {
+      const response = await axios.get(`${API_BASE_URL}/api/get-file-system`, {
         params: { username: user["UserID"] },
       });
       console.log("Refreshed file system:", response.data);
@@ -33,7 +35,7 @@ export const GlobalProvider = ({ children }) => {
   useEffect(() => {
     async function fetchFileSystem() {
       try {
-        const response = await axios.get("http://localhost:5001/api/get-file-system", {
+        const response = await axios.get(`${API_BASE_URL}/api/get-file-system`, {
           params: { username: user["UserID"] },
         });
         console.log("File system fetched:", response.data);
@@ -71,7 +73,20 @@ export const GlobalProvider = ({ children }) => {
 
   const updateSearch = (query) => setSearch(query);
   const updateUser = (newUser) => setUser(newUser);
-  const updateActivePaper = (paper) => setActivePaper(paper);
+  const updateActivePaper = (paper) => {
+    // Sanitize insecure arXiv PDF URLs
+    const sanitizedPdfUrl = paper?.pdf_url?.startsWith("http://arxiv.org")
+      ? paper.pdf_url.replace("http://", "https://")
+      : paper.pdf_url;
+  
+    const patchedPaper = {
+      ...paper,
+      pdf_url: sanitizedPdfUrl,
+    };
+  
+    setActivePaper(patchedPaper);
+  };
+  
 
   return (
     <GlobalContext.Provider

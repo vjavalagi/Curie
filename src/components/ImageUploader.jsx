@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 
 const ImageUploader = () => {
   const [file, setFile] = useState(null);
@@ -19,8 +21,11 @@ const ImageUploader = () => {
 
     try {
       // Get a presigned URL from your backend
-      const { data } = await axios.get("http://localhost:5001/api/s3-url", {
-        params: { filename: file.name },
+      const { data } = await axios.get(`${API_BASE_URL}/api/s3-url`, {
+        params: { 
+          filename: file.name,
+          content_type: file.type // Pass the real file type!
+        }
       });
 
       // Upload file to S3

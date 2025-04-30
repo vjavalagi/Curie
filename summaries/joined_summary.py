@@ -6,6 +6,8 @@ import json
 from dotenv import load_dotenv, find_dotenv
 from pydantic import BaseModel
 import pymupdf
+import requests
+
 load_dotenv(find_dotenv())
 
 """OLD STUFF NEEDED FOR SLIDEGEN"""

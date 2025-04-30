@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { useGlobal } from "../context/GlobalContext";
 import RenameFolderModal from "./RenameFolderModal";
 import axios from "axios";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5001";
+
 
 const Folder = ({ name, onOpenFolder }) => {
   const { user, refreshFileSystem, setCurrentFolder } = useGlobal();
@@ -24,7 +26,7 @@ const Folder = ({ name, onOpenFolder }) => {
 
   const handleDeleteFolder = async () => {
     try {
-      await axios.post("http://localhost:5001/api/delete-folder", {
+      await axios.post(`${API_BASE_URL}/api/delete-folder`, {
         username: user["UserID"],
         folder: name,
       });
@@ -200,7 +202,7 @@ const Folder = ({ name, onOpenFolder }) => {
             try {
               if (!newFolderName.trim() || newFolderName === name) return;
 
-              await axios.post("http://localhost:5001/api/rename-folder", {
+              await axios.post(`${API_BASE_URL}/api/rename-folder`, {
                 username: user.UserID,
                 oldFolderName: name,
                 newFolderName: newFolderName.trim(),

@@ -3,12 +3,14 @@ import { useGlobal } from '../context/GlobalContext';
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 const AskCurie = () => {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [isOpen, setIsOpen] = useState(true); // collapse toggle
+  const [isOpen, setIsOpen] = useState(true);
 
   const { activePaper } = useGlobal();
 
@@ -25,10 +27,9 @@ const AskCurie = () => {
     setError("");
     try {
       const name = activePaper.title;
-      const response = await axios.get("http://localhost:5001/api/ask-curie", {
+      const response = await axios.get(`${API_BASE_URL}/api/ask-curie`, {
         params: { name, question },
       });
-
       setAnswer(response.data.answer);
       setQuestion("");
     } catch (err) {
@@ -46,64 +47,55 @@ const AskCurie = () => {
   };
 
   return (
+    <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-6">
+      <div
+        className="flex justify-between items-center cursor-pointer"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <h2 className="text-xl font-bold text-gray-800">Ask Curie</h2>
+        <span className="text-sm text-gray-600">
+          {isOpen ? "▼" : "▶"}
+        </span>
+      </div>
 
-    <div className="ounded-lg borde">
-        {/* Collapsible Header */}
-        <div
-            className="flex items-center cursor-pointer"
-            onClick={() => setIsOpen(!isOpen)}
-        >
-            <h2 className="mr-2 text-xl font-semibold">Ask Curie</h2>
-            <span className="text-sm">
-            {isOpen ? "▼" : "▶"}
-            </span>
-    </div>
-
-
-      {/* Collapsible Body */}
       {isOpen && (
-        <div className="mt-4">
-          {/* Input Field */}
+        <div className="mt-6 space-y-4">
           <input
             type="text"
-            className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg"
+            className="block w-full rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 focus:border-blue-500 focus:ring focus:ring-blue-200"
             placeholder="Ask Curie a question..."
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
           />
 
-          {/* Ask Button */}
-          <button
-            className="px-4 py-2 text-white rounded-lg bg-curieBlue"
-            onClick={handleAskCurie}
-            disabled={loading}
-          >
-            {loading ? "Loading..." : "Ask"}
-          </button>
+          <div className="flex justify-end items-center gap-3">
+            <button
+              className="inline-flex items-center rounded-lg bg-curieBlue px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 disabled:opacity-50"
+              onClick={handleAskCurie}
+              disabled={loading}
+            >
+              {loading ? "Loading..." : "Ask"}
+            </button>
+            <button
+              className="inline-flex items-center rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-600"
+              onClick={handleReset}
+            >
+              Reset
+            </button>
+          </div>
 
-          {/* Reset Button */}
-          <button
-            className="px-4 py-2 mt-4 ml-2 text-white bg-red-500 rounded-lg"
-            onClick={handleReset}
-          >
-            Reset
-          </button>
+          {error && <p className="text-sm text-red-500">{error}</p>}
 
-          {/* Answer Section */}
-          {answer && !loading && (
-            <div className="p-4 mt-4 border border-gray-300 rounded-lg">
-              <h3 className="text-lg font-semibold">Answer:</h3>
-              <ReactMarkdown>{answer}</ReactMarkdown>
+          {loading && (
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-700">
+              <p>Loading...</p>
             </div>
           )}
 
-          {/* Error Message */}
-          {error && <p className="mt-2 text-red-500">{error}</p>}
-
-          {/* Loading Message */}
-          {loading && (
-            <div className="p-4 mt-4 border border-gray-300 rounded-lg">
-              <p>Loading...</p>
+          {answer && !loading && (
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-800">
+              <h3 className="mb-2 font-semibold text-gray-900">Answer:</h3>
+              <ReactMarkdown>{answer}</ReactMarkdown>
             </div>
           )}
         </div>

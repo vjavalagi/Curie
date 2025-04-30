@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 
 const CreateAccount = () => {
   const navigate = useNavigate();
@@ -45,8 +47,11 @@ const CreateAccount = () => {
 
       if (photo) {
         // Get a presigned URL from backend
-        const { data } = await axios.get("http://localhost:5001/api/s3-url", {
-          params: { filename: `ProfilePictures/${photo.name}` },
+        const { data } = await axios.get(`${API_BASE_URL}/api/s3-url`, {
+          params: { 
+            filename: `ProfilePictures/${photo.name}`,
+            content_type: photo.type 
+          },
         });
 
         // Upload to S3
@@ -58,7 +63,7 @@ const CreateAccount = () => {
       }
 
       // Send data to backend to create user
-      const response = await axios.post("http://localhost:5001/api/create-user", {
+      const response = await axios.post(`${API_BASE_URL}/api/create-user`, {
         username,
         email,
         password,
@@ -78,14 +83,14 @@ const CreateAccount = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-neutral-900">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 ">
       <div className="w-full max-w-md p-6 bg-white rounded-md shadow-lg">
-        <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-white">Create Account</h1>
-          <div className="mt-4 text-center text-sm text-gray-600 dark:text-neutral-400">
+        <h1 className="text-2xl font-bold text-center text-gray-800">Create Account</h1>
+          <div className="mt-4 text-center text-sm text-gray-600">
             Already have an account?{" "}
             <span
               onClick={() => navigate("/")}
-              className="text-blue-600 hover:underline cursor-pointer dark:text-blue-400"
+              className="text-blue-600 hover:underline cursor-pointer "
             >
               Sign in here
             </span>
@@ -93,7 +98,7 @@ const CreateAccount = () => {
 
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           <div>
-            <label className="block text-sm dark:text-white">Username</label>
+            <label className="block text-sm ">Username</label>
             <input
               type="text"
               name="username"
@@ -104,7 +109,7 @@ const CreateAccount = () => {
             />
           </div>
           <div>
-            <label className="block text-sm dark:text-white">Email</label>
+            <label className="block text-sm ">Email</label>
             <input
               type="email"
               name="email"
@@ -115,7 +120,7 @@ const CreateAccount = () => {
             />
           </div>
           <div>
-            <label className="block text-sm dark:text-white">Password</label>
+            <label className="block text-sm">Password</label>
             <input
               type="password"
               name="password"
@@ -126,7 +131,7 @@ const CreateAccount = () => {
             />
           </div>
           <div>
-            <label className="block text-sm dark:text-white">Confirm Password</label>
+            <label className="block text-sm ">Confirm Password</label>
             <input
               type="password"
               name="confirmPassword"
@@ -137,13 +142,13 @@ const CreateAccount = () => {
             />
           </div>
           <div>
-  <label className="block text-sm dark:text-white mb-1">Profile Picture</label>
+  <label className="block text-sm  mb-1">Profile Picture</label>
 
   <div className="flex flex-wrap items-center gap-3 sm:gap-5">
     <div className="group">
       <label
         htmlFor="profile-upload"
-        className="group-has-[div]:hidden flex shrink-0 justify-center items-center size-20 border-2 border-dotted border-gray-300 text-gray-400 cursor-pointer rounded-full hover:bg-gray-50 dark:border-neutral-700 dark:text-neutral-600 dark:hover:bg-neutral-700/50"
+        className="group-has-[div]:hidden flex shrink-0 justify-center items-center size-20 border-2 border-dotted border-gray-300 text-gray-400 cursor-pointer rounded-full hover:bg-gray-50"
       >
         {form.previewUrl ? (
           <img
@@ -173,7 +178,7 @@ const CreateAccount = () => {
         <input
           id="profile-upload"
           type="file"
-          accept="image/*"
+          accept=".png"
           required
           onChange={handleFileChange}
           className="hidden"
@@ -191,7 +196,7 @@ const CreateAccount = () => {
               <button
                 type="button"
                 onClick={() => setForm((prev) => ({ ...prev, photo: null, previewUrl: null }))}
-                className="py-2 px-3 inline-flex items-center gap-x-2 text-xs font-semibold rounded-lg border border-gray-200 bg-white text-gray-500 shadow-2xs hover:bg-gray-50 dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:hover:bg-neutral-800"
+                className="py-2 px-3 inline-flex items-center gap-x-2 text-xs font-semibold rounded-lg border border-gray-200 bg-white text-gray-500 shadow-2xs hover:bg-gray-50 "
               >
                 Delete
               </button>

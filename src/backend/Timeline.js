@@ -1,5 +1,7 @@
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 export async function fetchTimeline({ subject = 'generative ai' } = {}) {
-    const baseUrl = 'http://127.0.0.1:5001/api/timeline';
+    const baseUrl = `${API_BASE_URL}/api/timeline`
     const params = new URLSearchParams({ subject });
     const url = `${baseUrl}?${params.toString()}`;
     console.log("Fetching timeline from:", url);
