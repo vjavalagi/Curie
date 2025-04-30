@@ -178,7 +178,7 @@ const CreateAccount = () => {
         <input
           id="profile-upload"
           type="file"
-          accept="image/*"
+          accept=".png"
           required
           onChange={handleFileChange}
           className="hidden"
